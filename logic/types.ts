@@ -35,3 +35,11 @@ enum ChessType{
 	magic,
 	king
 }
+
+// 位置计算类型
+enum PositionCalType{
+	// 
+	line,
+	circle,
+	slash,
+}
