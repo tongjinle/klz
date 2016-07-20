@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "sourceMap": true,
+        "declaration": true,
+        "outDir": "dist/js",
+        "target": "es5",
+        "module": "amd",
+        "noEmitOnError": true
+    },
+   "exclude": [
+      "node_modules"
+   ]
+}
