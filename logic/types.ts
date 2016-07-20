@@ -3,6 +3,10 @@ interface IPosition {
 	y: number;
 }
 
+interface IRangeDefine{
+	[in]
+}
+
 
 interface IBox {
 	position: IPosition;
@@ -15,10 +19,25 @@ interface IChessBoard{
 }
 
 interface IChess{
+	id:number;
+	color:ChessColor;
 	type:ChessType;
+	posi:IPosition;
+	status:ChessStatus;
+	skillList:ISkill[];
+	move:(posiTarget:IPosition)=>void;
+	cast:(skillName:string)=>void;
+	rest:()=>void;
+
 }
 
-interface ISkill{}
+interface ISkill{
+	name:string;
+	effect:(posiTarget:IPosition)=>void;
+	maxcd:number;
+	cd:number;
+	cooldown:()=>void;
+}
 
 interface IRecord{
 
@@ -28,6 +47,21 @@ interface IRecordFilter{}
 
 interface IRecordMgr{}
 
+interface IRangeGen{
+	(posi:IPosition):IPosition[];
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+
+enum ChessColor{
+	red,
+	black
+}
+
 enum ChessType{
 	footman,
 	cavalry,
@@ -36,10 +70,10 @@ enum ChessType{
 	king
 }
 
-// 位置计算类型
-enum PositionCalType{
-	// 
-	line,
-	circle,
-	slash,
+// move之后可以cast
+// cast之后,就rest
+enum ChessStatus{
+	beforeMove,
+	beforeCast,
+	rest
 }
