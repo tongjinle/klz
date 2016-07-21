@@ -1,5 +1,6 @@
-# KLZ CHESS
+# Karazhan CHESS
 > author:tongjinle(coder),jinzhengwei(design)
+
 > date:2016/7/21
 
 ## require
