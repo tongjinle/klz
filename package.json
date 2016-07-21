@@ -1,0 +1,22 @@
+{
+  "name": "klz",
+  "version": "1.0.0",
+  "description": "- node\r  - npm i jasmine -g",
+  "main": "gruntfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://tongjinle@github.com/tongjinle/klz.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tongjinle/klz/issues"
+  },
+  "homepage": "https://github.com/tongjinle/klz#readme",
+  "dependencies": {
+    "underscore": "^1.8.3"
+  }
+}

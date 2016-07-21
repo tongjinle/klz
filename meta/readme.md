@@ -15,5 +15,6 @@
  - slash 斜线
  - near 上下左右一格
  - circle 周围一圈
+ - manhattan 曼哈顿距离
 
 ### 基础函数

@@ -1,6 +1,9 @@
 /// <reference path="../typings/index.d.ts" />
-import * as RangeApi from './rangeApi'
-export {RangeApi};
+import * as rangeApi from './rangeApi';
+import {Footman, Cavalry} from './chess/chessList';
+
+
+export {rangeApi};
 
 // 创建棋子
 export function createChess(type: ChessType): IChess {

@@ -1,7 +1,3 @@
-import * as Api from './api';
-
-Api.RangeApi.parse
-
 interface IPosition {
 	x: number;
 	y: number;
@@ -14,43 +10,45 @@ interface IBox {
 	position: IPosition;
 }
 
-interface IChessBoard{
-	boxList:IBox[];
-	width:number;
-	heigth:number;
+interface IChessBoard {
+	boxList: IBox[];
+	width: number;
+	heigth: number;
 }
 
-interface IChess{
-	id:number;
-	color:ChessColor;
-	type:ChessType;
-	posi:IPosition;
-	status:ChessStatus;
-	skillList:ISkill[];
-	move:(posiTarget:IPosition)=>void;
-	cast:(skillName:string)=>void;
-	rest:()=>void;
-
-}
-
-interface ISkill{
-	name:string;
-	effect:(posiTarget:IPosition)=>void;
-	maxcd:number;
-	cd:number;
-	cooldown:()=>void;
-}
-
-interface IRecord{
+interface IChess {
+	id: number;
+	color: ChessColor;
+	type: ChessType;
+	posi: IPosition;
+	status: ChessStatus;
+	skillList: ISkill[];
+	getMoveRange: () => IPosition[];
+	move: (posiTarget: IPosition) => void;
+	cast: (skillName: string) => void;
+	rest: () => void;
 
 }
 
-interface IRecordFilter{}
+interface ISkill {
+	name: string;
+	getCastRange: () => IPosition[];
+	effect: (posiTarget: IPosition) => void;
+	maxcd: number;
+	cd: number;
+	cooldown: () => void;
+}
 
-interface IRecordMgr{}
+interface IRecord {
 
-interface IRangeGen{
-	(posi:IPosition):IPosition[];
+}
+
+interface IRecordFilter { }
+
+interface IRecordMgr { }
+
+interface IRangeGen {
+	(posi: IPosition): IPosition[];
 }
 
 
@@ -60,12 +58,12 @@ interface IRangeGen{
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
 
-enum ChessColor{
+enum ChessColor {
 	red,
 	black
 }
 
-enum ChessType{
+enum ChessType {
 	footman,
 	cavalry,
 	minister,
@@ -75,7 +73,7 @@ enum ChessType{
 
 // move之后可以cast
 // cast之后,就rest
-enum ChessStatus{
+enum ChessStatus {
 	beforeMove,
 	beforeCast,
 	rest
