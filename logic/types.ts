@@ -1,11 +1,13 @@
+import * as Api from './api';
+
+Api.RangeApi.parse
+
 interface IPosition {
 	x: number;
 	y: number;
 }
 
-interface IRangeDefine{
-	[in]
-}
+
 
 
 interface IBox {
@@ -50,6 +52,7 @@ interface IRecordMgr{}
 interface IRangeGen{
 	(posi:IPosition):IPosition[];
 }
+
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////

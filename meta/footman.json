@@ -7,7 +7,7 @@
 			"type":"attack",
 			"cd":0,
 			"damage":2,
-			"skillRange":[[["near",1]]],
+			"skillRange":["near",1],
 			"effectRange":null
 		}
 	],
