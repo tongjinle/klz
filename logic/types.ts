@@ -12,6 +12,7 @@ interface IBox {
 
 interface IChessBoard {
 	boxList: IBox[];
+	chessList:IChess[];
 	width: number;
 	heigth: number;
 }
@@ -21,6 +22,7 @@ interface IChess {
 	color: ChessColor;
 	type: ChessType;
 	posi: IPosition;
+	hp:number;
 	status: ChessStatus;
 	skillList: ISkill[];
 	getMoveRange: () => IPosition[];
@@ -31,12 +33,18 @@ interface IChess {
 }
 
 interface ISkill {
-	name: string;
+	id:number;
+	owner:IChess;
+	type:SkillType;
 	getCastRange: () => IPosition[];
 	effect: (posiTarget: IPosition) => void;
 	maxcd: number;
 	cd: number;
 	cooldown: () => void;
+}
+
+interface IEffect{
+	(sk:ISkill,chBoard:IChessBoard,posi:IPosition):void
 }
 
 interface IRecord {
@@ -77,4 +85,9 @@ enum ChessStatus {
 	beforeMove,
 	beforeCast,
 	rest
+}
+
+
+enum SkillType{
+	attack
 }

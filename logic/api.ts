@@ -1,23 +1,13 @@
 /// <reference path="../typings/index.d.ts" />
 import * as rangeApi from './rangeApi';
-import {Footman, Cavalry} from './chess/chessList';
+import chessList from './chess/chessList';
 
 
 export {rangeApi};
 
 // 创建棋子
 export function createChess(type: ChessType): IChess {
-	let ch: IChess;
-	switch (type) {
-		case ChessType.footman:
-			ch = new Footman();
-			break;
-
-		default:
-			// code...
-			break;
-	}
-
+	let ch: IChess = new chessList[type];
 	// id
 	ch.id = parseInt(_.uniqueId());
 	// type
