@@ -25,9 +25,11 @@ interface IChess {
 	hp:number;
 	status: ChessStatus;
 	skillList: ISkill[];
+	chessBoard:IChessBoard;
 	getMoveRange: () => IPosition[];
+	getCastRange:(skt:SkillType)=>IPosition[];
 	move: (posiTarget: IPosition) => void;
-	cast: (skillName: string) => void;
+	cast: (skillName: string,posiTarget:IPosition) => void;
 	rest: () => void;
 
 }

@@ -4,10 +4,11 @@ import * as chessBoardApi from './chessBoardApi';
 
 import skillList from './skill/skillList';
 
-export function createSkill(skt: SkillType) {
+export function create(skt: SkillType): ISkill {
 	let sk: ISkill = new skillList[skt]();
 
 	sk.id = parseInt(_.uniqueId());
+	return sk;
 }
 
 export function setOwner(sk: ISkill, ch: IChess) {
@@ -22,9 +23,13 @@ effectList[SkillType.attack] = (sk, chBoard, posi) => {
 	setHp(ch, ch.hp - damage);
 };
 
-export function castSkill(sk: ISkill, chBoard: IChessBoard, posi: IPosition) {
-	effectList[sk.type](sk,chBoard,posi);
-	setCd(sk,sk.maxcd);
+export function canCast(sk: ISkill): boolean {
+	return sk.cd == 0;
+}
+
+export function cast(sk: ISkill, chBoard: IChessBoard, posi: IPosition) {
+	effectList[sk.type](sk, chBoard, posi);
+	setCd(sk, sk.maxcd);
 }
 
 
@@ -32,6 +37,21 @@ export function setHp(ch: IChess, hp: number): void {
 
 }
 
-export function setCd(sk:ISkill,cd:number):void{
+export function setCd(sk: ISkill, cd: number): void {
 	sk.cd = cd;
 }
+
+
+
+// 找到技能可以施放的目标点
+export function getCastRange(sk: ISkill, chBoard: IChessBoard, posiSource: IPosition): IPosition[] {
+	let posiList: IPosition[] = [];
+	return posiList;
+}
+
+// 找到技能在目标点施放,会影响到的目标格子
+export function getCastEffectRange(sk: ISkill, chBoard: IChessBoard, posiSource: IPosition, posiTarget: IPosition) {
+	let posiList: IPosition[] = [];
+	return posiList;
+}
+
