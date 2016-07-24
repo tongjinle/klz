@@ -1,7 +1,8 @@
 /// <reference path="../typings/index.d.ts" />
 
+import _ = require("underscore");
 import * as chessBoardApi from './chessBoardApi';
-
+import * as chessApi from './chessApi';
 import skillList from './skill/skillList';
 
 export function create(skt: SkillType): ISkill {
@@ -20,7 +21,7 @@ let effectList: { [skillType: number]: IEffect } = {};
 effectList[SkillType.attack] = (sk, chBoard, posi) => {
 	let ch = chessBoardApi.getChessByPosi(chBoard, posi);
 	let damage = 1;
-	setHp(ch, ch.hp - damage);
+	chessApi.setHp(ch, ch.hp - damage);
 };
 
 export function canCast(sk: ISkill): boolean {
@@ -33,9 +34,7 @@ export function cast(sk: ISkill, chBoard: IChessBoard, posi: IPosition) {
 }
 
 
-export function setHp(ch: IChess, hp: number): void {
 
-}
 
 export function setCd(sk: ISkill, cd: number): void {
 	sk.cd = cd;

@@ -17,9 +17,7 @@ export class Footman extends Chess {
 
 		// 获得可以移动的坐标列表
 		this.getMoveRangeOnPurpose = () => api.rangeApi.nearRange(this.posi, 1);
-
-
-
+)
 
 	}
 

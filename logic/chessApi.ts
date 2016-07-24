@@ -1,6 +1,8 @@
 /// <reference path="../typings/index.d.ts" />
+import _ = require("underscore");
 
 import chessList from './chess/chessList';
+
 
 // 创建棋子
 export function create(type: ChessType): IChess {
@@ -25,6 +27,10 @@ export function setPosition(ch: IChess, posi: IPosition): void {
 	ch.posi = _.clone(posi);
 }
 
+export function setHp(ch: IChess, hp: number): void {
+	ch.hp = hp;
+}
+
 
 
 
@@ -44,5 +50,4 @@ export function move(ch: IChess, chBoard: IChessBoard, posiTarget: IPosition): I
 export function setStatus(ch: IChess, status: ChessStatus): void {
 	ch.status = status;
 	// todo
-	
 }
