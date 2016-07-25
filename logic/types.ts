@@ -1,4 +1,4 @@
-interface IPosition {
+export interface IPosition {
 	x: number;
 	y: number;
 }
@@ -6,18 +6,18 @@ interface IPosition {
 
 
 
-interface IBox {
+export interface IBox {
 	position: IPosition;
 }
 
-interface IChessBoard {
+export interface IChessBoard {
 	boxList: IBox[];
 	chessList: IChess[];
 	width: number;
 	heigth: number;
 }
 
-interface IChess {
+export interface IChess {
 	id: number;
 	color: ChessColor;
 	type: ChessType;
@@ -36,7 +36,7 @@ interface IChess {
 
 }
 
-interface ISkill {
+export interface ISkill {
 	id: number;
 	owner: IChess;
 	type: SkillType;
@@ -47,71 +47,75 @@ interface ISkill {
 	cooldown: () => void;
 }
 
-interface IEffect {
+export interface IEffect {
 	(sk: ISkill, chBoard: IChessBoard, posi: IPosition): void
 }
 
-interface IMoveRecord {
+export interface IMoveRecord {
 	chSource: IChess,
 	posiTarget: IPosition,
 	data?: any
 }
 
-interface IEffectRecord {
+export interface IEffectRecord {
 	chSource: IChess;
 	chTarget?: IChess;
 	skillType: SkillType;
 	data?: any
 }
 
-interface IRecord {
+export interface IRecord {
 	recoType: RecordType,
 	reco: IEffectRecord
 }
 
-interface IRecordFilter { }
+export interface IRecordFilter { }
 
-interface IRecordMgr { }
+export interface IRecordMgr { }
 
-interface IRangeGen {
+export interface IRangeGen {
 	(posi: IPosition): IPosition[];
 }
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
-interface IAsk{
-
+export interface IAsk{
+	type:AskType,
+	data?:any
 }
 
-interface IAnswer{
-
+export interface IAnswer{
+	type:AskType,
+	data?:any
 }
 
-interface IPlayer{
+export interface IPlayer{
 	name:string;
 	color:ChessColor;
 	status:PlayerStatus;
+	energy:number;
 }
 
 
-interface IGame{
+export interface IGame{
 	create():void;
-	round():void;
+	round():IPlayer;
 	answer(ask:IAsk):IAnswer;
-
+	addPlayer(username:string):void;
+	removePlayer(username:string):void;
 }
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
 
-enum ChessColor {
+export enum ChessColor {
 	red,
 	black
 }
 
-enum ChessType {
+export enum ChessType {
 	footman,
 	cavalry,
 	minister,
@@ -121,13 +125,13 @@ enum ChessType {
 
 // move之后可以cast
 // cast之后,就rest
-enum ChessStatus {
+export enum ChessStatus {
 	beforeMove,
 	beforeCast,
 	rest
 }
 
-enum PlayerStauts{
+export enum PlayerStatus{
 	waiting,
 	thinking,
 	// done是整局下完
@@ -135,16 +139,27 @@ enum PlayerStauts{
 }
 
 
-enum SkillType {
+export enum SkillType {
 	attack,
 	heal
 }
 
 
-enum RecordType {
+export enum RecordType {
 	round,
 	move,
 	cast,
 	rest
 }
 
+export enum AskType{
+	selectChess,
+	unSelectChess,
+	selectPosition,
+	confirmPosition,
+	selectSkill,
+	unSelectSkill,
+	rest,
+	giveup
+
+}

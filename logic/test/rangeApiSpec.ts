@@ -1,9 +1,8 @@
 /// <reference path="../../typings/index.d.ts" />
 import _ = require('underscore');
-import * as api from '../api';
+import * as rangeApi from '../rangeApi';
 
 describe('range api', () => {
-	let rangeApi = api.rangeApi;
 	let sort = (posi: IPosition) => [posi.x, posi.y].join('-');
 
 	it('lineRange', () => {
