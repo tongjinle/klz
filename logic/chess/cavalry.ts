@@ -1,9 +1,9 @@
 /// <reference path="../../typings/index.d.ts" />
 
-import * as api from '../api.ts';
-import {Chess} from './chess';
+import * as api from '../api';
+import Chess from './chess';
 
-export class Cavalry extends Chess {
+export default class Cavalry extends Chess {
 	constructor() {
 		super();
 

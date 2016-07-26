@@ -1,10 +1,12 @@
 /// <reference path="../../typings/index.d.ts" />
 import _ = require('underscore');
 import * as api from '../api';
+import  {IPosition, IBox, IChessBoard, IChess, ISkill, IEffect, IMoveRecord, IEffectRecord, IRecord, IRecordFilter, IRecordMgr, IRangeGen, IAsk, IAnswer, IPlayer, IGame, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType, RecordType, AskType } from '../types';
 
 
 
-export class Chess implements IChess {
+
+export default class Chess implements IChess {
 	id: number;
 	color: ChessColor;
 	type: ChessType;

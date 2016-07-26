@@ -1,6 +1,6 @@
 /// <reference path="../typings/index.d.ts" />
 
-import {IChessBoard, IPosition} from './types.ts';
+import {IChessBoard, IPosition} from './types';
 
 
 

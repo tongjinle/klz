@@ -1,4 +1,6 @@
 /// <reference path="../typings/index.d.ts" />
+import  {IPosition, IBox, IChessBoard, IChess, ISkill, IEffect, IMoveRecord, IEffectRecord, IRecord, IRecordFilter, IRecordMgr, IRangeGen, IAsk, IAnswer, IPlayer, IGame, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType, RecordType, AskType } from './types';
+
 import _ = require('underscore');
 
 export function getChessByPosi(chBoard: IChessBoard, posi: IPosition): IChess {
