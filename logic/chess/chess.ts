@@ -25,10 +25,11 @@ export default class Chess implements IChess {
 
 	protected getMoveRangeOnPurpose: () => IPosition[];
 
-	private inChessBoardFilter: (posi: IPosition) => boolean = posi => api.rangeApi.isInChessBoard(this.chessBoard, posi);
+	private inChessBoardFilter: (posi: IPosition) => boolean = posi => api.chessBoardApi.isInChessBoard(this.chessBoard, posi);
 
 	constructor() {
 		this.id = parseInt(_.uniqueId());
+		this.skillList = [];
 
 		this.round = () => {
 			api.chessApi.setStatus(this, ChessStatus.beforeMove);

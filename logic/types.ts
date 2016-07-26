@@ -14,7 +14,7 @@ export interface IChessBoard {
 	boxList: IBox[];
 	chessList: IChess[];
 	width: number;
-	heigth: number;
+	height: number;
 }
 
 export interface IChess {

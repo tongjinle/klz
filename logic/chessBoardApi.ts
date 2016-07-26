@@ -3,6 +3,17 @@ import  {IPosition, IBox, IChessBoard, IChess, ISkill, IEffect, IMoveRecord, IEf
 
 import _ = require('underscore');
 
+
+
+// 位置相关
+// 是否在棋盘中
+export function isInChessBoard(chBoard: IChessBoard, posi: IPosition): boolean {
+	let rst: boolean = true;
+	rst = rst && (posi.x >= 0 && posi.x < chBoard.width && posi.y >= 0 && posi.y <= chBoard.height);
+	return rst;
+}
+
+
 export function getChessByPosi(chBoard: IChessBoard, posi: IPosition): IChess {
 	let ch: IChess;
 	return ch;

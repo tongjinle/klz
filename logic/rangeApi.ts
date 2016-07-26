@@ -4,21 +4,9 @@ import {IChessBoard, IPosition} from './types';
 
 
 
-// 位置相关
-// 是否在棋盘中
-export function isInChessBoard(chBoard: IChessBoard, posi: IPosition): boolean {
-	let rst: boolean = true;
-	rst = rst && (posi.x >= 0 && posi.x < chBoard.width && posi.y >= 0 && posi.y <= chBoard.heigth);
-	return rst;
-}
 
 
-// 单个元组parse函数
-let parseSingle = (opts: [string, number]): IPosition[] => {
-	let posiList: IPosition[];
 
-	return posiList;
-};
 
 // *************************************************************************
 // 基础range函数 START
