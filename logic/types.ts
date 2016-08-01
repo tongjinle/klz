@@ -15,6 +15,9 @@ export interface IChessBoard {
 	chessList: IChess[];
 	width: number;
 	height: number;
+	status:ChessBoardStatus;
+	// 双方选手
+	playerList: IPlayer[];
 }
 
 export interface IChess {
@@ -77,6 +80,12 @@ export interface IRangeGen {
 	(posi: IPosition): IPosition[];
 }
 
+export interface IMap{
+	chessList:{chType:ChessType,color:ChessColor,posi:IPosition}[],
+	width:number,
+	height:number
+}
+
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -117,6 +126,7 @@ export enum ChessColor {
 
 export enum ChessType {
 	footman,
+	knight,
 	cavalry,
 	minister,
 	magic,
@@ -132,10 +142,22 @@ export enum ChessStatus {
 }
 
 export enum PlayerStatus{
+	// 未准备好
+	notReady,
+	// 准备好
+	ready,
+	// 等待
 	waiting,
+	// 行棋中
 	thinking,
-	// done是整局下完
-	done
+
+}
+
+export enum ChessBoardStatus{
+	beforeStart,
+	red,
+	black,
+	gameOver
 }
 
 
