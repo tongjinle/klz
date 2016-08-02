@@ -5,7 +5,6 @@ export interface IPosition {
 
 
 
-
 export interface IBox {
 	position: IPosition;
 }
@@ -36,6 +35,7 @@ export interface IChess {
 	cast: (skType: SkillType, posiTarget: IPosition) => void;
 	rest: () => void;
 	dead: () => void;
+	energy:number;
 
 }
 

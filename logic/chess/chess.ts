@@ -1,7 +1,7 @@
 /// <reference path="../../typings/index.d.ts" />
 import _ = require('underscore');
 import * as api from '../api';
-import  {IPosition, IBox, IChessBoard, IChess, ISkill, IEffect, IMoveRecord, IEffectRecord, IRecord, IRecordFilter, IRecordMgr, IRangeGen, IAsk, IAnswer, IPlayer, IGame, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType, RecordType, AskType } from '../types';
+import {IPosition, IBox, IChessBoard, IChess, ISkill, IEffect, IMoveRecord, IEffectRecord, IRecord, IRecordFilter, IRecordMgr, IRangeGen, IAsk, IAnswer, IPlayer, IGame, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType, RecordType, AskType } from '../types';
 
 
 
@@ -22,6 +22,7 @@ export default class Chess implements IChess {
 	cast: (skType: SkillType, posiTarget: IPosition) => void;
 	rest: () => void;
 	dead: () => void;
+	energy: number;
 
 	protected getMoveRangeOnPurpose: () => IPosition[];
 
@@ -59,7 +60,7 @@ export default class Chess implements IChess {
 			this.status = ChessStatus.rest;
 		};
 
-		this.dead = ()=>{
+		this.dead = () => {
 
 		}
 	}

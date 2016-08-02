@@ -1,16 +1,32 @@
 {
-  "compilerOptions": {
-    "sourceMap": false,
-    "declaration": false,
-    "outDir": "dist",
-    "rootDir":"./",
-    "moduleResolution": "node",
-    "target": "es5",
-    "module": "commonjs",
-    "noEmitOnError": true
-  },
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+    "compilerOptions": {
+        "sourceMap": false,
+        "declaration": false,
+        "outDir": "dist/js",
+        "target": "es5",
+        "module": "commonjs",
+        "noEmitOnError": true
+    },
+    "files": [
+        "logic/Game.ts",
+        "logic/api.ts",
+        "logic/chess/cavalry.ts",
+        "logic/chess/chess.ts",
+        "logic/chess/chessList.ts",
+        "logic/chess/footman.ts",
+        "logic/chessApi.ts",
+        "logic/chessBoard/chessBoard.ts",
+        "logic/chessBoardApi.ts",
+        "logic/maps.ts",
+        "logic/playerApi.ts",
+        "logic/rangeApi.ts",
+        "logic/skill/attack.ts",
+        "logic/skill/skill.ts",
+        "logic/skill/skillList.ts",
+        "logic/skillApi.ts",
+        "logic/test/chessApiSpec.ts",
+        "logic/test/gameSpec.ts",
+        "logic/test/rangeApiSpec.ts",
+        "logic/types.ts"
+    ]
 }
