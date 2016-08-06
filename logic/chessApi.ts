@@ -7,7 +7,7 @@ import chessList from './chess/chessList';
 
 // 创建棋子
 export function create(type: ChessType): IChess {
-	let ch: IChess = new chessList[type];
+	let ch: IChess = new chessList[type]();
 	// id
 	ch.id = parseInt(_.uniqueId());
 	// type

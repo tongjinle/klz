@@ -6,8 +6,8 @@ module.exports = function(grunt) {
 	require('load-grunt-tasks')(grunt);
 
 	// typescript 
-	var tsSource = ['logic/**/*.ts'];
-	var tsDist = 'dist/js/';
+	var tsSource = ['logic/**/*.ts','meta/**/*.ts'];
+	var tsDist = 'dist/';
 
 	// less
 	var lessSource = ['less/**/*.less', 'directive/less/**/*.less'];
@@ -25,7 +25,6 @@ module.exports = function(grunt) {
 	for (var key in watchPathList) {
 		arr = arr.concat(watchPathList[key]);
 	}
-	console.log(arr);
 
 	// livereload
 	var livereload = '';

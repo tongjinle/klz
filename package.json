@@ -29,11 +29,12 @@
     "grunt-contrib-less": "^1.1.0",
     "grunt-contrib-requirejs": "^1.0.0",
     "grunt-contrib-watch": "~0.5.3",
+    "grunt-jasmine-nodejs": "^1.5.3",
     "grunt-jsdoc": "^1.1.0",
     "grunt-typedoc": "^0.2.3",
     "grunt-typescript": "^0.8.0",
     "load-grunt-tasks": "~0.1.0",
-    "time-grunt": "~0.1.1",
-    "grunt-jasmine-nodejs": "^1.5.3"
+    "requirejs": "^2.2.0",
+    "time-grunt": "~0.1.1"
   }
 }

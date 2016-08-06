@@ -10,7 +10,7 @@ class Game {
 	// 记录
 	recoList: IRecord[];
 
-	
+	 
 
 
 }

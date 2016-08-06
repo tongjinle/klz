@@ -5,5 +5,8 @@ import Game from '../game';
 
 
 describe('game',()=>{
-	it('')
+	it('init normal',()=>{
+		var game = new Game();
+		
+	});
 });

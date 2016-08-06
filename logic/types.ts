@@ -14,9 +14,28 @@ export interface IChessBoard {
 	chessList: IChess[];
 	width: number;
 	height: number;
-	status:ChessBoardStatus;
+	status: ChessBoardStatus;
 	// 双方选手
 	playerList: IPlayer[];
+
+
+
+	addPlayer(pName: string): boolean;
+	removePlayer(pName: string): boolean;
+	addChess(ch:IChess):boolean;
+	removeChess(ch:IChess):boolean;
+	ready(pName: string, status: PlayerStatus): boolean;
+	round(pName?: string);
+	getActiveChessList():IChess[];
+	chooseChess(ch: IChess);
+	unChooseChess(ch:IChess);
+	moveChess(posi: IPosition);
+	chooseSkill(skType: SkillType);
+	chooseSkillTarget(posi: IPosition);
+
+	currPlayer: IPlayer;
+	currChess: IChess;
+	currSkill: ISkill;
 }
 
 export interface IChess {
@@ -35,7 +54,7 @@ export interface IChess {
 	cast: (skType: SkillType, posiTarget: IPosition) => void;
 	rest: () => void;
 	dead: () => void;
-	energy:number;
+	energy: number;
 
 }
 
@@ -80,39 +99,40 @@ export interface IRangeGen {
 	(posi: IPosition): IPosition[];
 }
 
-export interface IMap{
-	chessList:{chType:ChessType,color:ChessColor,posi:IPosition}[],
-	width:number,
-	height:number
+export interface IMap {
+	chessList: { chType: ChessType, color: ChessColor, posi: IPosition }[],
+	width: number,
+	height: number
 }
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
-export interface IAsk{
-	type:AskType,
-	data?:any
+export interface IAsk {
+	type: AskType,
+	data?: any
 }
 
-export interface IAnswer{
-	type:AskType,
-	data?:any
+export interface IAnswer {
+	type: AskType,
+	data?: any
 }
 
-export interface IPlayer{
-	name:string;
-	color:ChessColor;
-	status:PlayerStatus;
-	energy:number;
+export interface IPlayer {
+	name: string;
+	color: ChessColor;
+	status: PlayerStatus;
+	chStatus: ChessStatus;
+	energy: number;
 }
 
 
-export interface IGame{
-	create():void;
-	round():IPlayer;
-	answer(ask:IAsk):IAnswer;
-	addPlayer(username:string):void;
-	removePlayer(username:string):void;
+export interface IGame {
+	create(): void;
+	round(): IPlayer;
+	answer(ask: IAsk): IAnswer;
+	addPlayer(username: string): void;
+	removePlayer(username: string): void;
 }
 
 
@@ -136,12 +156,16 @@ export enum ChessType {
 // move之后可以cast
 // cast之后,就rest
 export enum ChessStatus {
+	// 被选择前
+	beforeChoose,
+	// 移动前
 	beforeMove,
+	// 使用技能前
 	beforeCast,
 	rest
 }
 
-export enum PlayerStatus{
+export enum PlayerStatus {
 	// 未准备好
 	notReady,
 	// 准备好
@@ -149,11 +173,11 @@ export enum PlayerStatus{
 	// 等待
 	waiting,
 	// 行棋中
-	thinking,
+	thinking
 
 }
 
-export enum ChessBoardStatus{
+export enum ChessBoardStatus {
 	beforeStart,
 	red,
 	black,
@@ -174,7 +198,7 @@ export enum RecordType {
 	rest
 }
 
-export enum AskType{
+export enum AskType {
 	selectChess,
 	unSelectChess,
 	selectPosition,

@@ -15,7 +15,7 @@ export default class Cavalry extends Chess {
 			{ x: this.posi.x + 1, y: this.posi.y - 2 },
 			{ x: this.posi.x - 1, y: this.posi.y - 2 },
 			{ x: this.posi.x + 1, y: this.posi.y + 2 },
-			{ x: this.posi.x - 1, y: this.posi.y + 2 },
+			{ x: this.posi.x - 1, y: this.posi.y + 2 }
 		];
 	}
 

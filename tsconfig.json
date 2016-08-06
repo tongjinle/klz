@@ -2,7 +2,7 @@
     "compilerOptions": {
         "sourceMap": false,
         "declaration": false,
-        "outDir": "dist/js",
+        "outDir": "dist",
         "target": "es5",
         "module": "commonjs",
         "noEmitOnError": true
@@ -14,6 +14,10 @@
         "logic/chess/chess.ts",
         "logic/chess/chessList.ts",
         "logic/chess/footman.ts",
+        "logic/chess/king.ts",
+        "logic/chess/knight.ts",
+        "logic/chess/magic.ts",
+        "logic/chess/minister.ts",
         "logic/chessApi.ts",
         "logic/chessBoard/chessBoard.ts",
         "logic/chessBoardApi.ts",
@@ -25,8 +29,10 @@
         "logic/skill/skillList.ts",
         "logic/skillApi.ts",
         "logic/test/chessApiSpec.ts",
+        "logic/test/chessBoardSpec.ts",
         "logic/test/gameSpec.ts",
         "logic/test/rangeApiSpec.ts",
-        "logic/types.ts"
+        "logic/types.ts",
+        "meta/nothing.ts"
     ]
 }
