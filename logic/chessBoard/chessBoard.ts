@@ -209,6 +209,11 @@ class ChessBoard implements IChessBoard {
 	}
 
 
+	getChessByPosi(posi:IPosition){
+		return _.find(this.chessList,ch=>ch.posi.x == posi.x && ch.posi.y == posi.y);
+	}
+
+
 }
 
 export default ChessBoard;
