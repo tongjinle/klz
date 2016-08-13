@@ -14,7 +14,7 @@ export default class Chess implements IChess {
 	hp: number;
 	status: ChessStatus;
 	skillList: ISkill[];
-	chessBoard: IChessBoard;
+	chBoard: IChessBoard;
 	getMoveRange: () => IPosition[];
 	getCastRange: (skt: SkillType) => IPosition[];
 	round: () => void;
@@ -23,13 +23,33 @@ export default class Chess implements IChess {
 	rest: () => void;
 	dead: () => void;
 	energy: number;
+	
+
+	public get canCastSkillList() : ISkill[] {
+		if([ChessStatus.beforeMove,ChessStatus.beforeCast].indexOf(this.status)>=0){
+			let chEnemies = _.filter(this.chBoard.chessList,ch=>ch.color!=this.color);
+			return _.filter(this.skillList,sk=>{
+				let range = sk.getCastRange();
+				let flag = false;
+				flag = !!_.find(range,po=>{
+					return _.any(chEnemies,ch=>{
+						return ch.posi.x == po.x && ch.posi.y == po.y;
+					});
+				});
+				return flag;
+			});
+		}
+		return [];
+	}
+
 
 	protected getMoveRangeOnPurpose: () => IPosition[];
 
-	private inChessBoardFilter: (posi: IPosition) => boolean = posi => api.chessBoardApi.isInChessBoard(this.chessBoard, posi);
+	private inChessBoardFilter: (posi: IPosition) => boolean = posi => api.chessBoardApi.isInChessBoard(this.chBoard, posi);
 
 	constructor() {
 		this.id = parseInt(_.uniqueId());
+		this.status = ChessStatus.beforeChoose;
 		this.skillList = [];
 
 		this.round = () => {
@@ -38,8 +58,16 @@ export default class Chess implements IChess {
 
 		// 移动
 		this.move = (posiTarget) => {
-			api.chessApi.move(this, this.chessBoard, posiTarget);
-			api.chessApi.setStatus(this, ChessStatus.beforeCast);
+			api.chessApi.move(this, this.chBoard, posiTarget);
+
+			// 如果有技能可以cast,状态为beforeCast
+			if(this.canCastSkillList.length){
+				this.status = ChessStatus.beforeCast;
+			}else{
+				// 否则直接进入休息
+				this.rest();
+			}
+
 		};
 
 		// 获得可以移动的坐标列表
@@ -53,7 +81,7 @@ export default class Chess implements IChess {
 		// 施放技能
 		this.cast = (skt, posi) => {
 			let sk: ISkill = _.find(this.skillList, sk => sk.type == skt);
-			api.skillApi.cast(sk, sk.owner.chessBoard, posi);
+			api.skillApi.cast(sk, sk.owner.chBoard, posi);
 		};
 
 		this.rest = () => {

@@ -25,7 +25,10 @@ export function setColor(ch: IChess, color: ChessColor): void {
 
 // 设置位置
 export function setPosition(ch: IChess, posi: IPosition): void {
-	ch.posi = _.clone(posi);
+	ch.posi = ch.posi || {x:-1,y:-1};
+
+	ch.posi.x =posi.x;
+	ch.posi.y = posi.y;
 }
 
 export function setHp(ch: IChess, hp: number): void {
@@ -44,6 +47,7 @@ export function getMoveRange(ch: IChess, chBoard: IChessBoard): IPosition[] {
 // 移动棋子
 export function move(ch: IChess, chBoard: IChessBoard, posiTarget: IPosition): IRecord {
 	let re: IRecord;
+	setPosition(ch,posiTarget);
 	return re;
 }
 

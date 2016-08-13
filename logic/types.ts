@@ -5,11 +5,14 @@ export interface IPosition {
 
 
 
+
+
 export interface IBox {
 	position: IPosition;
 }
 
 export interface IChessBoard {
+	seed:number;
 	boxList: IBox[];
 	chessList: IChess[];
 	width: number;
@@ -18,8 +21,10 @@ export interface IChessBoard {
 	// 双方选手
 	playerList: IPlayer[];
 
-
-
+	readMap(mapName:string):void;
+	setMapSeed(seed:number):void;
+	setMapSize(width:number,height:number):void;
+	setMapChess(chessList:{ chType: ChessType, color: ChessColor, posi: IPosition }[]):void;
 	addPlayer(pName: string): boolean;
 	removePlayer(pName: string): boolean;
 	addChess(ch:IChess):boolean;
@@ -46,7 +51,7 @@ export interface IChess {
 	hp: number;
 	status: ChessStatus;
 	skillList: ISkill[];
-	chessBoard: IChessBoard;
+	chBoard: IChessBoard;
 	getMoveRange: () => IPosition[];
 	getCastRange: (skt: SkillType) => IPosition[];
 	round: () => void;
@@ -55,6 +60,8 @@ export interface IChess {
 	rest: () => void;
 	dead: () => void;
 	energy: number;
+	canCastSkillList:ISkill[];
+
 
 }
 
@@ -63,7 +70,7 @@ export interface ISkill {
 	owner: IChess;
 	type: SkillType;
 	getCastRange: () => IPosition[];
-	effect: (posiTarget: IPosition) => void;
+	cast: (posiTarget: IPosition) => void;
 	maxcd: number;
 	cd: number;
 	cooldown: () => void;
@@ -87,8 +94,8 @@ export interface IEffectRecord {
 }
 
 export interface IRecord {
-	recoType: RecordType,
-	reco: IEffectRecord
+	action:string;
+	data:any;
 }
 
 export interface IRecordFilter { }
@@ -102,7 +109,13 @@ export interface IRangeGen {
 export interface IMap {
 	chessList: { chType: ChessType, color: ChessColor, posi: IPosition }[],
 	width: number,
-	height: number
+	height: number,
+	seed:number
+}
+
+export interface IRepRecord{
+	action:string;
+	data:any;
 }
 
 

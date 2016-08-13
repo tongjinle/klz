@@ -2,20 +2,32 @@
 
 
 import ChessBoard from './chessBoard/chessBoard';
-import {ChessColor, ChessType,IPosition,IChess} from './types';
+import {IRecord, SkillType, ChessColor, ChessType,IPosition,IChess} from './types';
 import Chess from './chess/chess';
 import chessList from './chess/chessList';
 import _ = require("underscore");
 
 
-class ReplayMgr {
+
+export default class ReplayMgr {
 	randomSeed: number;
 	chBoard: ChessBoard;
-	parse(rep): void {
-
+	parse(rep:IRecord): void {
+		this.parseDict[rep.action](rep.data);
 	}
 
 	private parseDict: { [action: string]: (data: {}) => void } = {
+		'setMapSeed':(data:{seed:number})=>{
+			this.chBoard.setMapSeed(data.seed);
+		},
+		'setMapSize':(data:{width:number,height:number})=>{
+			this.chBoard.setMapSize(data.width,data.height);
+		},
+
+		'setMapChess':(data:{chessList:{ chType: ChessType, color: ChessColor, posi: IPosition }[]})=>{
+			this.chBoard.setMapChess(data.chessList);
+		},
+
 		'readMap': (data: { mapName: string, randomSeed: number }) => {
 			this.chBoard = new ChessBoard(data.mapName);
 			this.randomSeed = data.randomSeed;
@@ -37,11 +49,23 @@ class ReplayMgr {
 			let ch = this.chBoard.currChess;
 			ch.posi = data.position;
 		},
-		'selectSkill':()=>{}
+		'selectSkill':(data:{skillType:SkillType})=>{
+			let ch = this.chBoard.currChess;
+			let sk = _.find(ch.skillList,sk=>sk.type == data.skillType);
+			this.chBoard.currSkill = sk;
+		},
+		'castSkill':(data:{position:IPosition})=>{
+			let sk = this.chBoard.currSkill;
+			sk.cast(data.position);
+		},
+		'rest':()=>{
+			this.chBoard.rest();
+		}
 	};
 
 	constructor() {
-		// code...
+		this.chBoard = new ChessBoard();
+
 	}
 }
 

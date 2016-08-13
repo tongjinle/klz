@@ -5,6 +5,7 @@ import _ = require('underscore');
 
 
 class ChessBoard implements IChessBoard {
+	seed:number;
 	boxList: IBox[];
 	chessList: IChess[];
 	width: number;
@@ -26,25 +27,36 @@ class ChessBoard implements IChessBoard {
 
 
 	constructor(mapName: string = 'normal') {
-		let map: IMap = maps[mapName];
-
-		this.width = map.width;
-		this.height = map.height;
 		this.chessList = [];
 		this.boxList = [];
 		this.playerList = [];
 		this.status = ChessBoardStatus.beforeStart;
-
-		// 放置棋子
-		this.init(map.chessList);
 	}
 
 
 	// 方法
 	// ***************************************************
+	readMap(mapName:string){
+		let map: IMap = maps[mapName];
+		this.setMapSeed(map.seed);
+		this.setMapSize(map.width,map.height);
+		this.setMapChess(map.chessList);
+	}
+
+	// 设置随机种子
+	setMapSeed(seed:number){
+		this.seed = seed;
+	}
+
+	// 设置棋盘尺寸
+	setMapSize(width:number,height:number){
+		this.width = width;
+		this.height = height;
+	}
+
 	// 初始化游戏
 	// 默认的mapName为默认
-	init(chessList: { chType: ChessType, color: ChessColor, posi: IPosition }[]) {
+	setMapChess(chessList: { chType: ChessType, color: ChessColor, posi: IPosition }[]) {
 		_.each(chessList, d => {
 			let ch = api.chessApi.create(d.chType);
 			api.chessApi.setColor(ch, d.color);
@@ -95,6 +107,7 @@ class ChessBoard implements IChessBoard {
 			return false;
 		}
 		this.chessList.push(chess);
+		chess.chBoard = this;
 		return true;
 	}
 
@@ -102,7 +115,9 @@ class ChessBoard implements IChessBoard {
 		if (!_.find(this.chessList, ch => ch.id === chess.id)) {
 			return false;
 		}
+
 		this.chessList = _.filter(this.chessList, ch => ch.id != chess.id);
+		chess.chBoard = undefined;
 		return true;
 	}
 
@@ -159,9 +174,9 @@ class ChessBoard implements IChessBoard {
 	// 获取可以被选择的棋子
 	getActiveChessList(): IChess[] {
 		let p = this.currPlayer;
-		console.log(this.chessList.length);
+		// console.log(this.chessList.length);
 		_(this.chessList).filter(ch => {
-			console.log(ch.color,ch.energy,p.color,p.energy);
+			// console.log(ch.color,ch.energy,p.color,p.energy);
 			return ch.color == p.color && ch.energy <= p.energy;
 		});
 		return _(this.chessList).filter(ch => ch.color == p.color && ch.energy <= p.energy);
@@ -170,19 +185,38 @@ class ChessBoard implements IChessBoard {
 
 	// 选手选择棋子
 	chooseChess(ch: IChess) {
-		ch.status = ChessStatus.beforeMove;
+		// 判断是否可以选择
+		if(!_.find(this.getActiveChessList(),chi=>chi==ch)){
+			return;
+		}
+
+		//  当前棋子的状态为"beforeMove"
 		this.currChess = ch;
+		this.currChess.status = ChessStatus.beforeMove;
+		// 玩家状态也改变为"beforeMove"
+		this.currPlayer.chStatus=ChessStatus.beforeMove;
 	}
 
 	unChooseChess(ch:IChess){
-		
+		if(this.currChess && this.currChess == ch){
+			ch.status = ChessStatus.beforeChoose;
+			this.currChess = undefined;
+		}
+		if(this.currPlayer){
+			this.currPlayer.chStatus = ChessStatus.beforeChoose;
+		}
 	}
 
 
 	// 选手移动棋子
 	moveChess(posi: IPosition) {
 		let ch = this.currChess;
-		api.chessApi.move(ch, this, posi);
+		ch.move(posi);
+
+		if(ch.status == ChessStatus.rest){
+			this.currPlayer.chStatus = ChessStatus.rest;
+			this.rest();
+		}
 	}
 
 	// 选手选择技能
@@ -198,8 +232,21 @@ class ChessBoard implements IChessBoard {
 	}
 
 	// 选手休息
+	rest(){
+		// 如果玩家下过棋
+		if(this.currPlayer.chStatus == ChessStatus.rest){
+			this.currPlayer.energy += 
+		}
+	}
+
+
 	// 选手投降
+	surrender(){}
+
+
+
 	// 胜负判断
+	judge(){}
 
 
 
@@ -209,8 +256,15 @@ class ChessBoard implements IChessBoard {
 	}
 
 
-	getChessByPosi(posi:IPosition){
+	private getChessByPosi(posi:IPosition){
 		return _.find(this.chessList,ch=>ch.posi.x == posi.x && ch.posi.y == posi.y);
+	}
+
+	// 主动休息可以加2点energy
+	private maxEnergy =10;
+	private restEnergy =2;
+	private addRestEnergy(){
+		this.currPlayer.energy 
 	}
 
 

@@ -2,6 +2,7 @@ import {IMap, ChessType, ChessColor} from './types';
 let maps: { [name: string]: IMap } = {};
 
 maps['normal'] = {
+	seed:1216,
 	width: 8,
 	height: 8,
 	chessList: [

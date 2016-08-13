@@ -5,12 +5,17 @@ export default class Skill implements ISkill {
 	type:SkillType;
 	owner:IChess;
 	getCastRange: () => IPosition[];
-	effect: (posiTarget: IPosition) => void;
 	maxcd: number;
 	cd: number;
 	cooldown: () => void;
+	cast:(posiTarget:IPosition)=>void;
 
+	protected effect: (posiTarget: IPosition) => void;
+
+	
 	constructor(){
+		this.cast = (posi)=>{
 
+		};
 	}
 }

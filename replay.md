@@ -5,12 +5,29 @@ fields:
 	action:string,
 	data:{}
 
- - readMap
+ 
+ - setMapSeed
+ {
+ 	action:'setMapSeed'
+ 	data:{
+ 		seed
+ 	}
+ }
+
+ - setMapSize
+ {
+ 	action:'setMapSize',
+ 	data:{
+ 		width,
+ 		height
+ 	}
+ }
+
+ - setMapChess
 {
-	action:'readMap',
+	action:'setMapChess',
 	data:{
-		mapName,
-		randomSeed
+		chessList
 	}
 }
 
@@ -70,6 +87,8 @@ fields:
 	action:'rest',
 	data:null
 }
+
+- 
 
 ## record table
 
