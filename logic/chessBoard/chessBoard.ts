@@ -5,7 +5,7 @@ import _ = require('underscore');
 
 
 class ChessBoard implements IChessBoard {
-	seed:number;
+	seed: number;
 	boxList: IBox[];
 	chessList: IChess[];
 	width: number;
@@ -22,6 +22,10 @@ class ChessBoard implements IChessBoard {
 		return _(this.playerList).find(p => p.name == this.pName);
 	}
 
+	public set currPlayer(v : IPlayer) {
+		this.pName = v.name;
+	}
+
 	public currChess: IChess;
 	public currSkill: ISkill;
 
@@ -36,20 +40,20 @@ class ChessBoard implements IChessBoard {
 
 	// 方法
 	// ***************************************************
-	readMap(mapName:string){
+	readMap(mapName: string) {
 		let map: IMap = maps[mapName];
 		this.setMapSeed(map.seed);
-		this.setMapSize(map.width,map.height);
+		this.setMapSize(map.width, map.height);
 		this.setMapChess(map.chessList);
 	}
 
 	// 设置随机种子
-	setMapSeed(seed:number){
+	setMapSeed(seed: number) {
 		this.seed = seed;
 	}
 
 	// 设置棋盘尺寸
-	setMapSize(width:number,height:number){
+	setMapSize(width: number, height: number) {
 		this.width = width;
 		this.height = height;
 	}
@@ -153,18 +157,42 @@ class ChessBoard implements IChessBoard {
 	}
 
 	// 选手获得行动机会
+	// 确定选手名字,则轮到该选手
+	// 如果没有明确选手名字
+	// 1.如果是第一回合,则红色下棋;
+	// 2.如果不是第一个回合,则交换为对手下棋
 	round(pName?: string) {
 		let p: IPlayer;
+		let lastP:IPlayer = this.currPlayer;
+
+		// 清理
+		if(this.currPlayer){
+			this.currPlayer.status = PlayerStatus.waiting;
+			this.currPlayer.chStatus = ChessStatus.rest;
+		}
+		if(this.currChess){
+			this.currChess.status = ChessStatus.rest;
+			this.currChess = undefined;
+		}
+
+
+		// 下一个选手
 		if (pName) {
 			this.pName = pName;
 			p = this.getPlayerByName(pName);
 		} else {
-			p = _.find(this.playerList, p => p.name != this.pName);
+			if(lastP){
+				p = _.find(this.playerList, p => p!=lastP);
+				// console.log('交换选手下棋',p);
+			}else{
+				p = _.find(this.playerList, p => p.color == ChessColor.red);
+			}
 		}
 
 		if (p) {
 			p.status = PlayerStatus.thinking;
 			p.chStatus = ChessStatus.beforeChoose;
+			this.currPlayer = p;
 			this.status = ChessBoardStatus[ChessColor[p.color]];
 		}
 	}
@@ -186,7 +214,7 @@ class ChessBoard implements IChessBoard {
 	// 选手选择棋子
 	chooseChess(ch: IChess) {
 		// 判断是否可以选择
-		if(!_.find(this.getActiveChessList(),chi=>chi==ch)){
+		if (!_.find(this.getActiveChessList(), chi => chi == ch)) {
 			return;
 		}
 
@@ -194,15 +222,15 @@ class ChessBoard implements IChessBoard {
 		this.currChess = ch;
 		this.currChess.status = ChessStatus.beforeMove;
 		// 玩家状态也改变为"beforeMove"
-		this.currPlayer.chStatus=ChessStatus.beforeMove;
+		this.currPlayer.chStatus = ChessStatus.beforeMove;
 	}
 
-	unChooseChess(ch:IChess){
-		if(this.currChess && this.currChess == ch){
+	unChooseChess(ch: IChess) {
+		if (this.currChess && this.currChess == ch) {
 			ch.status = ChessStatus.beforeChoose;
 			this.currChess = undefined;
 		}
-		if(this.currPlayer){
+		if (this.currPlayer) {
 			this.currPlayer.chStatus = ChessStatus.beforeChoose;
 		}
 	}
@@ -213,7 +241,9 @@ class ChessBoard implements IChessBoard {
 		let ch = this.currChess;
 		ch.move(posi);
 
-		if(ch.status == ChessStatus.rest){
+		if(ch.status == ChessStatus.beforeCast){
+			this.currPlayer.chStatus = ChessStatus.beforeCast;
+		}else if (ch.status == ChessStatus.rest) {
 			this.currPlayer.chStatus = ChessStatus.rest;
 			this.rest();
 		}
@@ -232,39 +262,45 @@ class ChessBoard implements IChessBoard {
 	}
 
 	// 选手休息
-	rest(){
+	rest() {
+		// 玩家
 		// 如果玩家下过棋
-		if(this.currPlayer.chStatus == ChessStatus.rest){
-			this.currPlayer.energy += 
+		if (this.currPlayer.chStatus == ChessStatus.rest) {
+			this.currPlayer.energy += this.activeRestEnergy;
+		} else if (this.currPlayer.chStatus == ChessStatus.beforeChoose) {
+			this.currPlayer.energy += this.passiveRestEnergy;
 		}
+
+		this.round();
 	}
 
 
 	// 选手投降
-	surrender(){}
+	surrender() { }
 
 
 
 	// 胜负判断
-	judge(){}
+	judge() { }
 
 
 
 	///////
-	private getPlayerByName(pName: string): IPlayer {
+	getPlayerByName(pName: string): IPlayer {
 		return _.find(this.playerList, p => p.name == pName);
 	}
 
 
-	private getChessByPosi(posi:IPosition){
-		return _.find(this.chessList,ch=>ch.posi.x == posi.x && ch.posi.y == posi.y);
+	getChessByPosi(posi: IPosition) {
+		return _.find(this.chessList, ch => ch.posi.x == posi.x && ch.posi.y == posi.y);
 	}
 
-	// 主动休息可以加2点energy
-	private maxEnergy =10;
-	private restEnergy =2;
-	private addRestEnergy(){
-		this.currPlayer.energy 
+	// 主动休息可以加4点energy
+	private maxEnergy = 10;
+	private activeRestEnergy = 4;
+	private passiveRestEnergy = 2;
+	private addRestEnergy() {
+		this.currPlayer.energy
 	}
 
 

@@ -1,9 +1,10 @@
 /// <reference path="../../typings/index.d.ts" />
-import {ChessBoardStatus, IPosition, IBox, IChessBoard, IChess, ISkill, IEffect, IMoveRecord, IEffectRecord, IRecord, IRecordFilter, IRecordMgr, IRangeGen, IAsk, IAnswer, IPlayer, IGame, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType, RecordType, AskType } from '../types';
+import { ChessBoardStatus, IPosition, IBox, IChessBoard, IChess, ISkill, IEffect, IMoveRecord, IEffectRecord, IRecord, IRecordFilter, IRecordMgr, IRangeGen, IAsk, IAnswer, IPlayer, IGame, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType, RecordType, AskType } from '../types';
 import _ = require('underscore');
 import ChessBoard from '../chessBoard/chessBoard';
 import * as api from '../api';
 import Chess from '../chess/chess';
+import Skill from '../skill/skill';
 import ReplayMgr from '../replayMgr';
 
 
@@ -252,7 +253,7 @@ describe('chessBoard basis', () => {
 	// 选手反选当前棋子
 	it('unChooseChess', () => {
 
-		let list= [
+		let list = [
 			{ id: 0, energy: 1, posi: { x: 1, y: 1 }, color: ChessColor.red }
 		];
 		_.each(list, n => {
@@ -291,42 +292,113 @@ describe('chessBoard basis', () => {
 			chBoard.addChess(ch);
 		});
 
+		let chBlack: IChess = _.find(chBoard.chessList, ch => ch.id == 1);
+		let sk = new Skill();
+		sk.type = SkillType.attack;
+		sk.getCastRange = () => {
+			let range = api.rangeApi.nearRange(sk.owner.posi, 1);
+			let chBoard = sk.owner.chBoard;
+			range = _.filter(range, posi => {
+				let ch = chBoard.getChessByPosi(posi);
+				return ch && ch.color != sk.owner.color;
+			});
+			return range;
+		};
+		chBlack.skillList.push(sk);
+		sk.owner = chBlack;
+
 
 
 
 		let ch: IChess;
 		// jack移动了棋子,然后没有攻击目标,自动进入休息
+		expect(chBoard.currPlayer).toBe(jack);
 		jack.energy = 3;
 		ch = _.find(chBoard.chessList, ch => ch.id == 0);
 		chBoard.chooseChess(ch);
 		chBoard.moveChess({ x: 1, y: 2 });
-		expect(ch.posi).toEqual({x:1,y:2});
 
+
+		expect(ch.posi).toEqual({ x: 1, y: 2 });
 		expect(jack.status).toBe(PlayerStatus.waiting);
-		// expect(jack.chStatus).toBe(ChessStatus.beforeChoose);
-		// expect(ch.status).toBe(ChessStatus.beforeChoose);
-		// expect(chBoard.currChess).toBeUndefined();
+		expect(jack.chStatus).toBe(ChessStatus.rest);
+		expect(ch.status).toBe(ChessStatus.rest);
+		expect(chBoard.currChess).toBeUndefined();
 
-		// // tom移动了棋子,然后有攻击目标
-		// tom.energy = 10;
-		// ch = _.find(chBoard.chessList, ch => ch.id == 1);
-		// chBoard.chooseChess(ch);
-		// chBoard.moveChess({ x: 1, y: 3 });
-		// expect(tom.status).toBe(PlayerStatus.thinking);
-		// expect(tom.chStatus).toBe(ChessStatus.beforeCast);
-		// expect(ch.status).toBe(ChessStatus.beforeCast);
-		// expect(chBoard.currChess).not.toBeUndefined();
+		// tom移动了棋子,然后有攻击目标
+		expect(chBoard.currPlayer).toBe(tom);
+		tom.energy = 10;
+		ch = _.find(chBoard.chessList, ch => ch.id == 1);
+		chBoard.chooseChess(ch);
+		chBoard.moveChess({ x: 1, y: 3 });
+		expect(tom.status).toBe(PlayerStatus.thinking);
+		expect(tom.chStatus).toBe(ChessStatus.beforeCast);
+		expect(ch.status).toBe(ChessStatus.beforeCast);
+		expect(chBoard.currChess).not.toBeUndefined();
 
 	});
 
 	// 选手选择技能
+	it('chooseSkill', () => {
+		// 在有技能可以被选择的情况下,选择之后currSkill能正确显示
+		let list = [
+			{ id: 0, energy: 1, posi: { x: 1, y: 1 }, color: ChessColor.red },
+			{ id: 1, energy: 1, posi: { x: 1, y: 4 }, color: ChessColor.black }
+
+		];
+		_.each(list, n => {
+			let ch: IChess = new Chess();
+			ch.id = n.id;
+			ch.energy = n.energy;
+			ch.posi = n.posi;
+			ch.color = n.color;
+			chBoard.addChess(ch);
+		});
+
+		let ch: IChess = _.find(chBoard.chessList, ch => ch.id == 0);
+		let skList = [
+			{type:0,getCastRange:()=>[{x:5,y:5}]},
+			{type:1,getCastRange:()=>[]},
+		];
+		_.each(skList,n=>{
+			let sk = new Skill();
+			sk.type = n.type;
+			sk.getCastRange = () => {
+				return [{ x: 1, y: 1 }];
+			};
+			ch.skillList.push(sk);
+			sk.owner = ch;
+		});
+
+		chBoard.chooseChess(ch);
+		expect(ch.canCastSkillList.length).toBe(1);
+		expect(ch.canCastSkillList[0].type).toBe(0);
+
+		
+
+	});
 
 	// 选手反选技能
+	it('unchooseSkill', () => {
+		// 没有技能被选择的情况下,反选失败
+
+		// 在选择了技能的情况下,可以反选
+		// 反选之后,当前技能为空
+	});
 
 	// 选手攻击棋子
+	it('castSkill', () => { });
 
 	// 选手休息/选手的自动休息
+	// 已经在前面的测试里做完
+
+	// 主动休息和被动休息
+	it('rest',()=>{});
 
 	// 判断胜负
+	it('judge', () => {
+
+	});
+
 
 });

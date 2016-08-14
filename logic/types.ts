@@ -37,6 +37,8 @@ export interface IChessBoard {
 	moveChess(posi: IPosition);
 	chooseSkill(skType: SkillType);
 	chooseSkillTarget(posi: IPosition);
+	getPlayerByName(pName: string): IPlayer;
+	getChessByPosi(posi: IPosition):IChess;
 
 	currPlayer: IPlayer;
 	currChess: IChess;
@@ -61,8 +63,6 @@ export interface IChess {
 	dead: () => void;
 	energy: number;
 	canCastSkillList:ISkill[];
-
-
 }
 
 export interface ISkill {

@@ -14,82 +14,73 @@ export default class Chess implements IChess {
 	hp: number;
 	status: ChessStatus;
 	skillList: ISkill[];
-	chBoard: IChessBoard;
-	getMoveRange: () => IPosition[];
-	getCastRange: (skt: SkillType) => IPosition[];
-	round: () => void;
-	move: (posiTarget: IPosition) => void;
-	cast: (skType: SkillType, posiTarget: IPosition) => void;
-	rest: () => void;
-	dead: () => void;
 	energy: number;
-	
+	chBoard: IChessBoard;
 
-	public get canCastSkillList() : ISkill[] {
-		if([ChessStatus.beforeMove,ChessStatus.beforeCast].indexOf(this.status)>=0){
-			let chEnemies = _.filter(this.chBoard.chessList,ch=>ch.color!=this.color);
-			return _.filter(this.skillList,sk=>{
-				let range = sk.getCastRange();
-				let flag = false;
-				flag = !!_.find(range,po=>{
-					return _.any(chEnemies,ch=>{
-						return ch.posi.x == po.x && ch.posi.y == po.y;
-					});
-				});
-				return flag;
+
+	// 获得可以移动的坐标列表
+	protected getMoveRangeOnPurpose: () => IPosition[];
+	getMoveRange(): IPosition[] {
+		return _(this.getMoveRangeOnPurpose())
+			.filter(posi => this.inChessBoardFilter(posi));
+	};
+	// 获取可以施放技能的格子
+	getCastRange(skt: SkillType): IPosition[] {
+		return _(_.find(this.skillList, sk => sk.type == skt).getCastRange())
+			.filter(posi => this.inChessBoardFilter(posi));
+	};
+	// 施放技能
+	cast(skType: SkillType, posiTarget: IPosition): void {
+
+		this.cast = (skt, posi) => {
+			let sk: ISkill = _.find(this.skillList, sk => sk.type == skt);
+			api.skillApi.cast(sk, sk.owner.chBoard, posi);
+		};
+	};
+	// 休息
+	rest():void{
+		this.status = ChessStatus.rest;
+	};
+
+	// 棋子死亡
+	dead () : void{
+
+	};
+
+	//
+	round(): void {
+		api.chessApi.setStatus(this, ChessStatus.beforeChoose);
+	};
+	// 移动
+	move(posiTarget: IPosition): void {
+		api.chessApi.move(this, this.chBoard, posiTarget);
+
+		// 如果有技能可以cast,状态为beforeCast
+		if (this.canCastSkillList.length) {
+			this.status = ChessStatus.beforeCast;
+		} else {
+			// 否则直接进入休息
+			this.rest();
+		}
+
+	};
+
+	public get canCastSkillList(): ISkill[] {
+		if ([ChessStatus.beforeMove, ChessStatus.beforeCast].indexOf(this.status) >= 0) {
+			return _.filter(this.skillList, sk => {
+				return this.getCastRange(sk.type).length > 0;
 			});
 		}
 		return [];
 	}
 
 
-	protected getMoveRangeOnPurpose: () => IPosition[];
-
+	// 棋盘边界过滤器
 	private inChessBoardFilter: (posi: IPosition) => boolean = posi => api.chessBoardApi.isInChessBoard(this.chBoard, posi);
 
 	constructor() {
 		this.id = parseInt(_.uniqueId());
 		this.status = ChessStatus.beforeChoose;
 		this.skillList = [];
-
-		this.round = () => {
-			api.chessApi.setStatus(this, ChessStatus.beforeMove);
-		};
-
-		// 移动
-		this.move = (posiTarget) => {
-			api.chessApi.move(this, this.chBoard, posiTarget);
-
-			// 如果有技能可以cast,状态为beforeCast
-			if(this.canCastSkillList.length){
-				this.status = ChessStatus.beforeCast;
-			}else{
-				// 否则直接进入休息
-				this.rest();
-			}
-
-		};
-
-		// 获得可以移动的坐标列表
-		this.getMoveRange = () => _(this.getMoveRangeOnPurpose())
-			.filter(this.inChessBoardFilter);
-
-		// 获取可以施放技能的格子
-		this.getCastRange = (skt) => _(_.find(this.skillList, sk => sk.type == skt).getCastRange())
-			.filter(this.inChessBoardFilter);
-
-		// 施放技能
-		this.cast = (skt, posi) => {
-			let sk: ISkill = _.find(this.skillList, sk => sk.type == skt);
-			api.skillApi.cast(sk, sk.owner.chBoard, posi);
-		};
-
-		this.rest = () => {
-			this.status = ChessStatus.rest;
-		};
-
-		this.dead = () => {
-
-		}
 	}
 }
