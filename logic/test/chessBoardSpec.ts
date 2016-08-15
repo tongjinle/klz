@@ -1,5 +1,5 @@
 /// <reference path="../../typings/index.d.ts" />
-import { ChessBoardStatus, IPosition, IBox, IChessBoard, IChess, ISkill, IEffect, IMoveRecord, IEffectRecord, IRecord, IRecordFilter, IRecordMgr, IRangeGen, IAsk, IAnswer, IPlayer, IGame, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType, RecordType, AskType } from '../types';
+import {ChessBoardJudge, ChessBoardStatus, IPosition, IBox, IChessBoard, IChess, ISkill, IEffect, IMoveRecord, IEffectRecord, IRecord, IRecordFilter, IRecordMgr, IRangeGen, IAsk, IAnswer, IPlayer, IGame, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType, RecordType, AskType } from '../types';
 import _ = require('underscore');
 import ChessBoard from '../chessBoard/chessBoard';
 import * as api from '../api';
@@ -268,7 +268,7 @@ describe('chessBoard basis', () => {
 		jack.energy = 3;
 		let ch: IChess = _.find(chBoard.chessList, ch => ch.id == 0);
 		chBoard.chooseChess(ch);
-		chBoard.unChooseChess(ch);
+		chBoard.unChooseChess();
 		expect(jack.chStatus).toBe(ChessStatus.beforeChoose);
 		expect(ch.status).toBe(ChessStatus.beforeChoose);
 		expect(chBoard.currChess).toBeUndefined();
@@ -357,15 +357,13 @@ describe('chessBoard basis', () => {
 
 		let ch: IChess = _.find(chBoard.chessList, ch => ch.id == 0);
 		let skList = [
-			{type:0,getCastRange:()=>[{x:5,y:5}]},
-			{type:1,getCastRange:()=>[]},
+			{ type: 0, getCastRange: () => [{ x: 5, y: 5 }] },
+			{ type: 1, getCastRange: () => [] },
 		];
-		_.each(skList,n=>{
+		_.each(skList, n => {
 			let sk = new Skill();
 			sk.type = n.type;
-			sk.getCastRange = () => {
-				return [{ x: 1, y: 1 }];
-			};
+			sk.getCastRange = n.getCastRange;
 			ch.skillList.push(sk);
 			sk.owner = ch;
 		});
@@ -374,29 +372,220 @@ describe('chessBoard basis', () => {
 		expect(ch.canCastSkillList.length).toBe(1);
 		expect(ch.canCastSkillList[0].type).toBe(0);
 
-		
+		chBoard.chooseSkill(0);
+		expect(chBoard.currSkill).toBe(ch.skillList[0]);
+
+		// ssid@hxsd123
 
 	});
 
 	// 选手反选技能
 	it('unchooseSkill', () => {
-		// 没有技能被选择的情况下,反选失败
+		let list = [
+			{ id: 0, energy: 1, posi: { x: 1, y: 1 }, color: ChessColor.red },
+			{ id: 1, energy: 1, posi: { x: 1, y: 4 }, color: ChessColor.black },
+			{ id: 2, energy: 1, posi: { x: 1, y: 2 }, color: ChessColor.red }
+
+		];
+		_.each(list, n => {
+			let ch: IChess = new Chess();
+			ch.id = n.id;
+			ch.energy = n.energy;
+			ch.posi = n.posi;
+			ch.color = n.color;
+			chBoard.addChess(ch);
+		});
+
+		let ch: IChess;
+		let skList = [
+			{ chId: 0, type: 0, getCastRange: () => [{ x: 5, y: 5 }] },
+			{ chId: 2, type: 0, getCastRange: () => [{ x: 5, y: 5 }] },
+			{ chId: 0, type: 1, getCastRange: () => [] }
+		];
+		_.each(skList, n => {
+			let sk = new Skill();
+			sk.type = n.type;
+			sk.getCastRange = n.getCastRange;
+			let ch = _.find(chBoard.chessList, ch => ch.id == n.chId);
+			ch.skillList.push(sk);
+			sk.owner = ch;
+		});
+
+		ch = _.find(chBoard.chessList, ch => ch.id == 0);
+		// 没有技能被选择的情况下,反选之后为undefined
+		chBoard.unChooseSkill();
+		expect(chBoard.currSkill).toBeUndefined();
 
 		// 在选择了技能的情况下,可以反选
 		// 反选之后,当前技能为空
+		chBoard.chooseChess(ch);
+		chBoard.chooseSkill(0);
+		expect(chBoard.currSkill).toBe(ch.skillList[0]);
+		chBoard.unChooseSkill();
+		expect(chBoard.currSkill).toBeUndefined();
+
+
+
+
+
+	});
+
+	it('unchooseSkill-unchooseChess', () => {
+		let list = [
+			{ id: 0, energy: 1, posi: { x: 1, y: 1 }, color: ChessColor.red },
+			{ id: 1, energy: 1, posi: { x: 1, y: 4 }, color: ChessColor.black },
+			{ id: 2, energy: 1, posi: { x: 1, y: 2 }, color: ChessColor.red }
+
+		];
+		_.each(list, n => {
+			let ch: IChess = new Chess();
+			ch.id = n.id;
+			ch.energy = n.energy;
+			ch.posi = n.posi;
+			ch.color = n.color;
+			chBoard.addChess(ch);
+		});
+
+		let ch: IChess;
+		let skList = [
+			{ chId: 0, type: 0, getCastRange: () => [{ x: 5, y: 5 }] },
+			{ chId: 2, type: 1, getCastRange: () => [{ x: 5, y: 5 }] },
+			{ chId: 0, type: 2, getCastRange: () => [] }
+		];
+		_.each(skList, n => {
+			let sk = new Skill();
+			sk.type = n.type;
+			sk.getCastRange = n.getCastRange;
+			let ch = _.find(chBoard.chessList, ch => ch.id == n.chId);
+			ch.skillList.push(sk);
+			sk.owner = ch;
+		});
+
+		// 改选了棋子之后,会自动反选技能
+		ch = _.find(chBoard.chessList, ch => ch.id == 0);
+		chBoard.chooseChess(ch);
+		chBoard.chooseSkill(0);
+		expect(chBoard.currSkill).toBe(ch.skillList[0]);
+		// 改选棋子
+		ch = _.find(chBoard.chessList, ch => ch.id == 2);
+		chBoard.unChooseChess()
+		expect(chBoard.currSkill).toBeUndefined();
+
 	});
 
 	// 选手攻击棋子
-	it('castSkill', () => { });
+	it('castSkill', () => {
+		// jack使用棋子0的技能0攻击tom的棋子1,造成100伤害
+		let list = [
+			{ id: 0, hp: 10, energy: 1, posi: { x: 1, y: 1 }, color: ChessColor.red },
+			{ id: 1, hp: 10, energy: 1, posi: { x: 1, y: 4 }, color: ChessColor.black },
+			{ id: 2, hp: 10, energy: 1, posi: { x: 1, y: 2 }, color: ChessColor.red }
+
+		];
+		_.each(list, n => {
+			let ch: IChess = new Chess();
+			ch.id = n.id;
+			ch.hp = 10;
+			ch.energy = n.energy;
+			ch.posi = n.posi;
+			ch.color = n.color;
+			chBoard.addChess(ch);
+		});
+		let chOfJack = _.find(chBoard.chessList, ch => ch.id == 0);
+		let chOfTom = _.find(chBoard.chessList, ch => ch.id == 2);
+
+		let ch: IChess;
+		let skList = [
+			{
+				chId: 0, type: 0, getCastRange: () => [{ x: 1, y: 4 }], cast: (posi) => {
+					// console.log('use skill cast');
+					chOfTom.hp = 9;
+				}
+			},
+			{ chId: 2, type: 1, getCastRange: () => [{ x: 5, y: 5 }],cast:undefined },
+			{ chId: 0, type: 2, getCastRange: () => [],cast:undefined }
+		];
+		_.each(skList, n => {
+			let sk = new Skill();
+			sk.type = n.type;
+			sk.getCastRange = n.getCastRange;
+			sk.cast = n.cast;
+			let ch = _.find(chBoard.chessList, ch => ch.id == n.chId);
+			ch.skillList.push(sk);
+			sk.owner = ch;
+		});
+
+		expect(chOfTom.hp).toBe(10);
+		chBoard.chooseChess(chOfJack);
+		chBoard.chooseSkill(0);
+		chBoard.chooseSkillTarget({ x: 1, y: 4 });
+		expect(chOfTom.hp).toBe(9);
+
+	});
 
 	// 选手休息/选手的自动休息
 	// 已经在前面的测试里做完
 
 	// 主动休息和被动休息
-	it('rest',()=>{});
+	it('rest', () => {
+		let list = [
+			{ id: 0, hp: 10, energy: 1, posi: { x: 1, y: 1 }, color: ChessColor.red },
+			{ id: 1, hp: 10, energy: 1, posi: { x: 1, y: 4 }, color: ChessColor.black },
+			{ id: 2, hp: 10, energy: 1, posi: { x: 1, y: 2 }, color: ChessColor.red }
+
+		];
+		_.each(list, n => {
+			let ch: IChess = new Chess();
+			ch.id = n.id;
+			ch.hp = 10;
+			ch.energy = n.energy;
+			ch.posi = n.posi;
+			ch.color = n.color;
+			chBoard.addChess(ch);
+		});
+
+		jack.energy = 0;
+		tom.energy = 5;
+		// 主动休息加4点能量
+		chBoard.rest();
+		expect(jack.energy).toBe(4);
+		expect(chBoard.currPlayer).toBe(tom);
+		// 被动休息加2点能量
+		let ch = _.find(chBoard.chessList,ch=>ch.id == 1);
+		chBoard.chooseChess(ch);
+		chBoard.moveChess({x:1,y:3});
+		chBoard.rest();
+		expect(tom.energy).toBe(6);
+
+
+	});
 
 	// 判断胜负
 	it('judge', () => {
+		// 没有棋子了的一方 就获胜
+		let list = [
+			{ id: 0, hp: 10, energy: 1, posi: { x: 1, y: 1 }, color: ChessColor.red },
+			{ id: 1, hp: 10, energy: 1, posi: { x: 1, y: 4 }, color: ChessColor.black }
+
+		];
+		_.each(list, n => {
+			let ch: IChess = new Chess();
+			ch.id = n.id;
+			ch.hp = 10;
+			ch.energy = n.energy;
+			ch.posi = n.posi;
+			ch.color = n.color;
+			chBoard.addChess(ch);
+		});
+
+		let judge:ChessBoardJudge;
+		judge= chBoard.judge();
+		expect(judge).toBe(ChessBoardJudge.none);
+
+		let ch:IChess = _.find(chBoard.chessList,ch=>ch.id==0);
+		chBoard.removeChess(ch);
+		judge= chBoard.judge();
+		expect(judge).toBe(ChessColor.black);
 
 	});
 

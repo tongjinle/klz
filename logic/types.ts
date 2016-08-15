@@ -31,15 +31,17 @@ export interface IChessBoard {
 	removeChess(ch:IChess):boolean;
 	ready(pName: string, status: PlayerStatus): boolean;
 	round(pName?: string);
+	rest():void;
 	getActiveChessList():IChess[];
-	chooseChess(ch: IChess);
-	unChooseChess(ch:IChess);
-	moveChess(posi: IPosition);
-	chooseSkill(skType: SkillType);
-	chooseSkillTarget(posi: IPosition);
+	chooseChess(ch: IChess):void;
+	unChooseChess():void;
+	moveChess(posi: IPosition):void;
+	chooseSkill(skType: SkillType):void;
+	unChooseSkill():void;
+	chooseSkillTarget(posi: IPosition):void;
 	getPlayerByName(pName: string): IPlayer;
 	getChessByPosi(posi: IPosition):IChess;
-
+	judge():ChessBoardJudge;
 	currPlayer: IPlayer;
 	currChess: IChess;
 	currSkill: ISkill;
@@ -195,6 +197,16 @@ export enum ChessBoardStatus {
 	red,
 	black,
 	gameOver
+}
+
+// 棋局结果
+export enum ChessBoardJudge{
+	red,
+	black,
+	// 平局
+	equal,
+	// 无胜负
+	none
 }
 
 

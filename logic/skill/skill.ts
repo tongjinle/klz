@@ -8,14 +8,13 @@ export default class Skill implements ISkill {
 	maxcd: number;
 	cd: number;
 	cooldown: () => void;
-	cast:(posiTarget:IPosition)=>void;
+	cast(posiTarget:IPosition):void{
+		this.effect(posiTarget);
+	}
 
-	protected effect: (posiTarget: IPosition) => void;
+	protected effect(posiTarget: IPosition){}
 
 	
 	constructor(){
-		this.cast = (posi)=>{
-
-		};
 	}
 }

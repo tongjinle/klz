@@ -1,4 +1,4 @@
-import {SkillType, IMap, IPosition, IChess, ISkill, IChessBoard, IBox, ChessBoardStatus, IPlayer, ChessType, ChessColor, PlayerStatus, ChessStatus} from '../types';
+import {ChessBoardJudge, SkillType, IMap, IPosition, IChess, ISkill, IChessBoard, IBox, ChessBoardStatus, IPlayer, ChessType, ChessColor, PlayerStatus, ChessStatus} from '../types';
 import maps from '../maps';
 import * as api from '../api';
 import _ = require('underscore');
@@ -22,7 +22,7 @@ class ChessBoard implements IChessBoard {
 		return _(this.playerList).find(p => p.name == this.pName);
 	}
 
-	public set currPlayer(v : IPlayer) {
+	public set currPlayer(v: IPlayer) {
 		this.pName = v.name;
 	}
 
@@ -163,14 +163,14 @@ class ChessBoard implements IChessBoard {
 	// 2.如果不是第一个回合,则交换为对手下棋
 	round(pName?: string) {
 		let p: IPlayer;
-		let lastP:IPlayer = this.currPlayer;
+		let lastP: IPlayer = this.currPlayer;
 
 		// 清理
-		if(this.currPlayer){
+		if (this.currPlayer) {
 			this.currPlayer.status = PlayerStatus.waiting;
 			this.currPlayer.chStatus = ChessStatus.rest;
 		}
-		if(this.currChess){
+		if (this.currChess) {
 			this.currChess.status = ChessStatus.rest;
 			this.currChess = undefined;
 		}
@@ -181,10 +181,10 @@ class ChessBoard implements IChessBoard {
 			this.pName = pName;
 			p = this.getPlayerByName(pName);
 		} else {
-			if(lastP){
-				p = _.find(this.playerList, p => p!=lastP);
+			if (lastP) {
+				p = _.find(this.playerList, p => p != lastP);
 				// console.log('交换选手下棋',p);
-			}else{
+			} else {
 				p = _.find(this.playerList, p => p.color == ChessColor.red);
 			}
 		}
@@ -213,6 +213,7 @@ class ChessBoard implements IChessBoard {
 
 	// 选手选择棋子
 	chooseChess(ch: IChess) {
+
 		// 判断是否可以选择
 		if (!_.find(this.getActiveChessList(), chi => chi == ch)) {
 			return;
@@ -225,14 +226,18 @@ class ChessBoard implements IChessBoard {
 		this.currPlayer.chStatus = ChessStatus.beforeMove;
 	}
 
-	unChooseChess(ch: IChess) {
-		if (this.currChess && this.currChess == ch) {
-			ch.status = ChessStatus.beforeChoose;
-			this.currChess = undefined;
-		}
-		if (this.currPlayer) {
+	unChooseChess() {
+		if (this.currPlayer && this.currPlayer.chStatus == ChessStatus.beforeMove) {
 			this.currPlayer.chStatus = ChessStatus.beforeChoose;
+			if (this.currChess) {
+				this.currChess.status = ChessStatus.beforeChoose;
+				this.currChess = undefined;
+			}
+			if (this.currSkill) {
+				this.currSkill = undefined;
+			}
 		}
+
 	}
 
 
@@ -241,9 +246,9 @@ class ChessBoard implements IChessBoard {
 		let ch = this.currChess;
 		ch.move(posi);
 
-		if(ch.status == ChessStatus.beforeCast){
+		if (ch.status == ChessStatus.beforeCast) {
 			this.currPlayer.chStatus = ChessStatus.beforeCast;
-		}else if (ch.status == ChessStatus.rest) {
+		} else if (ch.status == ChessStatus.rest) {
 			this.currPlayer.chStatus = ChessStatus.rest;
 			this.rest();
 		}
@@ -254,11 +259,24 @@ class ChessBoard implements IChessBoard {
 		this.currSkill = _.find(this.currChess.skillList, sk => sk.type === skType);
 	}
 
+	// 选手反选技能
+	unChooseSkill() {
+		if (this.currSkill) {
+			this.currSkill = undefined;
+		}
+	}
+
 
 
 	// 选手选择技能目标
 	chooseSkillTarget(posi: IPosition) {
-
+		if (this.currChess && this.currSkill) {
+			// console.log(this.currSkill.getCastRange());
+			// console.log(posi);
+			if (_.find(this.currSkill.getCastRange(), po => po.x == posi.x && po.y == posi.y)) {
+				this.currSkill.cast(posi);
+			}
+		}
 	}
 
 	// 选手休息
@@ -266,9 +284,10 @@ class ChessBoard implements IChessBoard {
 		// 玩家
 		// 如果玩家下过棋
 		if (this.currPlayer.chStatus == ChessStatus.rest) {
-			this.currPlayer.energy += this.activeRestEnergy;
-		} else if (this.currPlayer.chStatus == ChessStatus.beforeChoose) {
+			this.currPlayer.energy -= this.currChess.energy;
 			this.currPlayer.energy += this.passiveRestEnergy;
+		} else if (this.currPlayer.chStatus == ChessStatus.beforeChoose) {
+			this.currPlayer.energy += this.activeRestEnergy;
 		}
 
 		this.round();
@@ -281,7 +300,20 @@ class ChessBoard implements IChessBoard {
 
 
 	// 胜负判断
-	judge() { }
+	judge(): ChessBoardJudge {
+		let redChessCount = _.filter(this.chessList, ch => ch.color == ChessColor.red).length;
+		let blackChessCount = _.filter(this.chessList, ch => ch.color == ChessColor.black).length;
+
+		if (redChessCount == 0 && blackChessCount == 0) {
+			return ChessBoardJudge.equal;
+		} else if (redChessCount == 0) {
+			return ChessBoardJudge.black;
+		} else if (blackChessCount == 0) {
+			return ChessBoardJudge.red;
+		}
+
+		return ChessBoardJudge.none;
+	}
 
 
 
