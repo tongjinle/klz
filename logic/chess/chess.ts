@@ -17,9 +17,14 @@ export default class Chess implements IChess {
 	energy: number;
 	chBoard: IChessBoard;
 
+	// 增加技能
+	addSkill(sk:ISkill){
+		this.skillList.push(sk);
+		sk.owner = this;
+	}
 
 	// 获得可以移动的坐标列表
-	protected getMoveRangeOnPurpose: () => IPosition[];
+	protected getMoveRangeOnPurpose(): IPosition[] { return undefined };
 	getMoveRange(): IPosition[] {
 		return _(this.getMoveRangeOnPurpose())
 			.filter(posi => this.inChessBoardFilter(posi));
@@ -38,12 +43,12 @@ export default class Chess implements IChess {
 		};
 	};
 	// 休息
-	rest():void{
+	rest(): void {
 		this.status = ChessStatus.rest;
 	};
 
 	// 棋子死亡
-	dead () : void{
+	dead(): void {
 
 	};
 
@@ -76,7 +81,9 @@ export default class Chess implements IChess {
 
 
 	// 棋盘边界过滤器
-	private inChessBoardFilter: (posi: IPosition) => boolean = posi => api.chessBoardApi.isInChessBoard(this.chBoard, posi);
+	private inChessBoardFilter(posi: IPosition): boolean {
+		return api.chessBoardApi.isInChessBoard(this.chBoard, posi);
+	}
 
 	constructor() {
 		this.id = parseInt(_.uniqueId());

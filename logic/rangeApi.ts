@@ -1,7 +1,7 @@
 /// <reference path="../typings/index.d.ts" />
 
 import {IChessBoard, IPosition} from './types';
-
+import _ = require('underscore');
 
 
 
@@ -74,6 +74,16 @@ export function nearRange(posiSource: IPosition, dist: number): IPosition[] {
 	return posiList;
 };
 
+// 四角度斜线
+// nearSlash = slash * 4;
+export function nearSlashRange(posiSource: IPosition, dist: number): IPosition[] {
+	let range: IPosition[] = [];
+	for (let i = 0; i < 4; i++) {
+		range = range.concat(slashRange(posiSource, dist, i));
+	}
+	return range;
+}
+
 // 圆圈
 export function circleRange(posiSource: IPosition, radius: number): IPosition[] {
 	let posiList: IPosition[] = [];
@@ -101,18 +111,32 @@ export function manhattanRange(posiSource: IPosition, radius: number): IPosition
 	return posiList;
 };
 
+// 获取两点之间的坐标
+export function getBetween(pa: IPosition, pb: IPosition): IPosition[] {
+	let range: IPosition[] = [];
+	let [minX, maxX] = [pa.x, pb.x].sort((a, b) => a - b);
+	let [minY, maxY] = [pa.y, pb.y].sort((a, b) => a - b);
+	for (var x = minX; x <= maxX; x++) {
+		for (var y = minY; y <= maxY; y++) {
+			range.push({ x, y });
+		}
+	}
+	range = sub(range, [pa, pb]);
+	return range;
+}
+
 // 获取position的唯一主键
 function getPosiKey(posi: IPosition) {
 	return [posi.x, posi.y].join('-');
 }
 
 // 去重
-function unique(posiList: IPosition[]): IPosition[] {
+export function unique(posiList: IPosition[]): IPosition[] {
 	return _.uniq(posiList, getPosiKey);
 }
 
 // 差集
-function sub(posiListSource: IPosition[], posiListTarget: IPosition[]) {
+export function sub(posiListSource: IPosition[], posiListTarget: IPosition[]): IPosition[] {
 	var posiList: IPosition[] = [];
 	var dict = _.indexBy(posiListSource, getPosiKey);
 	var dictForSub = _.indexBy(posiListTarget, getPosiKey);
@@ -121,7 +145,10 @@ function sub(posiListSource: IPosition[], posiListTarget: IPosition[]) {
 			posiList.push(_.clone(value));
 		}
 	});
+	return posiList;
 }
+
+
 
 // *************************************************************************
 // 基础range函数 END

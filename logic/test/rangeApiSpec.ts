@@ -97,4 +97,60 @@ describe('range api', () => {
 		expect(_.sortBy(rangeApi.manhattanRange({x:1,y:1},2),sort)).toEqual(_.sortBy(exp,sort));
 	});
 
+	it('unique',()=>{
+		let source =[
+			{x:1,y:1},
+			{x:1,y:1},
+			{x:1,y:2},
+			{x:1,y:2}
+		];
+
+		let target =[
+			{x:1,y:1},
+			{x:1,y:2}
+		];
+
+		let exp = rangeApi.unique(source);
+
+		expect(exp).toEqual(target);
+
+	});
+
+	it('sub',()=>{
+		let source =[
+			{x:1,y:1},
+			{x:1,y:3},
+			{x:1,y:2}
+		];
+
+		let target =[
+			{x:1,y:1},
+			{x:1,y:2}
+		];
+
+		let exp = rangeApi.sub(source,target);
+
+		expect(exp).toEqual([{x:1,y:3}]);
+	});
+
+	it('getBetween',()=>{
+		let pa ={x:1,y:4};
+		let pb={x:1,y:2};
+
+		let target = [
+			{x:1,y:3}
+		];
+
+		expect(rangeApi.getBetween(pa,pb)).toEqual(target);
+
+
+	});
+
 });
+
+
+
+
+
+
+

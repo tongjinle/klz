@@ -193,7 +193,6 @@ describe('chessBoard basis', () => {
 		expect(jack.chStatus).toBe(ChessStatus.beforeMove);
 		// expect(ch.status).toBe(ChessStatus.beforeMove);
 		// expect(chBoard.currChess).toBe(ch);
-
 	});
 
 	// 选择别人的棋子(应该出错)

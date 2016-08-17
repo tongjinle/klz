@@ -55,6 +55,7 @@ export interface IChess {
 	hp: number;
 	status: ChessStatus;
 	skillList: ISkill[];
+	addSkill(sk:ISkill):void;
 	chBoard: IChessBoard;
 	getMoveRange: () => IPosition[];
 	getCastRange: (skt: SkillType) => IPosition[];
@@ -71,8 +72,8 @@ export interface ISkill {
 	id: number;
 	owner: IChess;
 	type: SkillType;
-	getCastRange: () => IPosition[];
-	cast: (posiTarget: IPosition) => void;
+	getCastRange () : IPosition[];
+	cast(posiTarget: IPosition):void;
 	maxcd: number;
 	cd: number;
 	cooldown: () => void;
@@ -159,6 +160,11 @@ export enum ChessColor {
 	black
 }
 
+export enum ChessRelationship{
+	firend,
+	enemy
+}
+
 export enum ChessType {
 	footman,
 	knight,
@@ -212,7 +218,13 @@ export enum ChessBoardJudge{
 
 export enum SkillType {
 	attack,
-	heal
+	storm,
+	crash,
+	heal,
+	purge,
+	fire,
+	nova,
+	cleave
 }
 
 
