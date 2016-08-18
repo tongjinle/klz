@@ -1,6 +1,7 @@
 import  {ChessRelationship, IPosition, IBox, IChessBoard, IChess, ISkill, IEffect, IMoveRecord, IEffectRecord, IRecord, IRecordFilter, IRecordMgr, IRangeGen, IAsk, IAnswer, IPlayer, IGame, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType, RecordType, AskType } from '../types';
 import  Skill from './skill';
 import * as api from '../api';
+import _ =  require('underscore');
 
 export default class Purge extends Skill {
 
@@ -17,10 +18,6 @@ export default class Purge extends Skill {
 			return this.chessFilter(po,ChessRelationship.enemy);
 		});
 
-		// 考虑视野遮挡
-		range = _.filter(range,po=>{
-			return this.inChessShadowFilter(owner.posi,po);
-		});
 
 		return range;
 	}
@@ -35,7 +32,7 @@ export default class Purge extends Skill {
 
 		let damage = 2;
 		_.each(range,po=>{
-			let ch = this.owner.chBoard.getChessByPosi(posi);
+			let ch = this.owner.chBoard.getChessByPosi(po);
 			if(ch){
 				api.chessApi.setHp(ch,ch.hp-damage);
 			}

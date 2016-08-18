@@ -25,9 +25,10 @@ export default class Cavalry extends Chess {
 		];
 	};
 
-	skillList = [
-		api.skillApi.create(SkillType.crash)
-	];
+	constructor(){
+		super();
+		this.addSkill(api.skillApi.create(SkillType.crash));
+	}
 
 
 }

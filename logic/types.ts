@@ -53,6 +53,7 @@ export interface IChess {
 	type: ChessType;
 	posi: IPosition;
 	hp: number;
+	maxhp:number;
 	status: ChessStatus;
 	skillList: ISkill[];
 	addSkill(sk:ISkill):void;

@@ -1,6 +1,7 @@
 import {IPosition, IBox, IChessBoard, IChess, ISkill, IEffect, IMoveRecord, IEffectRecord, IRecord, IRecordFilter, IRecordMgr, IRangeGen, IAsk, IAnswer, IPlayer, IGame, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType, RecordType, AskType } from '../types';
 import Skill from './skill';
 import * as api from '../api';
+import _ = require('underscore');
 
 // 对单个友军回复6点血量,施法距离为直线4格
 export default class Heal extends Skill {
@@ -15,7 +16,7 @@ export default class Heal extends Skill {
 
 		range = _.filter(range, po => {
 			let ch = chBoard.getChessByPosi(po);
-			return ch && ch.color == owner.color;
+			return ch && ch.color == owner.color && ch.hp < ch.maxhp;
 		});
 
 		return range;
