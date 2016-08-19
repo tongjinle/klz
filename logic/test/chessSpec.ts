@@ -264,7 +264,7 @@ describe('chess list', () => {
 
 	});
 
-	xit('magic - moveRange', () => {
+	it('magic - moveRange', () => {
 		// 移动范围
 		// 闪现,不会被视野遮挡
 		let me = Chess.createChessByType(ChessType.magic);
@@ -278,7 +278,7 @@ describe('chess list', () => {
 		chBoard.addChess(ch);
 
 		let toStr = range => range.map(po => [po.x, po.y].join('-')).sort();
-		expect(toStr( ch.getMoveRange())).toEqual(toStr([
+		expect(toStr( me.getMoveRange())).toEqual(toStr([
 			// {x:1,y:3},
 			{x:1,y:4},
 			{x:1,y:5},
@@ -309,7 +309,7 @@ describe('chess list', () => {
 	});
 
 
-	xit('magic - moveRange', () => {
+	it('magic - fire - out eye', () => {
 		// 火球(考虑视野遮挡)
 		let me = Chess.createChessByType(ChessType.magic);
 		me.color = ChessColor.red;
@@ -318,24 +318,24 @@ describe('chess list', () => {
 
 		let e1 = new Chess();
 		e1.color = ChessColor.black;
+		e1.hp = 20;
 		e1.posi = {x:1,y:3};
 		chBoard.addChess(e1);
 
 		let e2 = new Chess();
 		e2.color = ChessColor.black;
-		e2.hp = 20;
 		e2.posi = {x:1,y:5};
 		chBoard.addChess(e2);
 
 		let sk = _.find(me.skillList,sk=>sk.type == SkillType.fire);
-		expect(sk.getCastRange()).toEqual([{x:1,y:5}]);
+		expect(sk.getCastRange()).toEqual([{x:1,y:3}]);
 
-		sk.cast({x:1,y:5});
-		expect(e2.hp).toBe(12);
+		sk.cast({x:1,y:3});
+		expect(e1.hp).toBe(12);
 	});
 
 
-	xit('magic - moveRange', () => {
+	it('magic - nova', () => {
 		// 冰霜新星
 		let me = Chess.createChessByType(ChessType.magic);
 		me.color = ChessColor.red;
@@ -360,17 +360,17 @@ describe('chess list', () => {
 		e3.hp = 20;
 		chBoard.addChess(e3);
 
-		let sk = _.find(me.skillList,sk=>sk.type == SkillType.fire);
+		let sk = _.find(me.skillList,sk=>sk.type == SkillType.nova);
 		expect(sk.getCastRange()).toEqual([{x:1,y:2}]);
 
 		sk.cast({x:1,y:2});
-		expect(e1.hp).toBe(12);
-		expect(e2.hp).toBe(12);
+		expect(e1.hp).toBe(14);
+		expect(e2.hp).toBe(14);
 		expect(e3.hp).toBe(20);
 	});
 
 
-	xit('king', () => {
+	it('king', () => {
 		// 顺势斩
 		// 需要有正对的目标供king使用
 

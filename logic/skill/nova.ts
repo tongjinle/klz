@@ -1,6 +1,7 @@
 import  {ChessRelationship, IPosition, IBox, IChessBoard, IChess, ISkill, IEffect, IMoveRecord, IEffectRecord, IRecord, IRecordFilter, IRecordMgr, IRangeGen, IAsk, IAnswer, IPlayer, IGame, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType, RecordType, AskType } from '../types';
 import  Skill from './skill';
 import * as api from '../api';
+import _ = require('underscore');
 
 export default class Nova extends Skill {
 

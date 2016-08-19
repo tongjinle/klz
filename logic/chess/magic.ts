@@ -1,23 +1,29 @@
 /// <reference path="../../typings/index.d.ts" />
-import  {IPosition, IBox, IChessBoard, IChess, ISkill, IEffect, IMoveRecord, IEffectRecord, IRecord, IRecordFilter, IRecordMgr, IRangeGen, IAsk, IAnswer, IPlayer, IGame, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType, RecordType, AskType } from '../types';
+import {IPosition, IBox, IChessBoard, IChess, ISkill, IEffect, IMoveRecord, IEffectRecord, IRecord, IRecordFilter, IRecordMgr, IRangeGen, IAsk, IAnswer, IPlayer, IGame, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType, RecordType, AskType } from '../types';
 
 import _ = require("underscore");
 import * as api from '../api';
 import Chess from './chess';
 
 export default class Magic extends Chess {
+
+	hp = 8;
+	energy = 4;
+
+	getMoveRangeOnPurpose() {
+		let range: IPosition[] = [];
+		range = range.concat(api.rangeApi.nearRange(this.posi, 4));
+		range = range.concat(api.rangeApi.nearSlashRange(this.posi, 3));
+		return range;
+	}
+
+
 	constructor() {
 		super();
 
 		// 技能列表
-		let skill: ISkill;
-		this.skillList.push(api.skillApi.create(SkillType.attack));
-
-		// 生命值
-		this.hp = 5;
-
-		// 获得可以移动的坐标列表
-		this.getMoveRangeOnPurpose = () => api.rangeApi.nearRange(this.posi, 1);
+		this.addSkill(api.skillApi.create(SkillType.fire));
+		this.addSkill(api.skillApi.create(SkillType.nova));
 
 	}
 
