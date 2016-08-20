@@ -161,6 +161,7 @@ ignore 'round' , 'player' to describe record format
 {
 	action:'round',
 	data:{
+		playerName,
 		energy
 	}
 }

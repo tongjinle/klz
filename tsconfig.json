@@ -8,6 +8,7 @@
         "noEmitOnError": true
     },
     "files": [
+        "logic/Game.ts",
         "logic/api.ts",
         "logic/chess/cavalry.ts",
         "logic/chess/chess.ts",
@@ -20,11 +21,11 @@
         "logic/chessApi.ts",
         "logic/chessBoard/chessBoard.ts",
         "logic/chessBoardApi.ts",
-        "logic/game.ts",
+        "logic/conf.ts",
         "logic/maps.ts",
         "logic/playerApi.ts",
         "logic/rangeApi.ts",
-        "logic/replayMgr.ts",
+        "logic/replay.ts",
         "logic/skill/attack.ts",
         "logic/skill/cleave.ts",
         "logic/skill/crash.ts",

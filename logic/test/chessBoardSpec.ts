@@ -5,7 +5,6 @@ import ChessBoard from '../chessBoard/chessBoard';
 import * as api from '../api';
 import Chess from '../chess/chess';
 import Skill from '../skill/skill';
-import ReplayMgr from '../replayMgr';
 
 
 describe('chessBoard', () => {
@@ -65,15 +64,13 @@ describe('chessBoard', () => {
 });
 
 describe('chessBoard basis', () => {
-	let repMgr: ReplayMgr
 	let chBoard: IChessBoard;
 	let jack: IPlayer;
 	let tom: IPlayer;
 
 	beforeEach(() => {
-		repMgr = new ReplayMgr();
 
-		chBoard = repMgr.chBoard;
+		chBoard = new ChessBoard();
 		chBoard.setMapSize(8, 8);
 
 		chBoard.addPlayer('jack');

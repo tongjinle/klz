@@ -1,11 +1,23 @@
-import {ChessBoardJudge, SkillType, IMap, IPosition, IChess, ISkill, IChessBoard, IBox, ChessBoardStatus, IPlayer, ChessType, ChessColor, PlayerStatus, ChessStatus} from '../types';
+import {ActionType, ChessBoardJudge, SkillType, IMap, IPosition, IChess, ISkill, IChessBoard, IBox, ChessBoardStatus, IPlayer, ChessType, ChessColor, PlayerStatus, ChessStatus} from '../types';
 import maps from '../maps';
 import * as api from '../api';
 import _ = require('underscore');
-
-
+import Replay from '../replay';
+import {conf} from '../conf';
 class ChessBoard implements IChessBoard {
+	constructor() {
+		this.roundIndex = 0;
+		this.chessList = [];
+		this.boxList = [];
+		this.playerList = [];
+		this.status = ChessBoardStatus.beforeStart;
+		this.rep = new Replay();
+	}
+
+	rep: Replay;
+
 	seed: number;
+	roundIndex: number;
 	boxList: IBox[];
 	chessList: IChess[];
 	width: number;
@@ -30,16 +42,21 @@ class ChessBoard implements IChessBoard {
 	public currSkill: ISkill;
 
 
-	constructor(mapName: string = 'normal') {
-		this.chessList = [];
-		this.boxList = [];
-		this.playerList = [];
-		this.status = ChessBoardStatus.beforeStart;
-	}
 
 
 	// 方法
 	// ***************************************************
+
+	// 记录rep
+	writeRecord(action: ActionType, data: any) {
+		this.rep.recoList.push({
+			round: this.roundIndex,
+			action: ActionType.setMapSeed,
+			data
+		});
+	}
+
+
 	readMap(mapName: string) {
 		let map: IMap = maps[mapName];
 		this.setMapSeed(map.seed);
@@ -50,6 +67,8 @@ class ChessBoard implements IChessBoard {
 	// 设置随机种子
 	setMapSeed(seed: number) {
 		this.seed = seed;
+
+		this.writeRecord(ActionType.setMapSeed, { seed });
 	}
 
 	// 设置棋盘尺寸
@@ -72,7 +91,7 @@ class ChessBoard implements IChessBoard {
 
 	// 增加选手
 	addPlayer(pName: string): boolean {
-		const MAX_PLAYER_COUNT = 2;
+		const MAX_PLAYER_COUNT = conf.MAX_PLAYER_COUNT;
 		let pList = this.playerList;
 		let color: ChessColor;
 		let p: IPlayer;
@@ -89,7 +108,7 @@ class ChessBoard implements IChessBoard {
 			color,
 			status: PlayerStatus.notReady,
 			chStatus: ChessStatus.rest,
-			energy: 3
+			energy: conf.PLAYER_ENERGY
 		};
 		this.playerList.push(p);
 		return true;
@@ -195,6 +214,8 @@ class ChessBoard implements IChessBoard {
 			this.currPlayer = p;
 			this.status = ChessBoardStatus[ChessColor[p.color]];
 		}
+
+		this.roundIndex++;
 	}
 
 
@@ -327,13 +348,12 @@ class ChessBoard implements IChessBoard {
 		return _.find(this.chessList, ch => ch.posi.x == posi.x && ch.posi.y == posi.y);
 	}
 
-	// 主动休息可以加4点energy
-	private maxEnergy = 10;
-	private activeRestEnergy = 4;
-	private passiveRestEnergy = 2;
-	private addRestEnergy() {
-		this.currPlayer.energy
-	}
+	private maxEnergy = conf.MAX_ENERGY;
+	private activeRestEnergy = conf.ACTIVE_REST_ENERGY;
+	private passiveRestEnergy = conf.PASSIVE_REST_ENERGY;
+
+
+
 
 
 }

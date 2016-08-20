@@ -12,7 +12,8 @@ export interface IBox {
 }
 
 export interface IChessBoard {
-	seed:number;
+	seed: number;
+	roundIndex:number;
 	boxList: IBox[];
 	chessList: IChess[];
 	width: number;
@@ -21,27 +22,27 @@ export interface IChessBoard {
 	// 双方选手
 	playerList: IPlayer[];
 
-	readMap(mapName:string):void;
-	setMapSeed(seed:number):void;
-	setMapSize(width:number,height:number):void;
-	setMapChess(chessList:{ chType: ChessType, color: ChessColor, posi: IPosition }[]):void;
+	readMap(mapName: string): void;
+	setMapSeed(seed: number): void;
+	setMapSize(width: number, height: number): void;
+	setMapChess(chessList: { chType: ChessType, color: ChessColor, posi: IPosition }[]): void;
 	addPlayer(pName: string): boolean;
 	removePlayer(pName: string): boolean;
-	addChess(ch:IChess):boolean;
-	removeChess(ch:IChess):boolean;
+	addChess(ch: IChess): boolean;
+	removeChess(ch: IChess): boolean;
 	ready(pName: string, status: PlayerStatus): boolean;
 	round(pName?: string);
-	rest():void;
-	getActiveChessList():IChess[];
-	chooseChess(ch: IChess):void;
-	unChooseChess():void;
-	moveChess(posi: IPosition):void;
-	chooseSkill(skType: SkillType):void;
-	unChooseSkill():void;
-	chooseSkillTarget(posi: IPosition):void;
+	rest(): void;
+	getActiveChessList(): IChess[];
+	chooseChess(ch: IChess): void;
+	unChooseChess(): void;
+	moveChess(posi: IPosition): void;
+	chooseSkill(skType: SkillType): void;
+	unChooseSkill(): void;
+	chooseSkillTarget(posi: IPosition): void;
 	getPlayerByName(pName: string): IPlayer;
-	getChessByPosi(posi: IPosition):IChess;
-	judge():ChessBoardJudge;
+	getChessByPosi(posi: IPosition): IChess;
+	judge(): ChessBoardJudge;
 	currPlayer: IPlayer;
 	currChess: IChess;
 	currSkill: ISkill;
@@ -53,10 +54,10 @@ export interface IChess {
 	type: ChessType;
 	posi: IPosition;
 	hp: number;
-	maxhp:number;
+	maxhp: number;
 	status: ChessStatus;
 	skillList: ISkill[];
-	addSkill(sk:ISkill):void;
+	addSkill(sk: ISkill): void;
 	chBoard: IChessBoard;
 	getMoveRange: () => IPosition[];
 	getCastRange: (skt: SkillType) => IPosition[];
@@ -66,15 +67,15 @@ export interface IChess {
 	rest: () => void;
 	dead: () => void;
 	energy: number;
-	canCastSkillList:ISkill[];
+	canCastSkillList: ISkill[];
 }
 
 export interface ISkill {
 	id: number;
 	owner: IChess;
 	type: SkillType;
-	getCastRange () : IPosition[];
-	cast(posiTarget: IPosition):void;
+	getCastRange(): IPosition[];
+	cast(posiTarget: IPosition): void;
 	maxcd: number;
 	cd: number;
 	cooldown: () => void;
@@ -98,8 +99,9 @@ export interface IEffectRecord {
 }
 
 export interface IRecord {
-	action:string;
-	data:any;
+	round:number;
+	action: ActionType;
+	data: any;
 }
 
 export interface IRecordFilter { }
@@ -114,13 +116,9 @@ export interface IMap {
 	chessList: { chType: ChessType, color: ChessColor, posi: IPosition }[],
 	width: number,
 	height: number,
-	seed:number
+	seed: number
 }
 
-export interface IRepRecord{
-	action:string;
-	data:any;
-}
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -161,7 +159,7 @@ export enum ChessColor {
 	black
 }
 
-export enum ChessRelationship{
+export enum ChessRelationship {
 	firend,
 	enemy
 }
@@ -207,7 +205,7 @@ export enum ChessBoardStatus {
 }
 
 // 棋局结果
-export enum ChessBoardJudge{
+export enum ChessBoardJudge {
 	red,
 	black,
 	// 平局
@@ -227,6 +225,25 @@ export enum SkillType {
 	nova,
 	cleave
 }
+
+export enum ActionType {
+	setMapSeed,
+	setMapSize,
+	setMapChess,
+	readMap,
+	addChess,
+	removeChess,
+	chooseChess,
+	moveChess,
+	chooseSkill,
+	castSkill,
+	rest,
+	round
+}
+
+
+
+/////////////////////////////////////////////////////////////
 
 
 export enum RecordType {
