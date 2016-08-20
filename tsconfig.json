@@ -41,6 +41,7 @@
         "logic/test/chessSpec.ts",
         "logic/test/gameSpec.ts",
         "logic/test/rangeApiSpec.ts",
+        "logic/test/replaySpec.ts",
         "logic/types.ts",
         "logic/util.ts",
         "meta/nothing.ts"
