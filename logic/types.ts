@@ -238,7 +238,8 @@ export enum ActionType {
 	chooseSkill,
 	castSkill,
 	rest,
-	round
+	round,
+	addPlayer
 }
 
 

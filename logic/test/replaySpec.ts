@@ -1,5 +1,5 @@
 /// <reference path="../../typings/index.d.ts" />
-import {ActionType, IPosition, IBox, IChessBoard, IChess, ISkill, IEffect, IMoveRecord, IEffectRecord, IRecord, IRecordFilter, IRecordMgr, IRangeGen, IAsk, IAnswer, IPlayer, IGame, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType, RecordType, AskType } from '../types';
+import {ChessBoardStatus, ActionType, IPosition, IBox, IChessBoard, IChess, ISkill, IEffect, IMoveRecord, IEffectRecord, IRecord, IRecordFilter, IRecordMgr, IRangeGen, IAsk, IAnswer, IPlayer, IGame, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType, RecordType, AskType } from '../types';
 import _ = require('underscore');
 import chessList from '../chess/chessList';
 import skillList from '../skill/skillList';
@@ -78,13 +78,19 @@ describe('write replay - rep basis', () => {
 		chBoard = new ChessBoard();
 		rep = chBoard.rep;
 
-		chBoard.readMap('normal');
 		// console.log(rep.recoList);
 
 		chBoard.addPlayer('jack');
 		chBoard.addPlayer('tom');
+		
+
+		
+	});
+
+	it('add player',()=>{
 		chBoard.ready('jack', PlayerStatus.ready);
 		chBoard.ready('tom', PlayerStatus.ready);
+		expect(rep.queryByActionType(ActionType.addPlayer).toList().length).toBe(1);
 
 		red = chBoard.getPlayerByName('jack');
 		black = chBoard.getPlayerByName('tom');
@@ -93,6 +99,8 @@ describe('write replay - rep basis', () => {
 
 
 	it('addChess', () => {
+		chBoard.readMap('normal');
+
 		let recoList: IRecord[] = rep.queryByActionType(ActionType.addChess)
 			.queryByParams({
 				chessColor: ChessColor.red,
@@ -189,6 +197,9 @@ describe('write replay - rep basis', () => {
 		expect(rep.queryByRound(3).queryByActionType(ActionType.rest).toList().length).toBe(1);
 	});
 
+	afterAll(() => {
+		// console.log(JSON.stringify(rep.recoList));
+	});
 
 });
 
@@ -201,5 +212,91 @@ describe('write replay - rep basis', () => {
 
 
 describe('read replay', () => {
+	let recoList = [
+		{"round":0,"action":12,"data":{"red": 'jack', "black": 'tom'}},
+		{"round":0,"action":0,"data":{"seed":1216}},
+		{"round":0,"action":1,"data":{"width":8,"height":8}},
+		{"round":0,"action":4,"data":{"chessType":1,"position":{"x":0,"y":0},"chessColor":0}},
+		{"round":0,"action":4,"data":{"chessType":2,"position":{"x":1,"y":0},"chessColor":0}},
+		{"round":0,"action":4,"data":{"chessType":3,"position":{"x":2,"y":0},"chessColor":0}},
+		{"round":0,"action":4,"data":{"chessType":4,"position":{"x":3,"y":0},"chessColor":0}},
+		{"round":0,"action":4,"data":{"chessType":5,"position":{"x":4,"y":0},"chessColor":0}},
+		{"round":0,"action":4,"data":{"chessType":3,"position":{"x":5,"y":0},"chessColor":0}},
+		{"round":0,"action":4,"data":{"chessType":2,"position":{"x":6,"y":0},"chessColor":0}},
+		{"round":0,"action":4,"data":{"chessType":1,"position":{"x":7,"y":0},"chessColor":0}},
+		{"round":0,"action":4,"data":{"chessType":0,"position":{"x":0,"y":1},"chessColor":0}},
+		{"round":0,"action":4,"data":{"chessType":0,"position":{"x":1,"y":1},"chessColor":0}},
+		{"round":0,"action":4,"data":{"chessType":0,"position":{"x":2,"y":1},"chessColor":0}},
+		{"round":0,"action":4,"data":{"chessType":0,"position":{"x":3,"y":1},"chessColor":0}},
+		{"round":0,"action":4,"data":{"chessType":0,"position":{"x":4,"y":1},"chessColor":0}},
+		{"round":0,"action":4,"data":{"chessType":0,"position":{"x":5,"y":1},"chessColor":0}},
+		{"round":0,"action":4,"data":{"chessType":0,"position":{"x":6,"y":1},"chessColor":0}},
+		{"round":0,"action":4,"data":{"chessType":0,"position":{"x":7,"y":1},"chessColor":0}},
+		{"round":0,"action":4,"data":{"chessType":1,"position":{"x":0,"y":7},"chessColor":1}},
+		{"round":0,"action":4,"data":{"chessType":2,"position":{"x":1,"y":7},"chessColor":1}},
+		{"round":0,"action":4,"data":{"chessType":3,"position":{"x":2,"y":7},"chessColor":1}},
+		{"round":0,"action":4,"data":{"chessType":5,"position":{"x":3,"y":7},"chessColor":1}},
+		{"round":0,"action":4,"data":{"chessType":4,"position":{"x":4,"y":7},"chessColor":1}},
+		{"round":0,"action":4,"data":{"chessType":3,"position":{"x":5,"y":7},"chessColor":1}},
+		{"round":0,"action":4,"data":{"chessType":2,"position":{"x":6,"y":7},"chessColor":1}},
+		{"round":0,"action":4,"data":{"chessType":1,"position":{"x":7,"y":7},"chessColor":1}},
+		{"round":0,"action":4,"data":{"chessType":0,"position":{"x":0,"y":6},"chessColor":1}},
+		{"round":0,"action":4,"data":{"chessType":0,"position":{"x":1,"y":6},"chessColor":1}},
+		{"round":0,"action":4,"data":{"chessType":0,"position":{"x":2,"y":6},"chessColor":1}},
+		{"round":0,"action":4,"data":{"chessType":0,"position":{"x":3,"y":6},"chessColor":1}},
+		{"round":0,"action":4,"data":{"chessType":0,"position":{"x":4,"y":6},"chessColor":1}},
+		{"round":0,"action":4,"data":{"chessType":0,"position":{"x":5,"y":6},"chessColor":1}},
+		{"round":0,"action":4,"data":{"chessType":0,"position":{"x":6,"y":6},"chessColor":1}},
+		{"round":0,"action":4,"data":{"chessType":0,"position":{"x":7,"y":6},"chessColor":1}},
+		{"round":1,"action":6,"data":{"position":{"x":0,"y":1}}},
+		{"round":1,"action":7,"data":{"position":{"x":0,"y":2}}},
+		{"round":2,"action":6,"data":{"position":{"x":4,"y":7}}},
+		{"round":2,"action":7,"data":{"position":{"x":4,"y":3}}},
+		{"round":2,"action":8,"data":{"skillType":5}},
+		{"round":2,"action":9,"data":{"position":{"x":4,"y":1}}},
+		{"round":3,"action":10}];
+
+	let rep:Replay;
+	let chBoard:IChessBoard;
+
+	beforeAll(()=>{
+		rep = new Replay();
+	});
+
+	it('addPlayer',()=>{
+		rep.parse(recoList[0] as IRecord);
+
+		chBoard = rep.chBoard;
+
+		expect(chBoard.playerList.length).toBe(2);
+		expect(chBoard.status).toBe(ChessBoardStatus.red);
+	});
+
+	it('setMapSeed',()=>{
+		rep.parse(recoList[1] as IRecord);
+		expect(chBoard.seed).toBe(1216);
+	});
+
+	it('setMapSize',()=>{
+		rep.parse(recoList[2] as IRecord);
+		expect(chBoard.width).toBe(8);
+		expect(chBoard.height).toBe(8);
+	});
+
+	it('addChess',()=>{
+		recoList.slice(3,3+32).forEach(reco=>{
+			rep.parse(reco as IRecord);
+		});
+		expect(chBoard.chessList.length).toBe(32);
+	});
+
+
 
 });
+
+
+
+
+
+
+

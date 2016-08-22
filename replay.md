@@ -5,6 +5,14 @@ fields:
 	action:string,
 	data:{}
 
+ - addPlayer
+ {
+ 	action:'addPlayer',
+ 	data:{
+ 		player,
+ 		color
+ 	}
+ }
  
  - setMapSeed
  {

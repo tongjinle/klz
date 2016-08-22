@@ -2,7 +2,7 @@
 
 
 import ChessBoard from './chessBoard/chessBoard';
-import {ActionType, IRecord, SkillType, ChessColor, ChessType, IPosition, IChess} from './types';
+import {PlayerStatus, ActionType, IRecord, SkillType, ChessColor, ChessType, IPosition, IChess} from './types';
 import Chess from './chess/chess';
 import chessList from './chess/chessList';
 import _ = require("underscore");
@@ -82,6 +82,13 @@ export default class Replay {
 
 
 	private parseDict: { [action: number]: (data: {}) => void } = {
+		[ActionType.addPlayer]:(data:{red:string,black:string})=>{
+			this.chBoard.addPlayer(data.red);
+			this.chBoard.addPlayer(data.black);
+
+			this.chBoard.ready(data.red,PlayerStatus.ready);
+			this.chBoard.ready(data.black,PlayerStatus.ready);
+		},
 		[ActionType.setMapSeed]: (data: { seed: number }) => {
 			this.chBoard.setMapSeed(data.seed);
 		},

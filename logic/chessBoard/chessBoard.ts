@@ -163,6 +163,12 @@ class ChessBoard implements IChessBoard {
 
 			// 是否都准备完毕
 			if (this.canStart()) {
+
+				this.writeRecord(ActionType.addPlayer,{
+					red:_.find(this.playerList,p=>p.color == ChessColor.red).name,
+					black:_.find(this.playerList,p=>p.color == ChessColor.black).name
+				});
+			
 				this.start();
 			}
 
