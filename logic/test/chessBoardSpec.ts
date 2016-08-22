@@ -516,6 +516,9 @@ describe('chessBoard basis', () => {
 		chBoard.chooseSkill(0);
 		chBoard.chooseSkillTarget({ x: 1, y: 4 });
 		expect(chOfTom.hp).toBe(9);
+		expect(chOfJack.status).toBe(ChessStatus.rest);
+		expect(jack.status).toBe(PlayerStatus.waiting);
+		expect(jack.chStatus).toBe(ChessStatus.rest);
 
 	});
 

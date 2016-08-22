@@ -51,7 +51,7 @@ class ChessBoard implements IChessBoard {
 	writeRecord(action: ActionType, data: any) {
 		this.rep.recoList.push({
 			round: this.roundIndex,
-			action: ActionType.setMapSeed,
+			action,
 			data
 		});
 	}
@@ -75,6 +75,8 @@ class ChessBoard implements IChessBoard {
 	setMapSize(width: number, height: number) {
 		this.width = width;
 		this.height = height;
+
+		this.writeRecord(ActionType.setMapSize, { width, height });
 	}
 
 	// 初始化游戏
@@ -85,6 +87,12 @@ class ChessBoard implements IChessBoard {
 			api.chessApi.setColor(ch, d.color);
 			api.chessApi.setPosition(ch, d.posi);
 			this.addChess(ch);
+
+			this.writeRecord(ActionType.addChess,{
+				chessType:d.chType,
+				position:d.posi,
+				chessColor:d.color
+			});
 		});
 	}
 
@@ -265,14 +273,21 @@ class ChessBoard implements IChessBoard {
 	// 选手移动棋子
 	moveChess(posi: IPosition) {
 		let ch = this.currChess;
+		let lastPosi = _.clone(ch.posi);
 		ch.move(posi);
 
+		// 必须在rest前做好replay记录
+		// 否则round会成为2
+		this.writeRecord(ActionType.chooseChess,{position:{x:lastPosi.x,y:lastPosi.y}});
+		this.writeRecord(ActionType.moveChess,{position:{x:ch.posi.x,y:ch.posi.y}});
+		
 		if (ch.status == ChessStatus.beforeCast) {
 			this.currPlayer.chStatus = ChessStatus.beforeCast;
 		} else if (ch.status == ChessStatus.rest) {
 			this.currPlayer.chStatus = ChessStatus.rest;
 			this.rest();
 		}
+
 	}
 
 	// 选手选择技能
@@ -296,7 +311,18 @@ class ChessBoard implements IChessBoard {
 			// console.log(posi);
 			if (_.find(this.currSkill.getCastRange(), po => po.x == posi.x && po.y == posi.y)) {
 				this.currSkill.cast(posi);
+
+				this.writeRecord(ActionType.chooseSkill,{skillType:this.currSkill.type});
+				this.writeRecord(ActionType.castSkill,{position:_.clone(posi)})
+
+
+				this.currChess.status = ChessStatus.rest;
+				this.currPlayer.chStatus = ChessStatus.rest;
+				this.currPlayer.status = PlayerStatus.waiting;
+
+				this.rest();
 			}
+
 		}
 	}
 
@@ -309,6 +335,8 @@ class ChessBoard implements IChessBoard {
 			this.currPlayer.energy += this.passiveRestEnergy;
 		} else if (this.currPlayer.chStatus == ChessStatus.beforeChoose) {
 			this.currPlayer.energy += this.activeRestEnergy;
+
+			this.writeRecord(ActionType.rest,undefined);
 		}
 
 		this.round();

@@ -24,13 +24,60 @@ export default class Replay {
 		this.recoList.push(reco);
 	}
 
-	query(action: ActionType, condi: { [key: string]: any }): IRecord[] {
-		let recoList: IRecord[];
-		recoList = _.filter(this.recoList, reco =>
-			(action ? reco.action == action : true) &&
-			(condi ? _.all(condi, (v, k) => reco[k] == v) : true)
-		);
-		return recoList;
+	// query(action: ActionType, condi: { [key: string]: any }): IRecord[] {
+	// 	let recoList: IRecord[];
+	// 	recoList = _.filter(this.recoList, reco =>
+	// 		(action ? reco.action == action : true) &&
+	// 		(condi ? _.all(condi, (v, k) => reco[k] == v) : true)
+	// 	);
+	// 	return recoList;
+	// }
+
+	// 链式写法 
+	private queryRecoList:IRecord[];
+	queryByRound(round:number):Replay{
+		this.queryRecoList = this.queryRecoList || this.recoList;
+		this.queryRecoList = _.filter(this.queryRecoList,reco=>reco.round == round);
+		return this;
+	}
+
+	queryByActionType(action:ActionType):Replay{
+		this.queryRecoList = this.queryRecoList || this.recoList;
+		this.queryRecoList = _.filter(this.queryRecoList,reco=>reco.action == action);
+		return this;
+	}
+
+	queryByParams(params):Replay{
+		this.queryRecoList = this.queryRecoList || this.recoList;
+		let isMatch = (oa,ob):boolean=>{
+			let flag:boolean = false;
+
+			if(_.isObject(oa) && _.isObject(ob)){
+				_.find(ob,(obv,k)=>{
+					let oav = oa[k];
+					flag = isMatch(oav,obv);
+					if(!flag){return true;}
+				});
+			}else if(_.isArray(oa) && _.isArray(ob)){
+				_.find(ob,(obv,i)=>{
+					let oav = oa[i];
+					flag = isMatch(oav,obv);
+					if(!flag){return true;}
+				});
+			}else{
+				return oa === ob;
+			}
+			
+			return flag;
+		};
+		this.queryRecoList = _.filter(this.queryRecoList,reco =>isMatch(reco.data,params));
+		return this;
+	}
+
+	toList():IRecord[]{
+		let rst :IRecord[] = this.queryRecoList;
+		this.queryRecoList = undefined;
+		return rst;
 	}
 
 

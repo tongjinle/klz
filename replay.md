@@ -1,4 +1,4 @@
-# database
+rep# database
 
 ## replay table 
 fields:
@@ -23,13 +23,7 @@ fields:
  	}
  }
 
- - setMapChess
-{
-	action:'setMapChess',
-	data:{
-		chessList
-	}
-}
+
 
 
 - addChess
@@ -46,13 +40,13 @@ fields:
 {
 	action:'removeChess',
 	data:{
-		position
+	position
 	}
 }
 
-- selectChess
+- chooseChess
 {
-	action:'selectChess',
+	action:'chooseChess',
 	data:{
 		position
 	}	
@@ -66,9 +60,9 @@ fields:
 	}
 }
 
-- selectSkill
+- chooseSkill
 {
-	action:'selectSkill',
+	action:'chooseSkill',
 	data:{
 		skillType
 	}
