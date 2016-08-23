@@ -120,6 +120,7 @@ describe('chessBoard basis', () => {
 			ch.energy = n.energy;
 			ch.posi = n.posi;
 			ch.color = n.color;
+			ch.getMoveRange = () => [{ x: -1, y: -1 }];
 			chBoard.addChess(ch);
 		});
 
@@ -179,6 +180,7 @@ describe('chessBoard basis', () => {
 			ch.energy = n.energy;
 			ch.posi = n.posi;
 			ch.color = n.color;
+			ch.getMoveRange = () => [{ x: -1, y: -1 }];
 			chBoard.addChess(ch);
 		});
 
@@ -285,6 +287,7 @@ describe('chessBoard basis', () => {
 			ch.energy = n.energy;
 			ch.posi = n.posi;
 			ch.color = n.color;
+			ch.getMoveRange = ()=>[{x:-1,y:-1}];
 			chBoard.addChess(ch);
 		});
 
@@ -498,8 +501,8 @@ describe('chessBoard basis', () => {
 					chOfTom.hp = 9;
 				}
 			},
-			{ chId: 2, type: 1, getCastRange: () => [{ x: 5, y: 5 }],cast:undefined },
-			{ chId: 0, type: 2, getCastRange: () => [],cast:undefined }
+			{ chId: 2, type: 1, getCastRange: () => [{ x: 5, y: 5 }], cast: undefined },
+			{ chId: 0, type: 2, getCastRange: () => [], cast: undefined }
 		];
 		_.each(skList, n => {
 			let sk = new Skill();
@@ -540,6 +543,7 @@ describe('chessBoard basis', () => {
 			ch.energy = n.energy;
 			ch.posi = n.posi;
 			ch.color = n.color;
+			ch.getMoveRange =()=>[{x:-1,y:-1}];
 			chBoard.addChess(ch);
 		});
 
@@ -550,9 +554,9 @@ describe('chessBoard basis', () => {
 		expect(jack.energy).toBe(4);
 		expect(chBoard.currPlayer).toBe(tom);
 		// 被动休息加2点能量
-		let ch = _.find(chBoard.chessList,ch=>ch.id == 1);
+		let ch = _.find(chBoard.chessList, ch => ch.id == 1);
 		chBoard.chooseChess(ch);
-		chBoard.moveChess({x:1,y:3});
+		chBoard.moveChess({ x: 1, y: 3 });
 		chBoard.rest();
 		expect(tom.energy).toBe(6);
 
@@ -577,13 +581,13 @@ describe('chessBoard basis', () => {
 			chBoard.addChess(ch);
 		});
 
-		let judge:ChessBoardJudge;
-		judge= chBoard.judge();
+		let judge: ChessBoardJudge;
+		judge = chBoard.judge();
 		expect(judge).toBe(ChessBoardJudge.none);
 
-		let ch:IChess = _.find(chBoard.chessList,ch=>ch.id==0);
+		let ch: IChess = _.find(chBoard.chessList, ch => ch.id == 0);
 		chBoard.removeChess(ch);
-		judge= chBoard.judge();
+		judge = chBoard.judge();
 		expect(judge).toBe(ChessColor.black);
 
 	});

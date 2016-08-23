@@ -88,10 +88,10 @@ class ChessBoard implements IChessBoard {
 			api.chessApi.setPosition(ch, d.posi);
 			this.addChess(ch);
 
-			this.writeRecord(ActionType.addChess,{
-				chessType:d.chType,
-				position:d.posi,
-				chessColor:d.color
+			this.writeRecord(ActionType.addChess, {
+				chessType: d.chType,
+				position: d.posi,
+				chessColor: d.color
 			});
 		});
 	}
@@ -164,11 +164,11 @@ class ChessBoard implements IChessBoard {
 			// 是否都准备完毕
 			if (this.canStart()) {
 
-				this.writeRecord(ActionType.addPlayer,{
-					red:_.find(this.playerList,p=>p.color == ChessColor.red).name,
-					black:_.find(this.playerList,p=>p.color == ChessColor.black).name
+				this.writeRecord(ActionType.addPlayer, {
+					red: _.find(this.playerList, p => p.color == ChessColor.red).name,
+					black: _.find(this.playerList, p => p.color == ChessColor.black).name
 				});
-			
+
 				this.start();
 			}
 
@@ -238,11 +238,18 @@ class ChessBoard implements IChessBoard {
 	getActiveChessList(): IChess[] {
 		let p = this.currPlayer;
 		// console.log(this.chessList.length);
-		_(this.chessList).filter(ch => {
-			// console.log(ch.color,ch.energy,p.color,p.energy);
-			return ch.color == p.color && ch.energy <= p.energy;
-		});
-		return _(this.chessList).filter(ch => ch.color == p.color && ch.energy <= p.energy);
+		// _(this.chessList).filter(ch => {
+		// 	// console.log(ch.color,ch.energy,p.color,p.energy);
+		// 	return ch.color == p.color && ch.energy <= p.energy;
+		// });
+		return _(this.chessList).filter(
+			ch => ch.color == p.color
+				&& ch.energy <= p.energy
+				&& (
+					ch.getMoveRange().length > 0
+					|| !!_.find(ch.skillList, sk => ch.getCastRange(sk.type).length > 0)
+				)
+		);
 	}
 
 
@@ -284,9 +291,9 @@ class ChessBoard implements IChessBoard {
 
 		// 必须在rest前做好replay记录
 		// 否则round会成为2
-		this.writeRecord(ActionType.chooseChess,{position:{x:lastPosi.x,y:lastPosi.y}});
-		this.writeRecord(ActionType.moveChess,{position:{x:ch.posi.x,y:ch.posi.y}});
-		
+		this.writeRecord(ActionType.chooseChess, { position: { x: lastPosi.x, y: lastPosi.y } });
+		this.writeRecord(ActionType.moveChess, { position: { x: ch.posi.x, y: ch.posi.y } });
+
 		if (ch.status == ChessStatus.beforeCast) {
 			this.currPlayer.chStatus = ChessStatus.beforeCast;
 		} else if (ch.status == ChessStatus.rest) {
@@ -318,8 +325,8 @@ class ChessBoard implements IChessBoard {
 			if (_.find(this.currSkill.getCastRange(), po => po.x == posi.x && po.y == posi.y)) {
 				this.currSkill.cast(posi);
 
-				this.writeRecord(ActionType.chooseSkill,{skillType:this.currSkill.type});
-				this.writeRecord(ActionType.castSkill,{position:_.clone(posi)})
+				this.writeRecord(ActionType.chooseSkill, { skillType: this.currSkill.type });
+				this.writeRecord(ActionType.castSkill, { position: _.clone(posi) })
 
 
 				this.currChess.status = ChessStatus.rest;
@@ -342,7 +349,7 @@ class ChessBoard implements IChessBoard {
 		} else if (this.currPlayer.chStatus == ChessStatus.beforeChoose) {
 			this.currPlayer.energy += this.activeRestEnergy;
 
-			this.writeRecord(ActionType.rest,undefined);
+			this.writeRecord(ActionType.rest, undefined);
 		}
 
 		this.round();
