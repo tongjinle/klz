@@ -100,13 +100,12 @@ export default class Replay {
 			this.chBoard.setMapChess(data.chessList);
 		},
 
-		[ActionType.readMap]: (data: { mapName: string, randomSeed: number }) => {
+		[ActionType.readMap]: (data: { mapName: string }) => {
 			this.chBoard.readMap(data.mapName);
-			this.seed = data.randomSeed;
 		},
 
 		[ActionType.addChess]: (data: { chessType: ChessType, position: IPosition, chessColor: ChessColor }) => {
-			let ch: IChess = new chessList[data.chessType]();
+			let ch: IChess = Chess.createChessByType(data.chessType);
 			ch.color = data.chessColor;
 			ch.posi = data.position;
 			this.chBoard.addChess(ch);
@@ -115,20 +114,17 @@ export default class Replay {
 			this.chBoard.removeChess(this.chBoard.getChessByPosi(data.position));
 		},
 		[ActionType.chooseChess]: (data: { position: IPosition }) => {
-			this.chBoard.currChess = this.chBoard.getChessByPosi(data.position);
+			let ch = this.chBoard.getChessByPosi(data.position);
+			this.chBoard.chooseChess(ch);
 		},
 		[ActionType.moveChess]: (data: { position: IPosition }) => {
-			let ch = this.chBoard.currChess;
-			ch.posi = data.position;
+			this.chBoard.moveChess(data.position)
 		},
 		[ActionType.chooseSkill]: (data: { skillType: SkillType }) => {
-			let ch = this.chBoard.currChess;
-			let sk = _.find(ch.skillList, sk => sk.type == data.skillType);
-			this.chBoard.currSkill = sk;
+			this.chBoard.chooseSkill(data.skillType);
 		},
 		[ActionType.castSkill]: (data: { position: IPosition }) => {
-			let sk = this.chBoard.currSkill;
-			sk.cast(data.position);
+			this.chBoard.chooseSkillTarget(data.position);
 		},
 		[ActionType.rest]: () => {
 			this.chBoard.rest();

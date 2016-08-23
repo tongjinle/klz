@@ -290,6 +290,49 @@ describe('read replay', () => {
 		expect(chBoard.chessList.length).toBe(32);
 	});
 
+	it('red choose chess',()=>{
+		rep.parse(recoList[35] as IRecord);
+		expect(chBoard.currChess.posi).toEqual({x:0,y:1});
+	});
+
+	it('red move chess',()=>{
+		let ch = chBoard.currChess;
+
+		rep.parse(recoList[36] as IRecord);
+		expect(ch.posi).toEqual({x:0,y:2});
+	});
+
+	it('black choose chess(magic)',()=>{
+		console.log(chBoard.currPlayer);
+		expect(chBoard.currPlayer.color).toBe(ChessColor.black);
+
+		// mock tom's energy to choose magic
+		chBoard.currPlayer.energy=100;
+
+		rep.parse(recoList[37] as IRecord);
+		expect(chBoard.currChess.type).toBe(ChessType.magic);
+	});
+
+	it('black move chess',()=>{
+		rep.parse(recoList[38] as IRecord);
+		expect(chBoard.currChess.posi).toEqual({x:4,y:3});
+	});
+
+	it('black cast skill',()=>{
+		let ch = chBoard.currChess;
+
+		rep.parse(recoList[39] as IRecord);
+		rep.parse(recoList[40] as IRecord);
+		expect(chBoard.getChessByPosi({x:4,y:1})).toBeUndefined();
+		expect(ch.status).toBe(ChessStatus.rest);
+	});
+
+	it('red rest',()=>{
+		rep.parse(recoList[41] as IRecord);
+		let red = _.find(chBoard.playerList,p=>p.color==ChessColor.red);
+		let black = _.find(chBoard.playerList,p=>p.color==ChessColor.black);
+		expect(red.energy).toBe(8);
+	});
 
 
 });

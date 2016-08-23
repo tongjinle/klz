@@ -325,6 +325,9 @@ class ChessBoard implements IChessBoard {
 			if (_.find(this.currSkill.getCastRange(), po => po.x == posi.x && po.y == posi.y)) {
 				this.currSkill.cast(posi);
 
+				// 移除死亡的棋子
+				this.chessList = _.filter(this.chessList,ch=>ch.hp>0);
+
 				this.writeRecord(ActionType.chooseSkill, { skillType: this.currSkill.type });
 				this.writeRecord(ActionType.castSkill, { position: _.clone(posi) })
 

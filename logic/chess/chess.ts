@@ -11,12 +11,25 @@ export default class Chess implements IChess {
 	color: ChessColor;
 	type: ChessType;
 	posi: IPosition;
-	hp: number;
+	hp:number;
 	maxhp:number;
 	status: ChessStatus;
 	skillList: ISkill[];
 	energy: number;
 	chBoard: IChessBoard;
+
+
+	// private _hp : number;
+	// public get hp() : number {
+	// 	return this._hp;
+	// }
+	// public set hp(v : number) {
+	// 	this._hp = Math.max( Math.min(this.maxhp,v),0);
+
+	// 	if(this._hp==0){
+	// 		this.chBoard.chessList = _.filter(this.chBoard.chessList,ch=>ch.id==this.id);
+	// 	}
+	// }
 
 	// 增加技能
 	addSkill(sk:ISkill){
@@ -104,7 +117,9 @@ export default class Chess implements IChess {
 	}
 
 	static createChessByType(cht:ChessType):IChess{
-		return new chessList[cht]();
+		let ch = new chessList[cht]();
+		ch.type = cht;
+		return ch;
 	}
 
 }
