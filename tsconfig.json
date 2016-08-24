@@ -40,6 +40,7 @@
         "logic/test/chessApiSpec.ts",
         "logic/test/chessBoardSpec.ts",
         "logic/test/chessSpec.ts",
+        "logic/test/combatSpec.ts",
         "logic/test/gameSpec.ts",
         "logic/test/rangeApiSpec.ts",
         "logic/test/replaySpec.ts",

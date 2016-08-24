@@ -119,7 +119,13 @@ export interface IMap {
 	seed: number
 }
 
-
+export interface IPlayer {
+	name: string;
+	color: ChessColor;
+	status: PlayerStatus;
+	chStatus: ChessStatus;
+	energy: number;
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -131,14 +137,6 @@ export interface IAsk {
 export interface IAnswer {
 	type: AskType,
 	data?: any
-}
-
-export interface IPlayer {
-	name: string;
-	color: ChessColor;
-	status: PlayerStatus;
-	chStatus: ChessStatus;
-	energy: number;
 }
 
 

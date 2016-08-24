@@ -101,6 +101,29 @@ fields
 	data:
 
 ignore 'round' , 'player' to describe record format
+
+基本格式:
+{
+	player,
+	round,
+	step,
+	source:{
+		id:
+		type:
+	},
+	target,
+	effect:{}
+	action:ActionType
+	actionParams:{}
+
+
+}
+
+- chessBoard
+{
+
+}
+
 - chess
 {	
 	action:'born',
