@@ -13,7 +13,7 @@ export interface IBox {
 
 export interface IChessBoard {
 	seed: number;
-	roundIndex:number;
+	roundIndex: number;
 	boxList: IBox[];
 	chessList: IChess[];
 	width: number;
@@ -21,6 +21,9 @@ export interface IChessBoard {
 	status: ChessBoardStatus;
 	// 双方选手
 	playerList: IPlayer[];
+
+	// change表
+	chgList: IChange<{}>[];
 
 	readMap(mapName: string): void;
 	setMapSeed(seed: number): void;
@@ -40,6 +43,7 @@ export interface IChessBoard {
 	chooseSkill(skType: SkillType): void;
 	unChooseSkill(): void;
 	chooseSkillTarget(posi: IPosition): void;
+	getLastChange(): IChange<{}>;
 	getPlayerByName(pName: string): IPlayer;
 	getChessByPosi(posi: IPosition): IChess;
 	judge(): ChessBoardJudge;
@@ -81,37 +85,6 @@ export interface ISkill {
 	cooldown: () => void;
 }
 
-export interface IEffect {
-	(sk: ISkill, chBoard: IChessBoard, posi: IPosition): void
-}
-
-export interface IMoveRecord {
-	chSource: IChess,
-	posiTarget: IPosition,
-	data?: any
-}
-
-export interface IEffectRecord {
-	chSource: IChess;
-	chTarget?: IChess;
-	skillType: SkillType;
-	data?: any
-}
-
-export interface IRecord {
-	round:number;
-	action: ActionType;
-	data: any;
-}
-
-export interface IRecordFilter { }
-
-export interface IRecordMgr { }
-
-export interface IRangeGen {
-	(posi: IPosition): IPosition[];
-}
-
 export interface IMap {
 	chessList: { chType: ChessType, color: ChessColor, posi: IPosition }[],
 	width: number,
@@ -127,26 +100,84 @@ export interface IPlayer {
 	energy: number;
 }
 
+
+
+
+// change
+export interface IChange<T extends {}> {
+	round: number,
+	type: ChangeType,
+	detail: T
+}
+
+export interface IPositionChange extends IChange<{
+	abs:IPosition,
+	rela:IPosition
+}> {
+
+}
+
+export interface IEnergyChange extends IChange<{
+	restType:RestType,
+	abs:number,
+	rela:number
+}> {
+
+}
+
+export interface IHpChange extends IChange<{
+	sourceChessId:number,
+	targetChessId:number,
+	abs:number,
+	rela:number
+}> {
+
+}
+
+//  replay
+export interface IRecord {
+	round: number;
+	action: ActionType;
+	data: any;
+}
+
+
+
+
+// http data protocol
+export interface IRoomInfo {
+	roundIndex: number,
+	width: number,
+	height: number,
+	status: number,
+	playerList: {
+		playerName: string,
+		status: number,
+		chStatus: number
+	}[],
+	chessList: {
+		id: number,
+		color: ChessColor,
+		type: ChessType,
+		posi: IPosition,
+		hp: number,
+		maxhp: number,
+		status: ChessStatus,
+		energy: number
+	}[],
+	skillList: {
+		id: number,
+		chessId: number,
+		type: SkillType
+		maxcd: number,
+		cd: number,
+	}[],
+	currPlayerName: string,
+	currChessId: number,
+	currSkillId: number
+}
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
-export interface IAsk {
-	type: AskType,
-	data?: any
-}
-
-export interface IAnswer {
-	type: AskType,
-	data?: any
-}
-
-
-export interface IGame {
-	create(): void;
-	round(): IPlayer;
-	answer(ask: IAsk): IAnswer;
-	addPlayer(username: string): void;
-	removePlayer(username: string): void;
-}
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -240,26 +271,17 @@ export enum ActionType {
 	addPlayer
 }
 
+export enum ChangeType {
+	position,
+	hp,
+	energy
+}
+
+
+export enum RestType{
+	active,
+	passive
+}
 
 
 /////////////////////////////////////////////////////////////
-
-
-export enum RecordType {
-	round,
-	move,
-	cast,
-	rest
-}
-
-export enum AskType {
-	selectChess,
-	unSelectChess,
-	selectPosition,
-	confirmPosition,
-	selectSkill,
-	unSelectSkill,
-	rest,
-	giveup
-
-}

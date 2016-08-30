@@ -6,7 +6,9 @@ module.exports = function(grunt) {
 	require('load-grunt-tasks')(grunt);
 
 	// typescript 
+	var tsSource = ['logic/**/*.ts','meta/**/*.ts','server/**/*.ts'];
 	var tsSource = ['logic/**/*.ts','meta/**/*.ts'];
+	// var tsSource = ['server/**/*.ts'];
 	var tsDist = 'dist/';
 
 	// less
@@ -104,6 +106,7 @@ module.exports = function(grunt) {
 				dest: tsDist,
 				options: {
 					generateTsConfig: true,
+					moduleResolution:'node',
 					module: 'commonjs', //or commonjs 
 					target: 'es5', //or es3 
 					sourceMap: false,
@@ -177,7 +180,19 @@ module.exports = function(grunt) {
 					"test/helpers/**"
 				]
 			}
+		},
+
+		express: {
+			options: {
+			  // Override defaults here 
+			},
+			dev: {
+			  options: {
+				script: 'dist/server/app.js'
+			  }
+			}
 		}
+
 
 	});
 
@@ -188,6 +203,8 @@ module.exports = function(grunt) {
 		'jasmine_nodejs',
 		'watch'
 	]);
+
+	grunt.registerTask('myServer', ['express', 'express-keepalive']);
 
 
 	grunt.registerTask('default', ['serve']);

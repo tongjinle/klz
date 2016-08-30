@@ -1,6 +1,6 @@
 /// <reference path="../typings/index.d.ts" />
 
-import  {IPosition, IBox, IChessBoard, IChess, ISkill, IEffect, IMoveRecord, IEffectRecord, IRecord, IRecordFilter, IRecordMgr, IRangeGen, IAsk, IAnswer, IPlayer, IGame, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType, RecordType, AskType } from './types';
+import  {IPosition, IBox, IChessBoard, IChess, ISkill,   IRecord,     IPlayer, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType } from './types';
 import _ = require("underscore");
 import * as chessBoardApi from './chessBoardApi';
 import * as chessApi from './chessApi';
@@ -17,20 +17,14 @@ export function setOwner(sk: ISkill, ch: IChess) {
 	sk.owner = ch;
 }
 
-// 效果列表
-let effectList: { [skillType: number]: IEffect } = {};
-effectList[SkillType.attack] = (sk, chBoard, posi) => {
-	let ch = chessBoardApi.getChessByPosi(chBoard, posi);
-	let damage = 1;
-	chessApi.setHp(ch, ch.hp - damage);
-};
+
 
 export function canCast(sk: ISkill): boolean {
 	return sk.cd == 0;
 }
 
 export function cast(sk: ISkill, chBoard: IChessBoard, posi: IPosition) {
-	effectList[sk.type](sk, chBoard, posi);
+	
 	setCd(sk, sk.maxcd);
 }
 

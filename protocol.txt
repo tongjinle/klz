@@ -29,6 +29,15 @@
 		]
 	}
 
+- 建立某个房间
+	createRoom
+	req:null
+
+	res:
+	{
+		flag
+
+	}
 
 - 进入某个房间
 	enterRoom
@@ -96,11 +105,12 @@
 	}
 
 	res:{
-		flag:boolean
+		flag:boolean,
+		changes
 	}
 
 - 请求可以被选择的技能
-	getActiveChessList
+	getActiveSkillList
 	req:null
 
 	res:{

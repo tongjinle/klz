@@ -1,7 +1,8 @@
 /// <reference path="../../typings/index.d.ts" />
-import _ = require('underscore');
+// import _ = require('underscore');
+import * as _ from 'underscore';
 import * as api from '../api';
-import {IPosition, IBox, IChessBoard, IChess, ISkill, IEffect, IMoveRecord, IEffectRecord, IRecord, IRecordFilter, IRecordMgr, IRangeGen, IAsk, IAnswer, IPlayer, IGame, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType, RecordType, AskType } from '../types';
+import {IPosition, IBox, IChessBoard, IChess, ISkill,   IRecord,     IPlayer, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType } from '../types';
 import chessList from './chessList';
 
 

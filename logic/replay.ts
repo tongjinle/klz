@@ -11,9 +11,12 @@ import _ = require("underscore");
 
 export default class Replay {
 	constructor() {
+		this.id = parseInt( _.uniqueId());
 		this.recoList = [];
 
 	}
+
+	id:number;
 	seed: number;
 	chBoard: ChessBoard;
 	recoList: IRecord[];

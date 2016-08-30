@@ -1,4 +1,4 @@
-import {ActionType, ChessBoardJudge, SkillType, IMap, IPosition, IChess, ISkill, IChessBoard, IBox, ChessBoardStatus, IPlayer, ChessType, ChessColor, PlayerStatus, ChessStatus} from '../types';
+import {ActionType, ChessBoardJudge, SkillType, IMap, IChange, IPosition, IChess, ISkill, IChessBoard, IBox, ChessBoardStatus, IPlayer, ChessType, ChessColor, PlayerStatus, ChessStatus} from '../types';
 import maps from '../maps';
 import * as api from '../api';
 import _ = require('underscore');
@@ -10,6 +10,7 @@ class ChessBoard implements IChessBoard {
 		this.chessList = [];
 		this.boxList = [];
 		this.playerList = [];
+		this.chgList = [];
 		this.status = ChessBoardStatus.beforeStart;
 		this.rep = new Replay();
 	}
@@ -41,7 +42,8 @@ class ChessBoard implements IChessBoard {
 	public currChess: IChess;
 	public currSkill: ISkill;
 
-
+	// change表
+	chgList:IChange<{}>[];
 
 
 	// 方法
@@ -326,7 +328,7 @@ class ChessBoard implements IChessBoard {
 				this.currSkill.cast(posi);
 
 				// 移除死亡的棋子
-				this.chessList = _.filter(this.chessList,ch=>ch.hp>0);
+				this.chessList = _.filter(this.chessList, ch => ch.hp > 0);
 
 				this.writeRecord(ActionType.chooseSkill, { skillType: this.currSkill.type });
 				this.writeRecord(ActionType.castSkill, { position: _.clone(posi) })
@@ -340,6 +342,12 @@ class ChessBoard implements IChessBoard {
 			}
 
 		}
+	}
+
+	getLastChange(): IChange<{}> {
+		let rst:IChange<{}>;
+		rst = this.chgList[this.chgList.length-1];
+		return rst;
 	}
 
 	// 选手休息

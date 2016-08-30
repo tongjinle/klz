@@ -17,6 +17,9 @@
   },
   "homepage": "https://github.com/tongjinle/klz#readme",
   "dependencies": {
+    "body-parser": "^1.15.2",
+    "cookie-session": "^2.0.0-alpha.1",
+    "express": "^4.14.0",
     "underscore": "^1.8.3"
   },
   "devDependencies": {
@@ -29,6 +32,8 @@
     "grunt-contrib-less": "^1.1.0",
     "grunt-contrib-requirejs": "^1.0.0",
     "grunt-contrib-watch": "~0.5.3",
+    "grunt-express": "^1.4.1",
+    "grunt-express-server": "^0.5.3",
     "grunt-jasmine-nodejs": "^1.5.3",
     "grunt-jsdoc": "^1.1.0",
     "grunt-typedoc": "^0.2.3",

@@ -1,8 +1,10 @@
 {
-  "dependencies": {},
+  "dependencies": {
+    "express": "registry:npm/express#4.14.0+20160815112707"
+  },
   "globalDependencies": {
     "jasmine": "registry:dt/jasmine#2.2.0+20160621224255",
-    "require": "registry:dt/require#2.1.20+20160316155526",
+    "node": "registry:dt/node#6.0.0+20160823142437",
     "underscore": "registry:dt/underscore#1.7.0+20160720002543"
   }
 }

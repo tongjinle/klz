@@ -1,6 +1,6 @@
 /// <reference path="../../typings/index.d.ts" />
 
-import {ChessRelationship, IPosition, IBox, IChessBoard, IChess, ISkill, IEffect, IMoveRecord, IEffectRecord, IRecord, IRecordFilter, IRecordMgr, IRangeGen, IAsk, IAnswer, IPlayer, IGame, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType, RecordType, AskType } from '../types';
+import {ChessRelationship, IPosition, IBox, IChessBoard, IChess, ISkill,  IRecord, IPlayer, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType } from '../types';
 import Skill from './skill';
 import * as api from '../api';
 import _ = require('underscore');
@@ -16,10 +16,10 @@ export default class Storm extends Skill {
 		let range = api.rangeApi.nearRange(owner.posi, 1);
 
 		range = _.filter(range, po => {
-			return this.chessFilter(po,ChessRelationship.enemy);
+			return this.chessFilter(po, ChessRelationship.enemy);
 		});
 
-		if(range.length){
+		if (range.length) {
 			return [this.owner.posi];
 		}
 		return [];
