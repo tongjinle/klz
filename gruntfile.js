@@ -4,6 +4,7 @@ module.exports = function(grunt) {
 	require('time-grunt')(grunt);
 	// load all grunt tasks  
 	require('load-grunt-tasks')(grunt);
+	grunt.loadNpmTasks('ntypescript');
 
 	// typescript 
 	var tsSource = ['logic/**/*.ts','meta/**/*.ts','server/**/*.ts'];
@@ -100,6 +101,13 @@ module.exports = function(grunt) {
 				}
 			}
 		},
+		ntypescript: {
+            base:{
+            	options: {
+	                project: '.'
+	            }
+            }
+        },
 		typescript: {
 			base: {
 				src: tsSource,
@@ -196,10 +204,10 @@ module.exports = function(grunt) {
 
 	});
 
-	grunt.registerTask('serve', ['typescript']);
+	grunt.registerTask('serve', ['ntypescript']);
 
 	grunt.registerTask('test', [
-		'typescript',
+		'ntypescript',
 		'jasmine_nodejs',
 		'watch'
 	]);
