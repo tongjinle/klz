@@ -22,8 +22,6 @@ export interface IChessBoard {
 	// 双方选手
 	playerList: IPlayer[];
 
-	// change表
-	chgList: IChange<{}>[];
 
 	readMap(mapName: string): void;
 	setMapSeed(seed: number): void;
@@ -43,7 +41,6 @@ export interface IChessBoard {
 	chooseSkill(skType: SkillType): void;
 	unChooseSkill(): void;
 	chooseSkillTarget(posi: IPosition): void;
-	getLastChange(): IChange<{}>;
 	getPlayerByName(pName: string): IPlayer;
 	getChessByPosi(posi: IPosition): IChess;
 	judge(): ChessBoardJudge;

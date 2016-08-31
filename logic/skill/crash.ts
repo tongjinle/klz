@@ -1,6 +1,7 @@
 import  {IPosition, IBox, IChessBoard, IChess, ISkill,   IRecord,     IPlayer, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType } from '../types';
 import  Skill from './skill';
 import * as api from '../api';
+import * as _ from 'underscore';
 
 export default class Crash extends Skill {
 

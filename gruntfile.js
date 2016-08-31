@@ -37,7 +37,7 @@ module.exports = function(grunt) {
 		watch: {
 			typescript: {
 				files: tsSource,
-				tasks: ['typescript']
+				tasks: ['ntypescript']
 			},
 			jasmine: {
 				files: 'dist/**/*.js',

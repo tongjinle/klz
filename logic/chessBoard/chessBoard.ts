@@ -1,8 +1,11 @@
-import {ActionType, ChessBoardJudge, SkillType, IMap, IChange, IPosition, IChess, ISkill, IChessBoard, IBox, ChessBoardStatus, IPlayer, ChessType, ChessColor, PlayerStatus, ChessStatus} from '../types';
+/// <reference path="../../typings/index.d.ts" />
+
+import {RestType, IPositionChange, IHpChange, IEnergyChange, ChangeType, ActionType, ChessBoardJudge, SkillType, IMap, IChange, IPosition, IChess, ISkill, IChessBoard, IBox, ChessBoardStatus, IPlayer, ChessType, ChessColor, PlayerStatus, ChessStatus} from '../types';
 import maps from '../maps';
 import * as api from '../api';
 import _ = require('underscore');
 import Replay from '../replay';
+import ChangeTable from '../changeTable';
 import {conf} from '../conf';
 class ChessBoard implements IChessBoard {
 	constructor() {
@@ -10,12 +13,13 @@ class ChessBoard implements IChessBoard {
 		this.chessList = [];
 		this.boxList = [];
 		this.playerList = [];
-		this.chgList = [];
 		this.status = ChessBoardStatus.beforeStart;
 		this.rep = new Replay();
+		this.chgTable = new ChangeTable();
 	}
 
 	rep: Replay;
+	chgTable: ChangeTable;
 
 	seed: number;
 	roundIndex: number;
@@ -42,8 +46,6 @@ class ChessBoard implements IChessBoard {
 	public currChess: IChess;
 	public currSkill: ISkill;
 
-	// change表
-	chgList:IChange<{}>[];
 
 
 	// 方法
@@ -56,6 +58,16 @@ class ChessBoard implements IChessBoard {
 			action,
 			data
 		});
+	}
+
+	// 记录change
+	writeChange(cht: ChangeType, data: any) {
+		let chg: IChange<{}> = {
+			round: this.roundIndex,
+			type: cht,
+			detail: data
+		};
+		this.chgTable.recoList.push(chg);
 	}
 
 
@@ -296,6 +308,13 @@ class ChessBoard implements IChessBoard {
 		this.writeRecord(ActionType.chooseChess, { position: { x: lastPosi.x, y: lastPosi.y } });
 		this.writeRecord(ActionType.moveChess, { position: { x: ch.posi.x, y: ch.posi.y } });
 
+		// 记录change
+		this.writeChange(ChangeType.position, {
+			abs: _.clone(ch.posi),
+			rela: { x: ch.posi.x - lastPosi.x, y: ch.posi.y - lastPosi.y }
+		});
+
+
 		if (ch.status == ChessStatus.beforeCast) {
 			this.currPlayer.chStatus = ChessStatus.beforeCast;
 		} else if (ch.status == ChessStatus.rest) {
@@ -344,24 +363,36 @@ class ChessBoard implements IChessBoard {
 		}
 	}
 
-	getLastChange(): IChange<{}> {
-		let rst:IChange<{}>;
-		rst = this.chgList[this.chgList.length-1];
-		return rst;
-	}
 
 	// 选手休息
 	rest() {
+		let lastEnergy: number = this.currPlayer.energy;
+		let restType:RestType;
 		// 玩家
 		// 如果玩家下过棋
 		if (this.currPlayer.chStatus == ChessStatus.rest) {
 			this.currPlayer.energy -= this.currChess.energy;
 			this.currPlayer.energy += this.passiveRestEnergy;
+
+			restType = RestType.passive;
+
 		} else if (this.currPlayer.chStatus == ChessStatus.beforeChoose) {
 			this.currPlayer.energy += this.activeRestEnergy;
 
+			restType = RestType.active;
+
+			// write replay
 			this.writeRecord(ActionType.rest, undefined);
+
+
 		}
+
+		// write change
+		this.writeChange(ChangeType.energy, {
+			abs: this.currPlayer.energy,
+			rela: this.currPlayer.energy - lastEnergy,
+			restType
+		});
 
 		this.round();
 	}

@@ -1,19 +1,18 @@
-// combat记录了玩家在操作之后的effect
-// effect被记录在表中,以供特殊的skill或者buff进行查询
-// karazhan里没有,所以简单
-
-
 /// <reference path="../../typings/index.d.ts" />
 import {RestType, ChangeType, IPositionChange, IHpChange, IEnergyChange, ChessBoardStatus, ActionType, IPosition, IBox, IChessBoard, IChess, ISkill,  IRecord, IPlayer, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType } from '../types';
 import * as _ from 'underscore';
 import ChessBoard from '../chessBoard/chessBoard';
 import Chess from '../chess/chess';
+import ChangeTable from '../changeTable';
 
-describe('combat', () => {
-	let chBoard: IChessBoard;
+
+describe('changes', () => {
+	let chBoard: ChessBoard;
+	let chgTable:ChangeTable;
 
 	beforeAll(() => {
 		chBoard = new ChessBoard();
+		chgTable = chBoard.chgTable;
 		chBoard.readMap('normal');
 
 		chBoard.addPlayer('cat');
@@ -25,12 +24,16 @@ describe('combat', () => {
 	});
 
 
-	xit('cat move chess', () => {
+	it('cat move chess', () => {
 		let ch = chBoard.getChessByPosi({ x: 1, y: 0 });
 		chBoard.chooseChess(ch);
 		chBoard.moveChess({ x: 2, y: 2 });
 
-		let chg: IPositionChange = _.find(chBoard.chgList, chg => chg.round == 0 && chg.type == ChangeType.position) as IPositionChange;
+		let chg: IPositionChange = chgTable.queryByRound(1)
+			.queryByChangeType(ChangeType.position)
+			.toList()[0] as IPositionChange;
+
+		console.log(chgTable.recoList);
 
 		expect(chg.detail. abs).toEqual({ x: 2, y: 2 });
 		expect(chg.detail.rela).toEqual({ x: 1, y: 2 });
@@ -38,28 +41,45 @@ describe('combat', () => {
 
 	});
 
-	xit('cat rest', () => {
+	it('cat rest', () => {
 		// 起始有3点energy
 		// 移动cavalry,消耗1点energy
 		// 被动休息+2点energy
 		// 所以是4点energy
-		let chg: IEnergyChange = _.find(chBoard.chgList, chg => chg.round == 0 && chg.type == ChangeType.energy) as IEnergyChange;
-		expect(chg.detail. rela).toBe(4);
+		let chg: IEnergyChange = chgTable.queryByRound(1)
+			.queryByChangeType(ChangeType.energy)
+			.toList()[0] as IEnergyChange;
+
+		expect(chg.detail.abs).toBe(4);
 		expect(chg.detail.restType).toBe(RestType.passive);
 	});
 
-	xit('cat cast skill', () => {
+	it('cat cast skill', () => {
+		// mouse,round-2
 		let ch = chBoard.getChessByPosi({ x: 1, y: 7 });
 		chBoard.chooseChess(ch);
-		chBoard.moveChess({ x: 2, y: 6 });
+		chBoard.moveChess({ x: 2, y: 5 });
 
+		// cat,round-3
 		ch = chBoard.getChessByPosi({ x: 2, y: 2 });
 		chBoard.chooseChess(ch);
 		chBoard.moveChess({ x: 1, y: 4 });
-		chBoard.chooseSkill(SkillType.storm);
-		chBoard.chooseSkillTarget(ch.posi);
+		
 
-		let chg: IHpChange = _.find(chBoard.chgList, chg => chg.round == 1 && chg.type == ChangeType.hp) as IHpChange; 
+		// mouse,round-4
+		ch = chBoard.getChessByPosi({ x: 2, y: 5 });
+		chBoard.chooseChess(ch);
+		chBoard.moveChess({ x: 1, y: 3 });
+		chBoard.chooseSkill(SkillType.crash);
+		chBoard.chooseSkillTarget({x:1,y:4});
+		// cat,round-5
+
+		// mouse,round-6
+
+		let chg: IHpChange = chgTable.queryByRound(4)
+			.queryByChangeType(ChangeType.hp)
+			.toList()[0] as IHpChange;
+
 		expect(chg.detail.abs).toBe(1);
 		expect(chg.detail.rela).toBe(3);
 	});

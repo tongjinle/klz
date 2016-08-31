@@ -275,7 +275,7 @@ app.get('/user/moveChess', (req: Request, res: Response) => {
 	let chBoard: IChessBoard = rep.chBoard;
 	chBoard.moveChess(req['body'].position);
 
-	let changes = chBoard.getLastChange();
+	let changes;// = chBoard.getLastChange();
 
 	res.json({
 		flag: true,
@@ -350,7 +350,7 @@ app.post('/user/chooseChess', (req: Request, res: Response) => {
 	}
 
 	chBoard.chooseSkillTarget(req['body'].position);
-	let changes = chBoard.getLastChange();
+	let changes;// = chBoard.getLastChange();
 	res.json({
 		flag:true,
 		changes

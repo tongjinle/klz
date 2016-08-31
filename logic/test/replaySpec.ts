@@ -303,7 +303,6 @@ describe('read replay', () => {
 	});
 
 	it('black choose chess(magic)',()=>{
-		console.log(chBoard.currPlayer);
 		expect(chBoard.currPlayer.color).toBe(ChessColor.black);
 
 		// mock tom's energy to choose magic

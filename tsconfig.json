@@ -7,45 +7,8 @@
         "module": "commonjs",
         "noEmitOnError": true
     },
-    "files": [
-        "logic/api.ts",
-        "logic/chess/cavalry.ts",
-        "logic/chess/chess.ts",
-        "logic/chess/chessList.ts",
-        "logic/chess/footman.ts",
-        "logic/chess/king.ts",
-        "logic/chess/knight.ts",
-        "logic/chess/magic.ts",
-        "logic/chess/minister.ts",
-        "logic/chessApi.ts",
-        "logic/chessBoard/chessBoard.ts",
-        "logic/chessBoardApi.ts",
-        "logic/conf.ts",
-        "logic/game.ts",
-        "logic/maps.ts",
-        "logic/playerApi.ts",
-        "logic/rangeApi.ts",
-        "logic/replay.ts",
-        "logic/skill/attack.ts",
-        "logic/skill/cleave.ts",
-        "logic/skill/crash.ts",
-        "logic/skill/fire.ts",
-        "logic/skill/heal.ts",
-        "logic/skill/nova.ts",
-        "logic/skill/purge.ts",
-        "logic/skill/skill.ts",
-        "logic/skill/skillList.ts",
-        "logic/skill/storm.ts",
-        "logic/skillApi.ts",
-        "logic/test/changeSpec.ts",
-        "logic/test/chessApiSpec.ts",
-        "logic/test/chessBoardSpec.ts",
-        "logic/test/chessSpec.ts",
-        "logic/test/gameSpec.ts",
-        "logic/test/rangeApiSpec.ts",
-        "logic/test/replaySpec.ts",
-        "logic/types.ts",
-        "logic/util.ts",
-        "meta/nothing.ts"
+    
+    "exclude":[
+        "node_modules"
     ]
 }
