@@ -79,9 +79,10 @@ describe('changes', () => {
 		let chg: IHpChange = chgTable.queryByRound(4)
 			.queryByChangeType(ChangeType.hp)
 			.toList()[0] as IHpChange;
-
-		expect(chg.detail.abs).toBe(1);
-		expect(chg.detail.rela).toBe(3);
+		// console.log(chgTable);
+		// console.log(JSON.stringify(chg));
+		expect(chg.detail.abs).toBe(9);
+		expect(chg.detail.rela).toBe(-3);
 	});
 
 	

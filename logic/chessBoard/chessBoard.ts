@@ -344,7 +344,19 @@ class ChessBoard implements IChessBoard {
 			// console.log(this.currSkill.getCastRange());
 			// console.log(posi);
 			if (_.find(this.currSkill.getCastRange(), po => po.x == posi.x && po.y == posi.y)) {
+				let lastChessHpDict = getChessHpDict(this.chessList);
 				this.currSkill.cast(posi);
+				let currChessHpDict = getChessHpDict(this.chessList);
+				_.each(currChessHpDict,(v,k)=>{
+					if(v!=lastChessHpDict[k]){
+						this.writeChange(ChangeType.hp,{
+							sourceChessId:this.currChess.id,
+							targetChessId:k,
+							abs:v,
+							rela:v-lastChessHpDict[k]
+						});
+					}
+				});
 
 				// 移除死亡的棋子
 				this.chessList = _.filter(this.chessList, ch => ch.hp > 0);
@@ -360,6 +372,14 @@ class ChessBoard implements IChessBoard {
 				this.rest();
 			}
 
+		}
+
+		function getChessHpDict(chessList:IChess[]):{[chessId:string]:number}{
+			var dict:{[chessId:string]:number} ={};
+			_.each(chessList,ch=>{
+				dict[ch.id]=ch.hp;
+			});
+			return dict;
 		}
 	}
 
