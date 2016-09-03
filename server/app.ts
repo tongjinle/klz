@@ -3,9 +3,10 @@
 // import express = require("express");
 import * as express from "express";
 import * as _ from 'underscore';
-import {ActionType, IRoomInfo, IPosition, IBox, IChessBoard, IChess, ISkill,   IRecord,    IPlayer, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType } from '../logic/types';
+import {ActionType, IRoomInfo, IPosition, IBox, IChessBoard, IChess, ISkill, IRecord, IPlayer, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType } from '../logic/types';
 import Replay from '../logic/replay';
 import ChessBoard from '../logic/chessBoard/chessBoard';
+import tokenGen from './tokenGen';
 
 // import * as cookieSession from 'cookie-session';
 var cookieSession = require('cookie-session');
@@ -18,13 +19,22 @@ console.log(new Date().toLocaleString());
 
 var app = express();
 var router = express.Router();
+
+app.all('*', (req: Request, res: Response, next) => {
+	// console.log('set header');
+	res.header("Access-Control-Allow-Origin", "*");
+	res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+	res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+	next();
+});
+
+
 app.set('trust proxy', 1) // trust first proxy
 
 app.use(cookieSession({
 	name: 'session',
 	keys: ['key1', 'key2']
 }));
-
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -38,16 +48,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // })
 
 
-app.all('*', (req: Request, res: Response, next) => {
-	// console.log('set header');
-	res.header("Access-Control-Allow-Origin", "*");
-	res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-	next();
-});
+
 
 app.use('/user/*', (req: Request, res: Response, next) => {
 	console.log('check login');
-	if (req['session'] && req['session'].username) {
+	let token = req.params['token']||req.query['token'] || req['body'].token;
+	console.log('token:',token);
+	let user = token && getUserByToken(token);
+	if (user) {
+		req['user'] = user;
 		next();
 	} else {
 		res.json({ flag: false });
@@ -67,26 +76,29 @@ app.get('/', function(req, res) {
 
 // 登录
 let users = [
-	{ username: 'falcon', password: '' },
-	{ username: 'mouse', password: '' },
-	{ username: 'cat', password: '' }
+	{ username: 'falcon', password: '', token: undefined, expires: undefined },
+	{ username: 'mouse', password: '', token: undefined, expires: undefined },
+	{ username: 'cat', password: '', token: undefined, expires: undefined }
 ];
 
-app.post('/login', function(req: Request, res: Response) {
-	let username: string = req.params['username'];
-	let password: string = req.params['password'];
+let getUserByToken = (token: string) => _.find(users, u => u.token == token && u.expires > + new Date);
 
-	let flag = !!_.find(users, u => u.username == username && u.password == password);
+app.post('/login', function(req: Request, res: Response) {
+	let username: string = req['body'].username;
+	let password: string = req['body'].password;
+	let user = _.find(users, u => u.username == username && u.password == password);
+	let flag: boolean = !!user;
 	if (flag) {
-		let session = req['session'];
-		session.username = username;
+		user.token = tokenGen();
+		let maxAge: number = 2 * 60 * 60 * 1000;
+		user.expires = (+new Date) + maxAge;
 	}
-	let rst = { flag };
+	let rst = { flag,token:user.token };
 	res.json(rst);
 });
 
 app.get('/user/getMyUsername', (req: Request, res: Response) => {
-	res.json({ username: req['session'].username });
+	res.json({ flag: true, username: req['user'].username });
 });
 
 // 获取大厅棋盘
@@ -315,16 +327,16 @@ app.post('/user/chooseSkillTarget', (req: Request, res: Response) => {
 
 
 	if (!rep) {
-		res.json({flag:false});
+		res.json({ flag: false });
 	}
 
-	
+
 
 	let chBoard: IChessBoard = rep.chBoard;
 	let skillId = req.params['skillId'];
 
-	let sk:ISkill = _(chBoard.currChess.skillList).find(sk=>sk.id == skillId);
-	if(!sk){
+	let sk: ISkill = _(chBoard.currChess.skillList).find(sk => sk.id == skillId);
+	if (!sk) {
 		res.json({ flag: false });
 
 	}
@@ -340,19 +352,19 @@ app.post('/user/chooseChess', (req: Request, res: Response) => {
 
 
 	if (!rep) {
-		res.json({flag:false});
+		res.json({ flag: false });
 	}
 
 	let chBoard: IChessBoard = rep.chBoard;
 
-	if(!chBoard.currSkill){
-		res.json({flag:false});
+	if (!chBoard.currSkill) {
+		res.json({ flag: false });
 	}
 
 	chBoard.chooseSkillTarget(req['body'].position);
 	let changes;// = chBoard.getLastChange();
 	res.json({
-		flag:true,
+		flag: true,
 		changes
 	});
 
