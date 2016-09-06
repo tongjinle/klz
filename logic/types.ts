@@ -12,6 +12,7 @@ export interface IBox {
 }
 
 export interface IChessBoard {
+	id:number;
 	seed: number;
 	roundIndex: number;
 	boxList: IBox[];
@@ -143,6 +144,7 @@ export interface IRecord {
 
 // http data protocol
 export interface IRoomInfo {
+	id:number,
 	roundIndex: number,
 	width: number,
 	height: number,

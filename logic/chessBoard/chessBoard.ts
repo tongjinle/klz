@@ -9,6 +9,7 @@ import ChangeTable from '../changeTable';
 import {conf} from '../conf';
 class ChessBoard implements IChessBoard {
 	constructor() {
+		this.id = parseInt(_.uniqueId());
 		this.roundIndex = 0;
 		this.chessList = [];
 		this.boxList = [];
@@ -18,6 +19,7 @@ class ChessBoard implements IChessBoard {
 		this.chgTable = new ChangeTable();
 	}
 
+	id:number;
 	rep: Replay;
 	chgTable: ChangeTable;
 

@@ -52,8 +52,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use('/user/*', (req: Request, res: Response, next) => {
 	console.log('check login');
-	let token = req.params['token']||req.query['token'] || req['body'].token;
-	console.log('token:',token);
+	let token = req.params['token'] || req.query['token'] || req['body'].token;
+	console.log('token:', token);
 	let user = token && getUserByToken(token);
 	if (user) {
 		req['user'] = user;
@@ -93,7 +93,19 @@ app.post('/login', function(req: Request, res: Response) {
 		let maxAge: number = 2 * 60 * 60 * 1000;
 		user.expires = (+new Date) + maxAge;
 	}
-	let rst = { flag,token:user.token };
+	let rst = { flag, token: user.token };
+	res.json(rst);
+});
+
+app.post('/logout', function(req: Request, res: Response) {
+	let token = req['body'].token;
+	let user = _.find(users, u => u.token == token);
+	if (user) {
+		user.token = undefined;
+		user.expires = undefined;
+	}
+	let flag: boolean = !!user;
+	let rst = { flag };
 	res.json(rst);
 });
 
@@ -162,28 +174,30 @@ let roomList: Replay[] = [
 
 
 // 获取所有房间
-app.get('user/roomList', (req: Request, res: Response) => {
-	let isMine: boolean = !!req.query['isMine'];
+app.get('/user/roomList', (req: Request, res: Response) => {
+	let isMine: boolean = !!(req.query['isMine'] - 0);
 	let status: number = req.query['status'] - 0;
 	let pageIndex: number = req.query['pageIndex'] - 0;
 	let pageSize: number = req.query['pageSize'] - 0;
 
-
+	console.log(req.query);
 	let list = _(roomList).filter(ro => status == -1 ? true : ro.chBoard.status == status);
-
+	console.log(list.length);
+	console.log(isMine);
 	if (isMine) {
-		let username = req['session'].username;
+		let username = req['user'].username;
 		if (username) {
 			list = _(list).filter(ro => ro.chBoard.playerList.indexOf(username) >= 0);
 		}
 	}
 
 	let totalCount = list.length;
+	console.log(totalCount);
 	list = list.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize);
 
 	let rst = {
 		flag: true,
-		roomList: list,
+		roomList: list.map(ro => getRoomInfo(ro.id)),
 		totalCount
 	};
 
@@ -192,7 +206,40 @@ app.get('user/roomList', (req: Request, res: Response) => {
 
 
 function getRoomInfo(roomId: number): IRoomInfo {
-	let info: IRoomInfo;
+	let room = _.find(roomList, ro => ro.id == roomId);
+	if (!room) {
+		return null;
+	}
+
+	let chBoard = room.chBoard;
+	let info: IRoomInfo = {} as IRoomInfo;
+
+	info.id =chBoard.id;
+	info.currChessId = chBoard.currChess && chBoard.currChess.id;
+	info.currPlayerName = chBoard.currPlayer && chBoard.currPlayer.name;
+	info.currSkillId = chBoard.currSkill && chBoard.currSkill.id;
+	info.height = chBoard.height;
+	info.playerList = chBoard.playerList
+		&& chBoard.playerList.map(p => {
+			return {
+				playerName: p.name,
+				status: p.status,
+				chStatus: p.chStatus
+			};
+		});
+	info.roundIndex = chBoard.roundIndex;
+	info.skillList = chBoard.currChess && chBoard.currChess.skillList.map(sk => {
+		return {
+			id: sk.id,
+			chessId: sk.owner.id,
+			type: sk.type,
+			maxcd: sk.maxcd,
+			cd: sk.cd
+		};
+	});
+	info.status = chBoard.status;
+	info.width = chBoard.width;
+
 	return info;
 }
 
