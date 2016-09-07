@@ -59,6 +59,7 @@ app.use('/user/*', (req: Request, res: Response, next) => {
 		req['user'] = user;
 		next();
 	} else {
+		console.log(token,'fail check');
 		res.json({ flag: false });
 	}
 });
@@ -131,7 +132,7 @@ let roomList: Replay[] = [
 	rep = new Replay();
 	chBoard = rep.chBoard = new ChessBoard();
 	chBoard.readMap('normal');
-	chBoard.addPlayer('mouser');
+	chBoard.addPlayer('mouse');
 	roomList.push(rep);
 
 	// 2
@@ -207,6 +208,8 @@ app.get('/user/roomList', (req: Request, res: Response) => {
 
 function getRoomInfo(roomId: number): IRoomInfo {
 	let room = _.find(roomList, ro => ro.id == roomId);
+	console.log(_.map(roomList,ro=>ro.id),roomId);
+	console.log('room:',room);
 	if (!room) {
 		return null;
 	}
@@ -255,10 +258,11 @@ app.post('/user/createRoom', (req: Request, res: Response) => {
 	roomList.push(rep);
 });
 
-// 进入某个房间
-app.post('/user/enterRoom/:roomId', (req: Request, res: Response) => {
-	let roomId: number = parseInt(req['body'].roomId);
 
+// 进入某个房间
+app.get('/user/getRoomInfo/:roomId', (req: Request, res: Response) => {
+	let roomId: number = parseInt(req.params['roomId']);
+	console.log(roomId);
 
 	let info = getRoomInfo(roomId);
 	let flag: boolean = !!info;
@@ -266,10 +270,11 @@ app.post('/user/enterRoom/:roomId', (req: Request, res: Response) => {
 		flag,
 		info
 	};
+	console.log('getRoomInfo',info);
 
 	if (flag) {
 		// 当前房间
-		req['session'].roomId = roomId;
+		req['user'].roomId = roomId;
 	}
 
 	res.json(rst);
