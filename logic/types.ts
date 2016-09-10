@@ -152,7 +152,8 @@ export interface IRoomInfo {
 	playerList: {
 		playerName: string,
 		status: number,
-		chStatus: number
+		chStatus: number,
+		playerColor:number
 	}[],
 	chessList: {
 		id: number,

@@ -181,10 +181,8 @@ app.get('/user/roomList', (req: Request, res: Response) => {
 	let pageIndex: number = req.query['pageIndex'] - 0;
 	let pageSize: number = req.query['pageSize'] - 0;
 
-	console.log(req.query);
 	let list = _(roomList).filter(ro => status == -1 ? true : ro.chBoard.status == status);
-	console.log(list.length);
-	console.log(isMine);
+	
 	if (isMine) {
 		let username = req['user'].username;
 		if (username) {
@@ -193,7 +191,6 @@ app.get('/user/roomList', (req: Request, res: Response) => {
 	}
 
 	let totalCount = list.length;
-	console.log(totalCount);
 	list = list.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize);
 
 	let rst = {
@@ -208,8 +205,6 @@ app.get('/user/roomList', (req: Request, res: Response) => {
 
 function getRoomInfo(roomId: number): IRoomInfo {
 	let room = _.find(roomList, ro => ro.id == roomId);
-	console.log(_.map(roomList,ro=>ro.id),roomId);
-	console.log('room:',room);
 	if (!room) {
 		return null;
 	}
@@ -217,7 +212,7 @@ function getRoomInfo(roomId: number): IRoomInfo {
 	let chBoard = room.chBoard;
 	let info: IRoomInfo = {} as IRoomInfo;
 
-	info.id =chBoard.id;
+	info.id =room.id;
 	info.currChessId = chBoard.currChess && chBoard.currChess.id;
 	info.currPlayerName = chBoard.currPlayer && chBoard.currPlayer.name;
 	info.currSkillId = chBoard.currSkill && chBoard.currSkill.id;
@@ -227,10 +222,25 @@ function getRoomInfo(roomId: number): IRoomInfo {
 			return {
 				playerName: p.name,
 				status: p.status,
-				chStatus: p.chStatus
+				chStatus: p.chStatus,
+				playerColor:p.color
 			};
 		});
 	info.roundIndex = chBoard.roundIndex;
+	info.chessList = chBoard.currPlayer && 
+		chBoard.chessList
+		.map(ch=>{
+			return {
+				id:ch.id,
+				color:ch.color,
+				type:ch.type,
+				posi:ch.posi,
+				hp:ch.hp,
+				maxhp:ch.maxhp,
+				status:ch.status,
+				energy:ch.energy
+			};
+		});
 	info.skillList = chBoard.currChess && chBoard.currChess.skillList.map(sk => {
 		return {
 			id: sk.id,
@@ -244,6 +254,9 @@ function getRoomInfo(roomId: number): IRoomInfo {
 	info.width = chBoard.width;
 
 	return info;
+
+
+
 }
 
 
@@ -262,7 +275,6 @@ app.post('/user/createRoom', (req: Request, res: Response) => {
 // 进入某个房间
 app.get('/user/getRoomInfo/:roomId', (req: Request, res: Response) => {
 	let roomId: number = parseInt(req.params['roomId']);
-	console.log(roomId);
 
 	let info = getRoomInfo(roomId);
 	let flag: boolean = !!info;
@@ -270,7 +282,6 @@ app.get('/user/getRoomInfo/:roomId', (req: Request, res: Response) => {
 		flag,
 		info
 	};
-	console.log('getRoomInfo',info);
 
 	if (flag) {
 		// 当前房间
@@ -296,8 +307,12 @@ app.get('/user/refresh', (req: Request, res: Response) => {
 });
 
 // 请求可以被选择的棋子
+// params
+/*
+	roomId:number
+*/
 app.get('/user/getActiveChessList', (req: Request, res: Response) => {
-	let roomId: number = req['session'].roomId;
+	let roomId: number = req.query['roomId'];
 	let rep: Replay = _.find(roomList, ro => ro.id == roomId);
 
 	if (!rep) {
