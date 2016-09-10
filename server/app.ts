@@ -170,7 +170,6 @@ let roomList: Replay[] = [
 	chBoard.addPlayer('cat');
 	roomList.push(rep);
 
-
 })(roomList);
 
 
