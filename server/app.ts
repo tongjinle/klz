@@ -20,14 +20,6 @@ console.log(new Date().toLocaleString());
 var app = express();
 var router = express.Router();
 
-app.all('*', (req: Request, res: Response, next) => {
-	// console.log('set header');
-	res.header("Access-Control-Allow-Origin", "*");
-	res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-	res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-	next();
-});
-
 
 app.set('trust proxy', 1) // trust first proxy
 
@@ -39,30 +31,51 @@ app.use(cookieSession({
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// app.use(function (req, res, next) {
-//   // Update views
-//   req.session.views = (req.session.views || 0) + 1
 
-//   // Write response
-//   res.end(req.session.views + ' views')
-// })
-
+app.all('*', (req: Request, res: Response, next) => {
+	// console.log('set header');
+	res.header("Access-Control-Allow-Origin", "*");
+	res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+	res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+	next();
+});
 
 
 
 app.use('/user/*', (req: Request, res: Response, next) => {
-	console.log('check login');
+	console.log(req.method);
+	if(req.method == 'OPTIONS'){
+		console.log('today is options...')
+		next();
+		
+		return;
+	}
+	console.log('check user');
+	console.log(req.originalUrl);
 	let token = req.params['token'] || req.query['token'] || req['body'].token;
 	console.log('token:', token);
 	let user = token && getUserByToken(token);
 	if (user) {
 		req['user'] = user;
+
+		let roomId = req.params['roomId'] || req.query['roomId'] || req['body'].roomId;
+		if(roomId != undefined){
+			let room = req['room'] = _.find(roomList,ro=>ro.id == roomId);
+			if(room==undefined){
+				res.json({
+					flag:false,
+					errMsg:'room not exist'
+				});
+			}
+		}
 		next();
 	} else {
 		console.log(token,'fail check');
 		res.json({ flag: false });
+		res.end();
 	}
 });
+
 
 
 app.get('/', function(req, res) {
@@ -325,9 +338,10 @@ app.get('/user/getActiveChessList', (req: Request, res: Response) => {
 	res.json({ flag: true, chessIdList });
 });
 
-// 选择棋子(包括反选)
-app.get('/user/chooseChess', (req: Request, res: Response) => {
-	let roomId: number = req['session'].roomId;
+// 选择棋子
+app.post('/user/chooseChess', (req: Request, res: Response) => {
+	let roomId: number = req['body'].roomId;
+	let position:IPosition = req['body'].position;
 	let rep: Replay = _.find(roomList, ro => ro.id == roomId);
 
 
@@ -336,9 +350,51 @@ app.get('/user/chooseChess', (req: Request, res: Response) => {
 	}
 
 	let chBoard: IChessBoard = rep.chBoard;
-	let ch = chBoard.getChessByPosi(req['body'].position);
+	let ch = chBoard.getChessByPosi(position);
 	chBoard.chooseChess(ch);
+
+	res.json({flag:true});
 });
+
+// 选择棋子测试方法
+// 故意让让它不进入'/user/*'中间件
+// app.post('/chooseChess',(req: Request, res: Response)=>{
+// 	let token :number = req['body'].token;
+// 	let roomId :number = req['body'].roomId;
+// 	let position :IPosition = req['body'].position;
+
+// 	let rep: Replay = _.find(roomList, ro => ro.id == roomId);
+
+// });
+
+// 反选棋子
+app.post('/user/unChooseChess',(req:Request,res:Response)=>{
+	let roomId: number = req['body'].roomId;
+	let rep: Replay = _.find(roomList, ro => ro.id == roomId);
+
+
+	if (!rep) {
+		res.json({ flag: false });
+	}
+
+	let chBoard: IChessBoard = rep.chBoard;
+	chBoard.unChooseChess();
+	res.json({flag:true});
+});
+
+// 	获取当前棋子可以活动的区域格子
+app.get('/user/getMoveRange',(req:Request,res:Response)=>{
+	let room = req['room'] as Replay;
+	let chBoard = room.chBoard;
+
+	let positionList =	chBoard.currChess.getMoveRange();
+	res.json({
+		flag:true,
+		positionList
+	});
+
+});
+
 
 // 移动棋子
 app.get('/user/moveChess', (req: Request, res: Response) => {
