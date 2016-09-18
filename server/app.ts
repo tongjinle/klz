@@ -3,7 +3,7 @@
 // import express = require("express");
 import * as express from "express";
 import * as _ from 'underscore';
-import {ActionType, IRoomInfo, IPosition, IBox, IChessBoard, IChess, ISkill, IRecord, IPlayer, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType } from '../logic/types';
+import {ChangeType, ActionType, IRoomInfo, IPosition, IBox, IChessBoard, IChess, ISkill, IRecord, IPlayer, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType } from '../logic/types';
 import Replay from '../logic/replay';
 import ChessBoard from '../logic/chessBoard/chessBoard';
 import tokenGen from './tokenGen';
@@ -235,7 +235,8 @@ function getRoomInfo(roomId: number): IRoomInfo {
 				playerName: p.name,
 				status: p.status,
 				chStatus: p.chStatus,
-				playerColor:p.color
+				playerColor:p.color,
+				energy:p.energy
 			};
 		});
 	info.roundIndex = chBoard.roundIndex;
@@ -324,14 +325,8 @@ app.get('/user/refresh', (req: Request, res: Response) => {
 	roomId:number
 */
 app.get('/user/getActiveChessList', (req: Request, res: Response) => {
-	let roomId: number = req.query['roomId'];
-	let rep: Replay = _.find(roomList, ro => ro.id == roomId);
-
-	if (!rep) {
-		res.json({ flag: false });
-	}
-
-	let chBoard: IChessBoard = rep.chBoard;
+	let room :Replay = req['room'] as Replay; 
+	let chBoard: IChessBoard = room.chBoard;
 
 	let chessIdList: number[] = _.map(chBoard.getActiveChessList(), ch => ch.id);
 
@@ -397,20 +392,17 @@ app.get('/user/getMoveRange',(req:Request,res:Response)=>{
 
 
 // 移动棋子
-app.get('/user/moveChess', (req: Request, res: Response) => {
-	let roomId: number = req['session'].roomId;
-	let rep: Replay = _.find(roomList, ro => ro.id == roomId);
+app.post('/user/moveChess', (req: Request, res: Response) => {
+	let room = req['room'] as Replay;
+	let position = req['body'].position as IPosition;
 
+	let chBoard = room.chBoard;
+	let round = chBoard.roundIndex;
+	
+	chBoard.moveChess(position);
 
-	if (!rep) {
-		res.json({ flag: false });
-	}
-
-	let chBoard: IChessBoard = rep.chBoard;
-	chBoard.moveChess(req['body'].position);
-
-	let changes;// = chBoard.getLastChange();
-
+	let changes = chBoard.chgTable
+		.queryByRound(round);
 	res.json({
 		flag: true,
 		changes
@@ -420,52 +412,92 @@ app.get('/user/moveChess', (req: Request, res: Response) => {
 
 // 请求可以被选择的技能
 app.get('/user/getActiveSkillList', (req: Request, res: Response) => {
-	let roomId: number = req['session'].roomId;
-	let rep: Replay = _.find(roomList, ro => ro.id == roomId);
+	let room = req['room'] as Replay;
+	let skillId:number = req['body'].skillId as number;
+
+	let chBoard: IChessBoard = room.chBoard;
 
 
-	if (!rep) {
-		res.json({ flag: false });
-	}
+	let skillList = chBoard.currChess.skillList.map(sk => {
+		return {
+			id:sk.id,
+			isActive:sk.getCastRange().length>0,
+			type:sk.type
+		};
+	});
 
-	let chBoard: IChessBoard = rep.chBoard;
-	if (!chBoard.currChess) {
-		res.json({ flag: false });
-	}
-
-
-	let skillIdList = chBoard.currChess.canCastSkillList.map(sk => sk.id);
 	res.json({
 		flag: true,
-		skillIdList
+		skillList
 	});
 
 });
 
-// 选择技能(包括反选)
-app.post('/user/chooseSkillTarget', (req: Request, res: Response) => {
-	let roomId: number = req['session'].roomId;
-	let rep: Replay = _.find(roomList, ro => ro.id == roomId);
-
-
-	if (!rep) {
-		res.json({ flag: false });
-	}
+// 选择技能
+app.post('/user/chooseSkill', (req: Request, res: Response) => {
+	let room = req['room'] as Replay;
+	let skillId:number = req['body'].skillId as number;
+	let chBoard: IChessBoard = room.chBoard;
 
 
 
-	let chBoard: IChessBoard = rep.chBoard;
-	let skillId = req.params['skillId'];
 
 	let sk: ISkill = _(chBoard.currChess.skillList).find(sk => sk.id == skillId);
-	if (!sk) {
-		res.json({ flag: false });
-
-	}
+	
 
 	chBoard.chooseSkill(sk.type);
+	res.json({
+		flag:true
+
+	});
 });
 
+// 反选技能
+app.post('/user/unChooseSkill', (req: Request, res: Response) => {
+	let room = req['room'] as Replay;
+	let chBoard: IChessBoard = room.chBoard;
+
+	chBoard.unChooseSkill();
+	res.json({
+		flag:true
+
+	});
+});
+
+
+
+// 获取当前技能的target列表
+app.get('/user/getSkillTargetList',(req: Request, res: Response)=>{
+	let room = req['room'] as Replay;
+	let chBoard: IChessBoard = room.chBoard;
+
+	let positionList = chBoard.currSkill.getCastRange();
+
+	res.json({
+		flag:true,
+		positionList
+	});
+
+});
+
+// 施放技能
+app.post('/user/chooseSkillTarget',(req:Request,res:Response)=>{
+	let room = req['room'] as Replay;
+	let chBoard = room.chBoard;
+
+	let posi = req['body'].position as IPosition;
+
+	let round = chBoard.roundIndex;
+
+	chBoard.chooseSkillTarget(posi);
+	
+	let changes = chBoard.chgTable
+		.queryByRound(round);
+	res.json({
+		flag: true,
+		changes
+	});
+});
 
 // 使用技能
 app.post('/user/chooseChess', (req: Request, res: Response) => {

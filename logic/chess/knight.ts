@@ -8,6 +8,7 @@ export default class Knight extends Chess {
 	energy = 2;
 
 	hp = 10;
+	maxhp =10;
 
 	getMoveRangeOnPurpose(){
 		return api.rangeApi.nearRange(this.posi,1);

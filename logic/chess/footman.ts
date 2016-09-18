@@ -11,6 +11,7 @@ export default class Footman extends Chess {
 
 	// 生命值
 	hp = 4;
+	maxhp = 4;
 
 	// 获得可以移动的坐标列表
 	getMoveRangeOnPurpose() {

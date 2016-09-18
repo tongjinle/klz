@@ -23,6 +23,8 @@ export interface IChessBoard {
 	// 双方选手
 	playerList: IPlayer[];
 
+	
+
 
 	readMap(mapName: string): void;
 	setMapSeed(seed: number): void;
@@ -153,7 +155,8 @@ export interface IRoomInfo {
 		playerName: string,
 		status: number,
 		chStatus: number,
-		playerColor:number
+		playerColor:number,
+		energy:number
 	}[],
 	chessList: {
 		id: number,

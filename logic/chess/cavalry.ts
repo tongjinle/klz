@@ -11,6 +11,7 @@ export default class Cavalry extends Chess {
 	energy = 1;
 
 	hp =12;
+	maxhp =12;
 
 	getMoveRangeOnPurpose() {
 		return [

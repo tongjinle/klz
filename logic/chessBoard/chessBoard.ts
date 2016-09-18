@@ -263,7 +263,9 @@ class ChessBoard implements IChessBoard {
 				&& ch.energy <= p.energy
 				&& (
 					ch.getMoveRange().length > 0
-					|| !!_.find(ch.skillList, sk => ch.getCastRange(sk.type).length > 0)
+					||
+					false 
+					// !!_.find(ch.skillList, sk => ch.getCastRange(sk.type).length > 0)
 				)
 		);
 	}

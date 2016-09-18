@@ -8,6 +8,7 @@ import Chess from './chess';
 export default class Minister extends Chess {
 	energy =3;
 	hp=8;
+	maxhp = 8;
 
 	getMoveRangeOnPurpose(){
 		return api.rangeApi.nearRange(this.posi, 1);

@@ -115,6 +115,8 @@ export default class Chess implements IChess {
 		this.id = parseInt(_.uniqueId());
 		this.status = ChessStatus.beforeChoose;
 		this.skillList = [];
+
+		this.maxhp = this.hp;
 	}
 
 	static createChessByType(cht:ChessType):IChess{

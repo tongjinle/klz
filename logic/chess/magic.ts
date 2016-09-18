@@ -8,6 +8,7 @@ import Chess from './chess';
 export default class Magic extends Chess {
 
 	hp = 8;
+	maxhp = 8;
 	energy = 4;
 
 	getMoveRangeOnPurpose() {

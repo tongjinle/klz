@@ -8,6 +8,7 @@ import Chess from './chess';
 export default class King extends Chess {
 
 	hp = 18;
+	maxhp = 18;
 	energy = 3;
 
 	getMoveRangeOnPurpose() {
