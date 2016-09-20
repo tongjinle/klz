@@ -41,7 +41,6 @@
     "grunt-typedoc": "^0.2.3",
     "grunt-typescript": "^0.8.0",
     "load-grunt-tasks": "~0.1.0",
-    "requirejs": "^2.2.0",
     "time-grunt": "~0.1.1"
   }
 }
