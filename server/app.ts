@@ -499,23 +499,13 @@ app.post('/user/chooseSkillTarget',(req:Request,res:Response)=>{
 	});
 });
 
-// 使用技能
-app.post('/user/chooseChess', (req: Request, res: Response) => {
-	let roomId: number = req['session'].roomId;
-	let rep: Replay = _.find(roomList, ro => ro.id == roomId);
+// 休息
+app.post('/user/rest', (req: Request, res: Response) => {
+	let room = req['room'] as Replay;
+	let chBoard = room.chBoard;
 
+	chBoard.rest();
 
-	if (!rep) {
-		res.json({ flag: false });
-	}
-
-	let chBoard: IChessBoard = rep.chBoard;
-
-	if (!chBoard.currSkill) {
-		res.json({ flag: false });
-	}
-
-	chBoard.chooseSkillTarget(req['body'].position);
 	let changes;// = chBoard.getLastChange();
 	res.json({
 		flag: true,
