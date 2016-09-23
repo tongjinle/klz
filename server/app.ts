@@ -402,7 +402,10 @@ app.post('/user/moveChess', (req: Request, res: Response) => {
 	chBoard.moveChess(position);
 
 	let changes = chBoard.chgTable
-		.queryByRound(round);
+		.queryByRound(round)
+		.queryByChangeType(ChangeType.position)
+		.toList();
+
 	res.json({
 		flag: true,
 		changes
@@ -491,8 +494,14 @@ app.post('/user/chooseSkillTarget',(req:Request,res:Response)=>{
 
 	chBoard.chooseSkillTarget(posi);
 	
+	
 	let changes = chBoard.chgTable
-		.queryByRound(round);
+		.queryByRound(round)
+		.queryByChangeType(ChangeType.hp)
+		.toList();
+
+	
+
 	res.json({
 		flag: true,
 		changes

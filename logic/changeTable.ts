@@ -30,8 +30,6 @@ export default class ChangeTable {
 		return this;
 	}
 
-
-
 	toList(): IChange<{}>[] {
 		let rst = this.queryRecoList;
 		this.queryRecoList = undefined;

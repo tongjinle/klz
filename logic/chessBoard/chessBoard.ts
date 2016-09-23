@@ -223,6 +223,9 @@ class ChessBoard implements IChessBoard {
 			this.currChess.status = ChessStatus.rest;
 			this.currChess = undefined;
 		}
+		if (this.currSkill) {
+			this.currSkill = undefined;
+		}
 
 
 		// 下一个选手
@@ -368,7 +371,7 @@ class ChessBoard implements IChessBoard {
 				this.writeRecord(ActionType.chooseSkill, { skillType: this.currSkill.type });
 				this.writeRecord(ActionType.castSkill, { position: _.clone(posi) })
 
-
+				this.currSkill = undefined;
 				this.currChess.status = ChessStatus.rest;
 				this.currPlayer.chStatus = ChessStatus.rest;
 				this.currPlayer.status = PlayerStatus.waiting;
