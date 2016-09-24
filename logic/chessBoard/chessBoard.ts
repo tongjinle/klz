@@ -256,19 +256,16 @@ class ChessBoard implements IChessBoard {
 	// 获取可以被选择的棋子
 	getActiveChessList(): IChess[] {
 		let p = this.currPlayer;
-		// console.log(this.chessList.length);
-		// _(this.chessList).filter(ch => {
-		// 	// console.log(ch.color,ch.energy,p.color,p.energy);
-		// 	return ch.color == p.color && ch.energy <= p.energy;
-		// });
+
+
 		return _(this.chessList).filter(
 			ch => ch.color == p.color
 				&& ch.energy <= p.energy
 				&& (
 					ch.getMoveRange().length > 0
 					||
-					false 
-					// !!_.find(ch.skillList, sk => ch.getCastRange(sk.type).length > 0)
+					// false 
+					!!_.find(ch.skillList, sk => ch.getCastRange(sk.type).length > 0)
 				)
 		);
 	}

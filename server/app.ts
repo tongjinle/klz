@@ -52,7 +52,7 @@ app.use('/user/*', (req: Request, res: Response, next) => {
 	}
 	console.log('check user');
 	console.log(req.originalUrl);
-	let token = req.params['token'] || req.query['token'] || req['body'].token;
+	let token = req['token'] = req.params['token'] || req.query['token'] || req['body'].token;
 	console.log('token:', token);
 	let user = token && getUserByToken(token);
 	if (user) {
@@ -215,6 +215,9 @@ app.get('/user/roomList', (req: Request, res: Response) => {
 });
 
 
+
+
+
 function getRoomInfo(roomId: number): IRoomInfo {
 	let room = _.find(roomList, ro => ro.id == roomId);
 	if (!room) {
@@ -305,9 +308,44 @@ app.get('/user/getRoomInfo/:roomId', (req: Request, res: Response) => {
 
 });
 
+
+// 心跳
+app.get('/user/heartBeat',(req: Request, res: Response)=>{
+	let room :Replay = req['room'] as Replay; 
+	let chBoard: IChessBoard = room.chBoard;
+	let user = getUserByToken(req['token']);
+
+	let lastRound = chBoard.roundIndex;
+
+	let interval = 5 * 1000;
+	let max = 6;
+
+	let index = 0;
+	let t = setInterval(()=>{
+		if(chBoard.roundIndex>lastRound){
+			res.json({
+				flag:true,
+				isNew:true
+			});
+			clearInterval(t);
+		}else{
+			index++;
+			if(index == max){
+				res.json({
+					flag:true,
+					isNew:false
+				});
+				clearInterval(t);
+			}
+		}
+	},interval);
+
+});
+
 // 刷新页面
 app.get('/user/refresh', (req: Request, res: Response) => {
 	let roomId: number = req['session'].roomId;
+	console.log('session rid->',req['session'].roomId);
 	let info = getRoomInfo(roomId);
 
 	let flag: boolean = false;

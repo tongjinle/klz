@@ -9,7 +9,7 @@ import _ = require('underscore');
 // 是否在棋盘中
 export function isInChessBoard(chBoard: IChessBoard, posi: IPosition): boolean {
 	let rst: boolean = true;
-	rst = rst && (posi.x >= 0 && posi.x < chBoard.width && posi.y >= 0 && posi.y <= chBoard.height);
+	rst = rst && (posi.x >= 0 && posi.x < chBoard.width && posi.y >= 0 && posi.y < chBoard.height);
 	return rst;
 }
 
