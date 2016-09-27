@@ -1,12 +1,16 @@
 /// <reference path="../typings/index.d.ts" />
 
-// import express = require("express");
+/// <reference path="./types" />
+
 import * as express from "express";
 import * as _ from 'underscore';
-import {ChangeType, ActionType, IRoomInfo, IPosition, IBox, IChessBoard, IChess, ISkill, IRecord, IPlayer, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType } from '../logic/types';
+import {ChessBoardStatus, ChangeType, ActionType, IRoomInfo, IPosition, IBox, IChessBoard, IChess, ISkill, IRecord, IPlayer, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType } from '../logic/types';
 import Replay from '../logic/replay';
 import ChessBoard from '../logic/chessBoard/chessBoard';
 import tokenGen from './tokenGen';
+import {mockRoom,mockUser} from './mock';
+
+
 
 // import * as cookieSession from 'cookie-session';
 var cookieSession = require('cookie-session');
@@ -60,7 +64,7 @@ app.use('/user/*', (req: Request, res: Response, next) => {
 
 		let roomId = req.params['roomId'] || req.query['roomId'] || req['body'].roomId;
 		if(roomId != undefined){
-			let room = req['room'] = _.find(roomList,ro=>ro.id == roomId);
+			let room = req['room'] = _.find(roomList,(ro:Replay)=>ro.id == roomId);
 			if(room==undefined){
 				res.json({
 					flag:false,
@@ -77,7 +81,6 @@ app.use('/user/*', (req: Request, res: Response, next) => {
 });
 
 
-
 app.get('/', function(req, res) {
 	console.log('root');
 	res.send('Hello World21!');
@@ -89,11 +92,11 @@ app.get('/', function(req, res) {
 
 
 // 登录
-let users = [
-	{ username: 'falcon', password: '', token: undefined, expires: undefined },
-	{ username: 'mouse', password: '', token: undefined, expires: undefined },
-	{ username: 'cat', password: '', token: undefined, expires: undefined }
-];
+
+// mock
+let users = mockUser();
+let roomList = mockRoom();
+
 
 let getUserByToken = (token: string) => _.find(users, u => u.token == token && u.expires > + new Date);
 
@@ -127,71 +130,15 @@ app.get('/user/getMyUsername', (req: Request, res: Response) => {
 	res.json({ flag: true, username: req['user'].username });
 });
 
-// 获取大厅棋盘
-let roomList: Replay[] = [
-	// { id: 1, name: 'room0', usernameList: ['mouse'], status: 0 },
-	// { id: 2, name: 'room1', usernameList: ['falcon'], status: 0 },
-	// { id: 3, name: 'room2', usernameList: ['falcon', 'cat'], status: 1 },
-	// { id: 4, name: 'room3', usernameList: ['falcon', 'mouse'], status: 1 },
-	// { id: 5, name: 'room4', usernameList: ['cat'], status: 0 }
-];
 
-// mock
-(function(roomList: Replay[]) {
-	let rep: Replay;
-	let chBoard: IChessBoard;
-
-	// 1
-	rep = new Replay();
-	chBoard = rep.chBoard = new ChessBoard();
-	chBoard.readMap('normal');
-	chBoard.addPlayer('mouse');
-	roomList.push(rep);
-
-	// 2
-	rep = new Replay();
-	chBoard = rep.chBoard = new ChessBoard();
-	chBoard.readMap('normal');
-	chBoard.addPlayer('falcon');
-	roomList.push(rep);
-
-	// 3
-	rep = new Replay();
-	chBoard = rep.chBoard = new ChessBoard();
-	chBoard.readMap('normal');
-	chBoard.addPlayer('falcon');
-	chBoard.addPlayer('cat');
-	chBoard.ready('falcon', PlayerStatus.ready);
-	chBoard.ready('cat', PlayerStatus.ready);
-	roomList.push(rep);
-
-
-	// 4
-	rep = new Replay();
-	chBoard = rep.chBoard = new ChessBoard();
-	chBoard.readMap('normal');
-	chBoard.addPlayer('falcon');
-	chBoard.addPlayer('mouse');
-	chBoard.ready('falcon', PlayerStatus.ready);
-	chBoard.ready('mouse', PlayerStatus.ready);
-	roomList.push(rep);
-
-	// 5
-	rep = new Replay();
-	chBoard = rep.chBoard = new ChessBoard();
-	chBoard.readMap('normal');
-	chBoard.addPlayer('cat');
-	roomList.push(rep);
-
-})(roomList);
 
 
 // 获取所有房间
 app.get('/user/roomList', (req: Request, res: Response) => {
-	let isMine: boolean = !!(req.query['isMine'] - 0);
-	let status: number = req.query['status'] - 0;
-	let pageIndex: number = req.query['pageIndex'] - 0;
-	let pageSize: number = req.query['pageSize'] - 0;
+	let isMine: boolean = (!!(parseInt( req.query['isMine']))) as boolean;
+	let status: number = parseInt( req.query['status']) ;
+	let pageIndex: number = parseInt(req.query['pageIndex']) ;
+	let pageSize: number = parseInt(req.query['pageSize']);
 
 	let list = _(roomList).filter(ro => status == -1 ? true : ro.chBoard.status == status);
 	
@@ -279,12 +226,60 @@ function getRoomInfo(roomId: number): IRoomInfo {
 
 // 创建房间
 app.post('/user/createRoom', (req: Request, res: Response) => {
-	let username = req['session'].username;
+	let user = req['user'] as serverTypes.user;
+	// 一个人最多10盘棋
+	let maxCount = 10;
+	let count:number  = _.filter<Replay>(roomList,(room)=>{
+		let chBoard = room.chBoard;
+		return chBoard.status != ChessBoardStatus.gameOver && !!_.find(chBoard.playerList,(p)=>{return p.name == user.username;});
+	}).length;
 
-	let rep: Replay = new Replay();
-	let chBoard: IChessBoard = rep.chBoard = new ChessBoard();
-	chBoard.readMap('normal');
-	roomList.push(rep);
+	if(count<maxCount){
+		let rep: Replay = new Replay();
+		let chBoard: IChessBoard = rep.chBoard = new ChessBoard();
+		chBoard.readMap('normal');
+		chBoard.addPlayer(user.username);
+		chBoard.ready(user.username,PlayerStatus.ready);
+		roomList.push(rep);
+		res.json({flag:true});
+	}else{
+		res.json({flag:false});
+	}
+
+	
+});
+
+// 加入房间
+app.post('/user/joinRoom',(req:Request,res:Response)=>{
+	let user = req['user'] as serverTypes.user;
+	let room = req['room'] as Replay;
+	let chBoard = room.chBoard;
+	
+	if(chBoard.status == ChessBoardStatus.beforeStart && !_.find(chBoard.playerList,p=>p.name == user.username)){
+		chBoard.addPlayer(user.username);
+		res.json({
+			flag:true
+		});
+	}else{
+		res.json({
+			flag:false
+		});
+	}
+});
+
+// 退出房间
+app.post('/user/quitRoom',(req:Request,res:Response)=>{
+	let user = req['user'] as serverTypes.user;
+	let room = req['room'] as Replay;
+	let chBoard = room.chBoard;
+
+	if(chBoard.status == ChessBoardStatus.beforeStart){
+		let flag = chBoard.removePlayer(user.username);
+		res.json({flag});
+	}else{
+		res.json({flag:false});
+	}
+
 });
 
 
@@ -307,6 +302,23 @@ app.get('/user/getRoomInfo/:roomId', (req: Request, res: Response) => {
 	res.json(rst);
 
 });
+
+
+// 玩家状态选择
+app.post('/user/setStatus',(req:Request,res:Response)=>{
+	let user:serverTypes.user = req['user'] as serverTypes.user;
+	let status  = req['body'].status as PlayerStatus;
+
+	let room = req['room'] as Replay;
+	let chBoard = room.chBoard;
+	chBoard.ready(user.username,status);
+	res.json({
+		flag:true
+	});
+
+});
+
+
 
 
 // 心跳
@@ -559,6 +571,30 @@ app.post('/user/rest', (req: Request, res: Response) => {
 		changes
 	});
 
+});
+
+// 投降
+app.post('/user/surrend',(req:Request,res:Response)=>{
+	let user = req['user'] as serverTypes.user;
+	let room = req['room'] as Replay;
+	let chBoard = room.chBoard;
+
+	chBoard.surrender(user.username);
+	res.json({
+		flag:true
+	});
+});
+
+// 获取胜负
+app.get('/user/judge',(req:Request,res:Response)=>{
+	let room = req['room'] as Replay;
+	let chBoard = room.chBoard;
+
+	let judge = chBoard.judge();
+	res.json({
+		flag:true,
+		judge
+	});
 });
 
 

@@ -423,7 +423,20 @@ class ChessBoard implements IChessBoard {
 
 
 	// 选手投降
-	surrender() { }
+	surrender(playerName):ChessBoardStatus {
+		// 不合法的玩家投降
+		let player = _.find(this.playerList, (p) => p.name == playerName);
+		if (!player){
+			return;
+		}
+		// 非进行中的棋局
+		if (this.status != ChessBoardStatus.red && this.status != ChessBoardStatus.black) {
+			return;
+		}
+
+		this.status = player.color == ChessColor.red ? ChessBoardStatus.black : ChessBoardStatus.red;
+		return this.status;
+	}
 
 
 
