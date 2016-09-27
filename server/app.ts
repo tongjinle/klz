@@ -275,6 +275,11 @@ app.post('/user/quitRoom',(req:Request,res:Response)=>{
 
 	if(chBoard.status == ChessBoardStatus.beforeStart){
 		let flag = chBoard.removePlayer(user.username);
+		if(flag){
+			if(chBoard.playerList.length==0){
+				roomList = _.filter(roomList,ro=>ro !== room);
+			}
+		}
 		res.json({flag});
 	}else{
 		res.json({flag:false});
@@ -401,16 +406,6 @@ app.post('/user/chooseChess', (req: Request, res: Response) => {
 	res.json({flag:true});
 });
 
-// 选择棋子测试方法
-// 故意让让它不进入'/user/*'中间件
-// app.post('/chooseChess',(req: Request, res: Response)=>{
-// 	let token :number = req['body'].token;
-// 	let roomId :number = req['body'].roomId;
-// 	let position :IPosition = req['body'].position;
-
-// 	let rep: Replay = _.find(roomList, ro => ro.id == roomId);
-
-// });
 
 // 反选棋子
 app.post('/user/unChooseChess',(req:Request,res:Response)=>{
