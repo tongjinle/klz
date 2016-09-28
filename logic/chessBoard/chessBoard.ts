@@ -30,6 +30,7 @@ class ChessBoard implements IChessBoard {
 	width: number;
 	height: number;
 	status: ChessBoardStatus;
+	winColor:ChessColor;
 	// 双方选手
 	playerList: IPlayer[];
 
@@ -434,7 +435,8 @@ class ChessBoard implements IChessBoard {
 			return;
 		}
 
-		this.status = player.color == ChessColor.red ? ChessBoardStatus.black : ChessBoardStatus.red;
+		this.status = ChessBoardStatus.gameOver;
+		this.winColor = player.color == ChessColor.red ? ChessColor.black : ChessColor.red;
 		return this.status;
 	}
 

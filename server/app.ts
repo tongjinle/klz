@@ -1,14 +1,15 @@
 /// <reference path="../typings/index.d.ts" />
 
-/// <reference path="./types" />
 
 import * as express from "express";
 import * as _ from 'underscore';
-import {ChessBoardStatus, ChangeType, ActionType, IRoomInfo, IPosition, IBox, IChessBoard, IChess, ISkill, IRecord, IPlayer, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType } from '../logic/types';
+import {ChessBoardStatus, ChangeType, ActionType, IPosition, IBox, IChessBoard, IChess, ISkill, IRecord, IPlayer, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType } from '../logic/types';
 import Replay from '../logic/replay';
 import ChessBoard from '../logic/chessBoard/chessBoard';
 import tokenGen from './tokenGen';
 import {mockRoom,mockUser} from './mock';
+
+import * as serverTypes from './types';
 
 
 
@@ -165,19 +166,24 @@ app.get('/user/roomList', (req: Request, res: Response) => {
 
 
 
-function getRoomInfo(roomId: number): IRoomInfo {
+function getRoomInfo(roomId: number):serverTypes. IRoomInfo {
 	let room = _.find(roomList, ro => ro.id == roomId);
 	if (!room) {
 		return null;
 	}
 
 	let chBoard = room.chBoard;
-	let info: IRoomInfo = {} as IRoomInfo;
+	let info: serverTypes. IRoomInfo = {} as serverTypes .IRoomInfo;
 
 	info.id =room.id;
-	info.currChessId = chBoard.currChess && chBoard.currChess.id;
-	info.currPlayerName = chBoard.currPlayer && chBoard.currPlayer.name;
-	info.currSkillId = chBoard.currSkill && chBoard.currSkill.id;
+	info.status = chBoard.status;
+
+	if(info.status!=ChessBoardStatus.beforeStart && info.status!= ChessBoardStatus.gameOver){
+		info.currChessId = chBoard.currChess && chBoard.currChess.id;
+		info.currPlayerName = chBoard.currPlayer && chBoard.currPlayer.name;
+		info.currSkillId = chBoard.currSkill && chBoard.currSkill.id;
+		
+	}
 	info.height = chBoard.height;
 	info.playerList = chBoard.playerList
 		&& chBoard.playerList.map(p => {
@@ -213,8 +219,9 @@ function getRoomInfo(roomId: number): IRoomInfo {
 			cd: sk.cd
 		};
 	});
-	info.status = chBoard.status;
 	info.width = chBoard.width;
+
+	info.winColor = chBoard.winColor;
 
 	return info;
 
@@ -569,7 +576,7 @@ app.post('/user/rest', (req: Request, res: Response) => {
 });
 
 // 投降
-app.post('/user/surrend',(req:Request,res:Response)=>{
+app.post('/user/surrender',(req:Request,res:Response)=>{
 	let user = req['user'] as serverTypes.user;
 	let room = req['room'] as Replay;
 	let chBoard = room.chBoard;
@@ -591,13 +598,6 @@ app.get('/user/judge',(req:Request,res:Response)=>{
 		judge
 	});
 });
-
-
-
-
-
-
-
 
 var server = app.listen(3000, function() {
 	var host = server.address().address;

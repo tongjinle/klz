@@ -20,6 +20,7 @@ export interface IChessBoard {
 	width: number;
 	height: number;
 	status: ChessBoardStatus;
+	winColor:ChessColor;
 	// 双方选手
 	playerList: IPlayer[];
 
@@ -144,41 +145,7 @@ export interface IRecord {
 
 
 
-// http data protocol
-export interface IRoomInfo {
-	id:number,
-	roundIndex: number,
-	width: number,
-	height: number,
-	status: number,
-	playerList: {
-		playerName: string,
-		status: number,
-		chStatus: number,
-		playerColor:number,
-		energy:number
-	}[],
-	chessList: {
-		id: number,
-		color: ChessColor,
-		type: ChessType,
-		posi: IPosition,
-		hp: number,
-		maxhp: number,
-		status: ChessStatus,
-		energy: number
-	}[],
-	skillList: {
-		id: number,
-		chessId: number,
-		type: SkillType
-		maxcd: number,
-		cd: number,
-	}[],
-	currPlayerName: string,
-	currChessId: number,
-	currSkillId: number
-}
+
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
 

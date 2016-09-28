@@ -1,10 +1,12 @@
-/// <reference path="./types" />
+
 
 
 import * as _ from 'underscore';
-import {ChangeType, ActionType, IRoomInfo, IPosition, IBox, IChessBoard, IChess, ISkill, IRecord, IPlayer, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType } from '../logic/types';
+import {ChangeType, ActionType,  IPosition, IBox, IChessBoard, IChess, ISkill, IRecord, IPlayer, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType } from '../logic/types';
 import Replay from '../logic/replay';
 import ChessBoard from '../logic/chessBoard/chessBoard';
+import * as serverTypes from './types';
+
 
 // user
 export let mockUser = function(): serverTypes.user[] {
