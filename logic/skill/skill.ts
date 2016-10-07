@@ -1,4 +1,4 @@
-import {ChessRelationship, IPosition, IBox, IChessBoard, IChess, ISkill,   IRecord,     IPlayer, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType } from '../types';
+import {ISkillInfo, ChessRelationship, IPosition, IBox, IChessBoard, IChess, ISkill, IRecord, IPlayer, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType } from '../types';
 import * as api from '../api';
 import _ = require('underscore');
 import skillList from './skillList';
@@ -63,11 +63,43 @@ export default class Skill implements ISkill {
 		this.id = parseInt(_.uniqueId());
 	}
 
-	static createSkillByType(skt:SkillType):ISkill{
+	static createSkillByType(skt: SkillType): ISkill {
 		return new skillList[skt]();
 	}
 
 
+	toString(): ISkillInfo {
+		let info: ISkillInfo = {} as ISkillInfo;
+		info.id = this.id;
+		info.cd = this.cd;
+		info.maxcd = this.maxcd;
+		info.ownerId = this.owner.id;
+		info.type = this.type;
+		return info;
+	}
 
+
+	static parse(info: ISkillInfo, chBoard: IChessBoard) {
+		let sk = new Skill();
+		sk.id = info.id;
+		sk.cd = info.cd;
+		sk.maxcd = info.maxcd;
+		sk.owner = _.find(chBoard.chessList, ch => ch.id == info.ownerId);
+		sk.type = info.type;
+		return sk;
+	}
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+

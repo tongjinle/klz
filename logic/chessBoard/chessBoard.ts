@@ -1,12 +1,17 @@
 /// <reference path="../../typings/index.d.ts" />
 
-import {RestType, IPositionChange, IHpChange, IEnergyChange, ChangeType, ActionType, ChessBoardJudge, SkillType, IMap, IChange, IPosition, IChess, ISkill, IChessBoard, IBox, ChessBoardStatus, IPlayer, ChessType, ChessColor, PlayerStatus, ChessStatus} from '../types';
+import {IChessInfo,IChessBoardInfo,ISkillInfo,IPlayerInfo, RestType, IPositionChange, IHpChange, IEnergyChange, ChangeType, ActionType, ChessBoardJudge, SkillType, IMap, IChange, IPosition, IChess, ISkill, IChessBoard, IBox, ChessBoardStatus, IPlayer, ChessType, ChessColor, PlayerStatus, ChessStatus} from '../types';
 import maps from '../maps';
 import * as api from '../api';
 import _ = require('underscore');
 import Replay from '../replay';
 import ChangeTable from '../changeTable';
 import {conf} from '../conf';
+import Chess  from '../chess/chess';
+import Skill  from '../skill/skill';
+import Player from '../player/player';
+
+
 class ChessBoard implements IChessBoard {
 	constructor() {
 		this.id = parseInt(_.uniqueId());
@@ -20,6 +25,7 @@ class ChessBoard implements IChessBoard {
 	}
 
 	id:number;
+	mapName:string;
 	rep: Replay;
 	chgTable: ChangeTable;
 
@@ -49,6 +55,8 @@ class ChessBoard implements IChessBoard {
 	public currChess: IChess;
 	public currSkill: ISkill;
 
+	snapshot: IChessBoardInfo;
+
 
 
 	// 方法
@@ -67,6 +75,7 @@ class ChessBoard implements IChessBoard {
 	writeChange(cht: ChangeType, data: any) {
 		let chg: IChange<{}> = {
 			round: this.roundIndex,
+			playerName:this.currPlayer.name,
 			type: cht,
 			detail: data
 		};
@@ -76,6 +85,7 @@ class ChessBoard implements IChessBoard {
 
 	readMap(mapName: string) {
 		let map: IMap = maps[mapName];
+		this.mapName = mapName;
 		this.setMapSeed(map.seed);
 		this.setMapSize(map.width, map.height);
 		this.setMapChess(map.chessList);
@@ -134,7 +144,7 @@ class ChessBoard implements IChessBoard {
 			status: PlayerStatus.notReady,
 			chStatus: ChessStatus.rest,
 			energy: conf.PLAYER_ENERGY
-		};
+		} as IPlayer;
 		this.playerList.push(p);
 		return true;
 	}
@@ -201,6 +211,8 @@ class ChessBoard implements IChessBoard {
 
 	// 开始游戏
 	start() {
+		this.snapshot = this.toString();
+
 		this.status = ChessBoardStatus.red;
 		let p = _.find(this.playerList, p => p.color == ChessColor.red);
 		this.round(p.name);
@@ -315,6 +327,8 @@ class ChessBoard implements IChessBoard {
 
 		// 记录change
 		this.writeChange(ChangeType.position, {
+			playerName:this.currPlayer.name,
+			sourceChessId:this.currChess.id,
 			abs: _.clone(ch.posi),
 			rela: { x: ch.posi.x - lastPosi.x, y: ch.posi.y - lastPosi.y }
 		});
@@ -357,6 +371,7 @@ class ChessBoard implements IChessBoard {
 						this.writeChange(ChangeType.hp,{
 							sourceChessId:this.currChess.id,
 							targetChessId:k,
+							skillId:this.currSkill.id,
 							abs:v,
 							rela:v-lastChessHpDict[k]
 						});
@@ -459,6 +474,65 @@ class ChessBoard implements IChessBoard {
 	}
 
 
+	parse(info:string):void{
+		let chBoardInfo:IChessBoardInfo = JSON.parse(info) as IChessBoardInfo;
+		this.id = chBoardInfo.id;
+		this.mapName = chBoardInfo.mapName;
+		this.seed = chBoardInfo.seed;
+		this.width = chBoardInfo.width;
+		this.height = chBoardInfo.height;
+		this.status = chBoardInfo.status;
+		this.winColor = chBoardInfo.winColor;
+
+		this.chessList = _.map(chBoardInfo.chessList, ch => {
+			return Chess.parse(ch, this);
+		});
+
+		this.playerList = _.map(chBoardInfo.playerList, p => {
+			return Player.parse(p);
+		});
+
+		this.currPlayer = _.find(this.playerList, p => p.name == chBoardInfo.currPlayerName);
+		this.currChess = _.find(this.chessList, ch => ch.id == chBoardInfo.currChessId);
+		this.currSkill = this.currChess ? _.find(this.currChess.skillList, sk => sk.id == chBoardInfo.currSkillId) : undefined;
+	}
+
+	toString():IChessBoardInfo{
+		let info: IChessBoardInfo = {} as IChessBoardInfo;
+		// id: number;
+		// mapName: string;
+		// seed: number;
+		// roundIndex: number;
+		// width: number;
+		// height: number;
+		// status: ChessBoardStatus;
+		// winColor: ChessColor;
+		// // 双方选手
+		// chessList: IChessInfo[];
+		// playerList: IPlayerInfo[];
+		// skillList: ISkillInfo[];
+
+		// currPlayerId: number;
+		// currChessId: number;
+		// currSkillId: number;
+
+		info.id = this.id;
+		info.mapName = this.mapName;
+		info.seed = this.seed;
+		info.roundIndex = this.roundIndex;
+		info.width = this.width;
+		info.height = this.height;
+		info.status = this.status;
+		info.winColor = this.winColor;
+		info.chessList = _.map(this.chessList, ch => ch.toString());
+		info.playerList = _.map(this.playerList, p => p.toString());
+		info.skillList = this.currChess ? _.map(this.currChess.skillList, sk => sk.toString()):[];
+		info.currPlayerName = this.currPlayer ? this.currPlayer.name : undefined;
+		info.currChessId = this.currChess ? this.currChess.id : undefined;
+		info.currSkillId = this.currSkill ? this.currSkill.id : undefined;
+
+		return info;
+	}
 
 	///////
 	getPlayerByName(pName: string): IPlayer {

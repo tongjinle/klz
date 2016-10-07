@@ -1,8 +1,7 @@
 /// <reference path="../../typings/index.d.ts" />
-// import _ = require('underscore');
 import * as _ from 'underscore';
 import * as api from '../api';
-import {IPosition, IBox, IChessBoard, IChess, ISkill,   IRecord,     IPlayer, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType } from '../types';
+import {IChessInfo, IPosition, IBox, IChessBoard, IChess, ISkill, IRecord, IPlayer, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType } from '../types';
 import chessList from './chessList';
 
 
@@ -12,8 +11,8 @@ export default class Chess implements IChess {
 	color: ChessColor;
 	type: ChessType;
 	posi: IPosition;
-	hp:number;
-	maxhp:number;
+	hp: number;
+	maxhp: number;
 	status: ChessStatus;
 	skillList: ISkill[];
 	energy: number;
@@ -33,7 +32,7 @@ export default class Chess implements IChess {
 	// }
 
 	// 增加技能
-	addSkill(sk:ISkill){
+	addSkill(sk: ISkill) {
 		this.skillList.push(sk);
 		sk.owner = this;
 	}
@@ -107,8 +106,8 @@ export default class Chess implements IChess {
 	// 已经占据的格子过滤器
 	// 一个格子里不能有2个棋子
 	// true 表示没有其他的棋子占据
-	private hasChessFilter(posi:IPosition):boolean{
-		return !_.find(this.chBoard.chessList,ch=>ch.posi.x ==posi.x && ch.posi.y ==posi.y);
+	private hasChessFilter(posi: IPosition): boolean {
+		return !_.find(this.chBoard.chessList, ch => ch.posi.x == posi.x && ch.posi.y == posi.y);
 	}
 
 	constructor() {
@@ -119,10 +118,45 @@ export default class Chess implements IChess {
 		this.maxhp = this.hp;
 	}
 
-	static createChessByType(cht:ChessType):IChess{
+	toString(): IChessInfo {
+		let info: IChessInfo = {} as IChessInfo;
+		info.chBoardId = this.chBoard.id;
+		info.color = this.color;
+		info.energy = this.energy;
+		info.hp = this.hp;
+		info.id = this.id;
+		info.maxhp = this.maxhp;
+		info.posi = this.posi;
+		info.status = this.status;
+		return info;
+	}
+
+	static parse(info: IChessInfo, chBoard: IChessBoard): IChess {
+		let ch: IChess = new Chess();
+		ch.id = info.id;
+		ch.type = info.type;
+		ch.color = info.color;
+		ch.posi = info.posi;
+		ch.hp = info.hp;
+		ch.maxhp = info.maxhp;
+		ch.status = info.status;
+		ch.energy = info.energy;
+		ch.chBoard = chBoard;
+		return ch;
+	}
+
+	static createChessByType(cht: ChessType): IChess {
 		let ch = new chessList[cht]();
 		ch.type = cht;
 		return ch;
 	}
+
+
+
+
+
+
+
+
 
 }

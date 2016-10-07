@@ -7,7 +7,8 @@ import {ChessBoardStatus, ChangeType, ActionType, IPosition, IBox, IChessBoard, 
 import Replay from '../logic/replay';
 import ChessBoard from '../logic/chessBoard/chessBoard';
 import tokenGen from './tokenGen';
-import {mockRoom,mockUser} from './mock';
+import {mockRoom, mockUser} from './mock';
+import maps from '../logic/maps';
 
 import * as serverTypes from './types';
 
@@ -49,10 +50,10 @@ app.all('*', (req: Request, res: Response, next) => {
 
 app.use('/user/*', (req: Request, res: Response, next) => {
 	console.log(req.method);
-	if(req.method == 'OPTIONS'){
+	if (req.method == 'OPTIONS') {
 		console.log('today is options...')
 		next();
-		
+
 		return;
 	}
 	console.log('check user');
@@ -64,18 +65,18 @@ app.use('/user/*', (req: Request, res: Response, next) => {
 		req['user'] = user;
 
 		let roomId = req.params['roomId'] || req.query['roomId'] || req['body'].roomId;
-		if(roomId != undefined){
-			let room = req['room'] = _.find(roomList,(ro:Replay)=>ro.id == roomId);
-			if(room==undefined){
+		if (roomId != undefined) {
+			let room = req['room'] = _.find(roomList, (ro: Replay) => ro.id == roomId);
+			if (room == undefined) {
 				res.json({
-					flag:false,
-					errMsg:'room not exist'
+					flag: false,
+					errMsg: 'room not exist'
 				});
 			}
 		}
 		next();
 	} else {
-		console.log(token,'fail check');
+		console.log(token, 'fail check');
 		res.json({ flag: false });
 		res.end();
 	}
@@ -136,13 +137,13 @@ app.get('/user/getMyUsername', (req: Request, res: Response) => {
 
 // 获取所有房间
 app.get('/user/roomList', (req: Request, res: Response) => {
-	let isMine: boolean = (!!(parseInt( req.query['isMine']))) as boolean;
-	let status: number = parseInt( req.query['status']) ;
-	let pageIndex: number = parseInt(req.query['pageIndex']) ;
+	let isMine: boolean = (!!(parseInt(req.query['isMine']))) as boolean;
+	let status: number = parseInt(req.query['status']);
+	let pageIndex: number = parseInt(req.query['pageIndex']);
 	let pageSize: number = parseInt(req.query['pageSize']);
 
 	let list = _(roomList).filter(ro => status == -1 ? true : ro.chBoard.status == status);
-	
+
 	if (isMine) {
 		let username = req['user'].username;
 		if (username) {
@@ -166,23 +167,23 @@ app.get('/user/roomList', (req: Request, res: Response) => {
 
 
 
-function getRoomInfo(roomId: number):serverTypes. IRoomInfo {
+function getRoomInfo(roomId: number): serverTypes.IRoomInfo {
 	let room = _.find(roomList, ro => ro.id == roomId);
 	if (!room) {
 		return null;
 	}
 
 	let chBoard = room.chBoard;
-	let info: serverTypes. IRoomInfo = {} as serverTypes .IRoomInfo;
+	let info: serverTypes.IRoomInfo = {} as serverTypes.IRoomInfo;
 
-	info.id =room.id;
+	info.id = room.id;
 	info.status = chBoard.status;
 
-	if(info.status!=ChessBoardStatus.beforeStart && info.status!= ChessBoardStatus.gameOver){
+	if (info.status != ChessBoardStatus.beforeStart && info.status != ChessBoardStatus.gameOver) {
 		info.currChessId = chBoard.currChess && chBoard.currChess.id;
 		info.currPlayerName = chBoard.currPlayer && chBoard.currPlayer.name;
 		info.currSkillId = chBoard.currSkill && chBoard.currSkill.id;
-		
+
 	}
 	info.height = chBoard.height;
 	info.playerList = chBoard.playerList
@@ -191,25 +192,25 @@ function getRoomInfo(roomId: number):serverTypes. IRoomInfo {
 				playerName: p.name,
 				status: p.status,
 				chStatus: p.chStatus,
-				playerColor:p.color,
-				energy:p.energy
+				playerColor: p.color,
+				energy: p.energy
 			};
 		});
 	info.roundIndex = chBoard.roundIndex;
-	info.chessList = chBoard.currPlayer && 
+	info.chessList = chBoard.currPlayer &&
 		chBoard.chessList
-		.map(ch=>{
-			return {
-				id:ch.id,
-				color:ch.color,
-				type:ch.type,
-				posi:ch.posi,
-				hp:ch.hp,
-				maxhp:ch.maxhp,
-				status:ch.status,
-				energy:ch.energy
-			};
-		});
+			.map(ch => {
+				return {
+					id: ch.id,
+					color: ch.color,
+					type: ch.type,
+					posi: ch.posi,
+					hp: ch.hp,
+					maxhp: ch.maxhp,
+					status: ch.status,
+					energy: ch.energy
+				};
+			});
 	info.skillList = chBoard.currChess && chBoard.currChess.skillList.map(sk => {
 		return {
 			id: sk.id,
@@ -236,60 +237,60 @@ app.post('/user/createRoom', (req: Request, res: Response) => {
 	let user = req['user'] as serverTypes.user;
 	// 一个人最多10盘棋
 	let maxCount = 10;
-	let count:number  = _.filter<Replay>(roomList,(room)=>{
+	let count: number = _.filter<Replay>(roomList, (room) => {
 		let chBoard = room.chBoard;
-		return chBoard.status != ChessBoardStatus.gameOver && !!_.find(chBoard.playerList,(p)=>{return p.name == user.username;});
+		return chBoard.status != ChessBoardStatus.gameOver && !!_.find(chBoard.playerList, (p) => { return p.name == user.username; });
 	}).length;
 
-	if(count<maxCount){
+	if (count < maxCount) {
 		let rep: Replay = new Replay();
 		let chBoard: IChessBoard = rep.chBoard = new ChessBoard();
 		chBoard.readMap('normal');
 		chBoard.addPlayer(user.username);
-		chBoard.ready(user.username,PlayerStatus.ready);
+		chBoard.ready(user.username, PlayerStatus.ready);
 		roomList.push(rep);
-		res.json({flag:true});
-	}else{
-		res.json({flag:false});
+		res.json({ flag: true });
+	} else {
+		res.json({ flag: false });
 	}
 
-	
+
 });
 
 // 加入房间
-app.post('/user/joinRoom',(req:Request,res:Response)=>{
+app.post('/user/joinRoom', (req: Request, res: Response) => {
 	let user = req['user'] as serverTypes.user;
 	let room = req['room'] as Replay;
 	let chBoard = room.chBoard;
-	
-	if(chBoard.status == ChessBoardStatus.beforeStart && !_.find(chBoard.playerList,p=>p.name == user.username)){
+
+	if (chBoard.status == ChessBoardStatus.beforeStart && !_.find(chBoard.playerList, p => p.name == user.username)) {
 		chBoard.addPlayer(user.username);
 		res.json({
-			flag:true
+			flag: true
 		});
-	}else{
+	} else {
 		res.json({
-			flag:false
+			flag: false
 		});
 	}
 });
 
 // 退出房间
-app.post('/user/quitRoom',(req:Request,res:Response)=>{
+app.post('/user/quitRoom', (req: Request, res: Response) => {
 	let user = req['user'] as serverTypes.user;
 	let room = req['room'] as Replay;
 	let chBoard = room.chBoard;
 
-	if(chBoard.status == ChessBoardStatus.beforeStart){
+	if (chBoard.status == ChessBoardStatus.beforeStart) {
 		let flag = chBoard.removePlayer(user.username);
-		if(flag){
-			if(chBoard.playerList.length==0){
-				roomList = _.filter(roomList,ro=>ro !== room);
+		if (flag) {
+			if (chBoard.playerList.length == 0) {
+				roomList = _.filter(roomList, ro => ro !== room);
 			}
 		}
-		res.json({flag});
-	}else{
-		res.json({flag:false});
+		res.json({ flag });
+	} else {
+		res.json({ flag: false });
 	}
 
 });
@@ -317,15 +318,15 @@ app.get('/user/getRoomInfo/:roomId', (req: Request, res: Response) => {
 
 
 // 玩家状态选择
-app.post('/user/setStatus',(req:Request,res:Response)=>{
-	let user:serverTypes.user = req['user'] as serverTypes.user;
-	let status  = req['body'].status as PlayerStatus;
+app.post('/user/setStatus', (req: Request, res: Response) => {
+	let user: serverTypes.user = req['user'] as serverTypes.user;
+	let status = req['body'].status as PlayerStatus;
 
 	let room = req['room'] as Replay;
 	let chBoard = room.chBoard;
-	chBoard.ready(user.username,status);
+	chBoard.ready(user.username, status);
 	res.json({
-		flag:true
+		flag: true
 	});
 
 });
@@ -334,8 +335,8 @@ app.post('/user/setStatus',(req:Request,res:Response)=>{
 
 
 // 心跳
-app.get('/user/heartBeat',(req: Request, res: Response)=>{
-	let room :Replay = req['room'] as Replay; 
+app.get('/user/heartBeat', (req: Request, res: Response) => {
+	let room: Replay = req['room'] as Replay;
 	let chBoard: IChessBoard = room.chBoard;
 	let user = getUserByToken(req['token']);
 
@@ -345,31 +346,31 @@ app.get('/user/heartBeat',(req: Request, res: Response)=>{
 	let max = 6;
 
 	let index = 0;
-	let t = setInterval(()=>{
-		if(chBoard.roundIndex>lastRound){
+	let t = setInterval(() => {
+		if (chBoard.roundIndex > lastRound) {
 			res.json({
-				flag:true,
-				isNew:true
+				flag: true,
+				isNew: true
 			});
 			clearInterval(t);
-		}else{
+		} else {
 			index++;
-			if(index == max){
+			if (index == max) {
 				res.json({
-					flag:true,
-					isNew:false
+					flag: true,
+					isNew: false
 				});
 				clearInterval(t);
 			}
 		}
-	},interval);
+	}, interval);
 
 });
 
 // 刷新页面
 app.get('/user/refresh', (req: Request, res: Response) => {
 	let roomId: number = req['session'].roomId;
-	console.log('session rid->',req['session'].roomId);
+	console.log('session rid->', req['session'].roomId);
 	let info = getRoomInfo(roomId);
 
 	let flag: boolean = false;
@@ -387,7 +388,7 @@ app.get('/user/refresh', (req: Request, res: Response) => {
 	roomId:number
 */
 app.get('/user/getActiveChessList', (req: Request, res: Response) => {
-	let room :Replay = req['room'] as Replay; 
+	let room: Replay = req['room'] as Replay;
 	let chBoard: IChessBoard = room.chBoard;
 
 	let chessIdList: number[] = _.map(chBoard.getActiveChessList(), ch => ch.id);
@@ -398,7 +399,7 @@ app.get('/user/getActiveChessList', (req: Request, res: Response) => {
 // 选择棋子
 app.post('/user/chooseChess', (req: Request, res: Response) => {
 	let roomId: number = req['body'].roomId;
-	let position:IPosition = req['body'].position;
+	let position: IPosition = req['body'].position;
 	let rep: Replay = _.find(roomList, ro => ro.id == roomId);
 
 
@@ -410,12 +411,12 @@ app.post('/user/chooseChess', (req: Request, res: Response) => {
 	let ch = chBoard.getChessByPosi(position);
 	chBoard.chooseChess(ch);
 
-	res.json({flag:true});
+	res.json({ flag: true });
 });
 
 
 // 反选棋子
-app.post('/user/unChooseChess',(req:Request,res:Response)=>{
+app.post('/user/unChooseChess', (req: Request, res: Response) => {
 	let roomId: number = req['body'].roomId;
 	let rep: Replay = _.find(roomList, ro => ro.id == roomId);
 
@@ -426,17 +427,17 @@ app.post('/user/unChooseChess',(req:Request,res:Response)=>{
 
 	let chBoard: IChessBoard = rep.chBoard;
 	chBoard.unChooseChess();
-	res.json({flag:true});
+	res.json({ flag: true });
 });
 
 // 	获取当前棋子可以活动的区域格子
-app.get('/user/getMoveRange',(req:Request,res:Response)=>{
+app.get('/user/getMoveRange', (req: Request, res: Response) => {
 	let room = req['room'] as Replay;
 	let chBoard = room.chBoard;
 
-	let positionList =	chBoard.currChess.getMoveRange();
+	let positionList = chBoard.currChess.getMoveRange();
 	res.json({
-		flag:true,
+		flag: true,
 		positionList
 	});
 
@@ -450,7 +451,7 @@ app.post('/user/moveChess', (req: Request, res: Response) => {
 
 	let chBoard = room.chBoard;
 	let round = chBoard.roundIndex;
-	
+
 	chBoard.moveChess(position);
 
 	let changes = chBoard.chgTable
@@ -468,16 +469,16 @@ app.post('/user/moveChess', (req: Request, res: Response) => {
 // 请求可以被选择的技能
 app.get('/user/getActiveSkillList', (req: Request, res: Response) => {
 	let room = req['room'] as Replay;
-	let skillId:number = req['body'].skillId as number;
+	let skillId: number = req['body'].skillId as number;
 
 	let chBoard: IChessBoard = room.chBoard;
 
 
 	let skillList = chBoard.currChess.skillList.map(sk => {
 		return {
-			id:sk.id,
-			isActive:sk.getCastRange().length>0,
-			type:sk.type
+			id: sk.id,
+			isActive: sk.getCastRange().length > 0,
+			type: sk.type
 		};
 	});
 
@@ -491,18 +492,18 @@ app.get('/user/getActiveSkillList', (req: Request, res: Response) => {
 // 选择技能
 app.post('/user/chooseSkill', (req: Request, res: Response) => {
 	let room = req['room'] as Replay;
-	let skillId:number = req['body'].skillId as number;
+	let skillId: number = req['body'].skillId as number;
 	let chBoard: IChessBoard = room.chBoard;
 
 
 
 
 	let sk: ISkill = _(chBoard.currChess.skillList).find(sk => sk.id == skillId);
-	
+
 
 	chBoard.chooseSkill(sk.type);
 	res.json({
-		flag:true
+		flag: true
 
 	});
 });
@@ -514,7 +515,7 @@ app.post('/user/unChooseSkill', (req: Request, res: Response) => {
 
 	chBoard.unChooseSkill();
 	res.json({
-		flag:true
+		flag: true
 
 	});
 });
@@ -522,21 +523,21 @@ app.post('/user/unChooseSkill', (req: Request, res: Response) => {
 
 
 // 获取当前技能的target列表
-app.get('/user/getSkillTargetList',(req: Request, res: Response)=>{
+app.get('/user/getSkillTargetList', (req: Request, res: Response) => {
 	let room = req['room'] as Replay;
 	let chBoard: IChessBoard = room.chBoard;
 
 	let positionList = chBoard.currSkill.getCastRange();
 
 	res.json({
-		flag:true,
+		flag: true,
 		positionList
 	});
 
 });
 
 // 施放技能
-app.post('/user/chooseSkillTarget',(req:Request,res:Response)=>{
+app.post('/user/chooseSkillTarget', (req: Request, res: Response) => {
 	let room = req['room'] as Replay;
 	let chBoard = room.chBoard;
 
@@ -545,14 +546,14 @@ app.post('/user/chooseSkillTarget',(req:Request,res:Response)=>{
 	let round = chBoard.roundIndex;
 
 	chBoard.chooseSkillTarget(posi);
-	
-	
+
+
 	let changes = chBoard.chgTable
 		.queryByRound(round)
 		.queryByChangeType(ChangeType.hp)
 		.toList();
 
-	
+
 
 	res.json({
 		flag: true,
@@ -576,28 +577,123 @@ app.post('/user/rest', (req: Request, res: Response) => {
 });
 
 // 投降
-app.post('/user/surrender',(req:Request,res:Response)=>{
+app.post('/user/surrender', (req: Request, res: Response) => {
 	let user = req['user'] as serverTypes.user;
 	let room = req['room'] as Replay;
 	let chBoard = room.chBoard;
 
 	chBoard.surrender(user.username);
 	res.json({
-		flag:true
+		flag: true
 	});
 });
 
 // 获取胜负
-app.get('/user/judge',(req:Request,res:Response)=>{
+app.get('/user/judge', (req: Request, res: Response) => {
 	let room = req['room'] as Replay;
 	let chBoard = room.chBoard;
 
 	let judge = chBoard.judge();
 	res.json({
-		flag:true,
+		flag: true,
 		judge
 	});
 });
+
+// 获取changes
+// 不传roundIndex,则表示要获取所有changes
+app.get('/user/getChanges', (req: Request, res: Response) => {
+	let room = req['room'] as Replay;
+	let chBoard = room.chBoard;
+
+	// -1表示所有changes
+	let roundIndex: number = req.query['roundIndex'] === undefined ? -1 : parseInt(req.query['roundIndex']);
+	console.log(chBoard.chgTable.recoList);
+	if (roundIndex == -1) {
+		res.json({
+			flag: true,
+			changes: chBoard.chgTable.recoList
+		});
+		return;
+	}
+
+	let changes = _.filter(chBoard.chgTable.recoList, chg => chg.round == roundIndex);
+
+	res.json({
+		flag: true,
+		changes
+	});
+});
+
+// 获取状态
+app.get('/user/getStatus', (req: Request, res: Response) => {
+	let room = req['room'] as Replay;
+	let chBoard = room.chBoard;
+	let user = req['user'] as serverTypes.user;
+
+	let status: serverTypes.chessBoardStatus;
+	// 游戏尚未开始
+	if (chBoard.status == ChessBoardStatus.beforeStart) {
+		status = serverTypes.chessBoardStatus.beforeStart;
+	}
+
+	// 游戏已经结束
+	else if (chBoard.status == ChessBoardStatus.gameOver) {
+		status = serverTypes.chessBoardStatus.gameOver;
+	}
+
+	// 不是我的回合
+	else if (chBoard.currPlayer.name != user.username) {
+		status = serverTypes.chessBoardStatus.notMyTurn;
+	}
+
+	// 我的回合
+	// 包括其中的所有状态
+	else if (chBoard.currChess == undefined) {
+		status = serverTypes.chessBoardStatus.beforeChooseChess;
+	} else {
+		let ch = chBoard.currChess;
+		if (ch.status == ChessStatus.beforeMove) {
+			status = serverTypes.chessBoardStatus.beforeMove;
+		}else {
+			if(chBoard.currSkill == undefined){
+				status = serverTypes.chessBoardStatus.beforeChooseSkill;
+			}else {
+				status = serverTypes.chessBoardStatus.beforeChooseSkillTarget;
+			}
+		}
+		
+	}
+
+	res.json({
+		flag:true,
+		status
+	});
+});
+
+
+// 获取初始地图
+app.get('/user/getInitInfo',(req:Request,res:Response)=>{
+	let room = req['room'] as Replay;
+	let chBoard = room.chBoard;
+	let user = req['user'] as serverTypes.user;
+
+	let mapInfo = maps[chBoard.mapName];
+	let playerList = chBoard.playerList.map(p=>{
+		return {
+			name:p.name,
+			color:p.color,
+			energy:p.energy
+		};
+	});
+
+	let info;
+	res.json({
+		flag:true,
+		info
+	});
+});
+
 
 var server = app.listen(3000, function() {
 	var host = server.address().address;

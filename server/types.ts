@@ -8,6 +8,16 @@ export interface user {
 	expires: number
 }
 
+export enum chessBoardStatus{
+	beforeStart,
+	notMyTurn,
+	beforeChooseChess,
+	beforeMove,
+	beforeChooseSkill,
+	beforeChooseSkillTarget,
+	gameOver,
+}
+
 // http data protocol
 export interface IRoomInfo {
 	id: number,
@@ -45,3 +55,9 @@ export interface IRoomInfo {
 	winColor: number
 
 }
+
+
+
+
+
+

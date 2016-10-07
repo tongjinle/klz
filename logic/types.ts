@@ -11,8 +11,28 @@ export interface IBox {
 	position: IPosition;
 }
 
+export interface IChessBoardInfo{
+	id:number;
+	mapName:string;
+	seed: number;
+	roundIndex: number;
+	width: number;
+	height: number;
+	status: ChessBoardStatus;
+	winColor:ChessColor;
+	// 双方选手
+	chessList: IChessInfo[];
+	playerList: IPlayerInfo[];
+	skillList:ISkillInfo[];
+
+	currPlayerName: string;
+	currChessId: number;
+	currSkillId: number;
+}
+
 export interface IChessBoard {
 	id:number;
+	mapName:string;
 	seed: number;
 	roundIndex: number;
 	boxList: IBox[];
@@ -24,7 +44,9 @@ export interface IChessBoard {
 	// 双方选手
 	playerList: IPlayer[];
 
-	
+	currPlayer: IPlayer;
+	currChess: IChess;
+	currSkill: ISkill;
 
 
 	readMap(mapName: string): void;
@@ -48,9 +70,23 @@ export interface IChessBoard {
 	getPlayerByName(pName: string): IPlayer;
 	getChessByPosi(posi: IPosition): IChess;
 	judge(): ChessBoardJudge;
-	currPlayer: IPlayer;
-	currChess: IChess;
-	currSkill: ISkill;
+	
+
+	// 数据持久化
+	parse(data:string):void;
+	toString():IChessBoardInfo;
+}
+
+export	interface IChessInfo{
+	id: number;
+	color: ChessColor;
+	type: ChessType;
+	posi: IPosition;
+	hp: number;
+	maxhp: number;
+	status: ChessStatus;
+	energy: number;
+	chBoardId: number;
 }
 
 export interface IChess {
@@ -61,9 +97,11 @@ export interface IChess {
 	hp: number;
 	maxhp: number;
 	status: ChessStatus;
+	energy: number;
+	chBoard: IChessBoard;
+	
 	skillList: ISkill[];
 	addSkill(sk: ISkill): void;
-	chBoard: IChessBoard;
 	getMoveRange: () => IPosition[];
 	getCastRange: (skt: SkillType) => IPosition[];
 	round: () => void;
@@ -71,19 +109,33 @@ export interface IChess {
 	cast: (skType: SkillType, posiTarget: IPosition) => void;
 	rest: () => void;
 	dead: () => void;
-	energy: number;
 	canCastSkillList: ISkill[];
+
+	
+	toString():IChessInfo;
+}
+
+export interface ISkillInfo{
+	id: number;
+	ownerId: number;
+	type: SkillType;
+	maxcd: number;
+	cd: number;
 }
 
 export interface ISkill {
 	id: number;
 	owner: IChess;
 	type: SkillType;
-	getCastRange(): IPosition[];
-	cast(posiTarget: IPosition): void;
 	maxcd: number;
 	cd: number;
+	
+	getCastRange(): IPosition[];
+	cast(posiTarget: IPosition): void;
 	cooldown: () => void;
+
+	
+	toString():ISkillInfo;
 }
 
 export interface IMap {
@@ -93,12 +145,24 @@ export interface IMap {
 	seed: number
 }
 
+
+export interface IPlayerInfo{
+	name: string;
+	color: ChessColor;
+	status: PlayerStatus;
+	chStatus: ChessStatus;
+	energy: number;
+}
+
 export interface IPlayer {
 	name: string;
 	color: ChessColor;
 	status: PlayerStatus;
 	chStatus: ChessStatus;
 	energy: number;
+
+
+	toString():IPlayerInfo;
 }
 
 
@@ -107,6 +171,7 @@ export interface IPlayer {
 // change
 export interface IChange<T extends {}> {
 	round: number,
+	playerName:string,
 	type: ChangeType,
 	detail: T
 }
