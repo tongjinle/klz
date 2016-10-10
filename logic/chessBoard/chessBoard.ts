@@ -138,13 +138,15 @@ class ChessBoard implements IChessBoard {
 		} else if (pList.length == 0) {
 			color = ChessColor.red;
 		}
-		p = {
-			name: pName,
-			color,
-			status: PlayerStatus.notReady,
-			chStatus: ChessStatus.rest,
-			energy: conf.PLAYER_ENERGY
-		} as IPlayer;
+
+		p = new Player();
+		p.name = pName;
+		p.color = color;
+		p.status = PlayerStatus.notReady;
+		p.chStatus = ChessStatus.rest;
+		p.energy = conf.PLAYER_ENERGY;
+
+		
 		this.playerList.push(p);
 		return true;
 	}
@@ -327,7 +329,6 @@ class ChessBoard implements IChessBoard {
 
 		// 记录change
 		this.writeChange(ChangeType.position, {
-			playerName:this.currPlayer.name,
 			sourceChessId:this.currChess.id,
 			abs: _.clone(ch.posi),
 			rela: { x: ch.posi.x - lastPosi.x, y: ch.posi.y - lastPosi.y }

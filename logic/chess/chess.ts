@@ -126,8 +126,9 @@ export default class Chess implements IChess {
 		info.hp = this.hp;
 		info.id = this.id;
 		info.maxhp = this.maxhp;
-		info.posi = this.posi;
+		info.posi = _.clone(this.posi);
 		info.status = this.status;
+		info.type = this.type;
 		return info;
 	}
 

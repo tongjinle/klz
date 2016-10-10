@@ -601,23 +601,23 @@ app.get('/user/judge', (req: Request, res: Response) => {
 });
 
 // 获取changes
-// 不传roundIndex,则表示要获取所有changes
+// changeIndex,则表示要获取所有changes
 app.get('/user/getChanges', (req: Request, res: Response) => {
 	let room = req['room'] as Replay;
 	let chBoard = room.chBoard;
 
 	// -1表示所有changes
-	let roundIndex: number = req.query['roundIndex'] === undefined ? -1 : parseInt(req.query['roundIndex']);
+	let changeIndex: number = req.query['changeIndex'] === undefined ? -1 : parseInt(req.query['changeIndex']);
 	console.log(chBoard.chgTable.recoList);
-	if (roundIndex == -1) {
+	if (changeIndex == -1) {
 		res.json({
 			flag: true,
 			changes: chBoard.chgTable.recoList
 		});
 		return;
 	}
-
-	let changes = _.filter(chBoard.chgTable.recoList, chg => chg.round == roundIndex);
+	console.log('changeIndex=',changeIndex);
+	let changes = chBoard.chgTable.recoList.slice(changeIndex + 1);
 
 	res.json({
 		flag: true,
@@ -670,24 +670,15 @@ app.get('/user/getStatus', (req: Request, res: Response) => {
 		status
 	});
 });
-
+  
 
 // 获取初始地图
-app.get('/user/getInitInfo',(req:Request,res:Response)=>{
+app.get('/user/getSnapshot',(req:Request,res:Response)=>{
 	let room = req['room'] as Replay;
 	let chBoard = room.chBoard;
-	let user = req['user'] as serverTypes.user;
+	
 
-	let mapInfo = maps[chBoard.mapName];
-	let playerList = chBoard.playerList.map(p=>{
-		return {
-			name:p.name,
-			color:p.color,
-			energy:p.energy
-		};
-	});
-
-	let info;
+	let info = chBoard.snapshot;
 	res.json({
 		flag:true,
 		info
