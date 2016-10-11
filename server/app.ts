@@ -616,7 +616,7 @@ app.get('/user/getChanges', (req: Request, res: Response) => {
 		});
 		return;
 	}
-	console.log('changeIndex=',changeIndex);
+	console.log('changeIndex=', changeIndex);
 	let changes = chBoard.chgTable.recoList.slice(changeIndex + 1);
 
 	res.json({
@@ -624,6 +624,8 @@ app.get('/user/getChanges', (req: Request, res: Response) => {
 		changes
 	});
 });
+
+
 
 // 获取状态
 app.get('/user/getStatus', (req: Request, res: Response) => {
@@ -653,34 +655,46 @@ app.get('/user/getStatus', (req: Request, res: Response) => {
 		status = serverTypes.chessBoardStatus.beforeChooseChess;
 	} else {
 		let ch = chBoard.currChess;
-		if (ch.status == ChessStatus.beforeMove) {
-			status = serverTypes.chessBoardStatus.beforeMove;
-		}else {
-			if(chBoard.currSkill == undefined){
+		let sk = chBoard.currSkill;
+		if (sk === undefined) {
+			if (ch.status == ChessStatus.beforeMove) {
+				status = serverTypes.chessBoardStatus.beforeMove;
+			} else {
 				status = serverTypes.chessBoardStatus.beforeChooseSkill;
-			}else {
-				status = serverTypes.chessBoardStatus.beforeChooseSkillTarget;
 			}
 		}
-		
+		else {
+			status = serverTypes.chessBoardStatus.beforeChooseSkillTarget;
+		}
+
 	}
 
 	res.json({
-		flag:true,
-		status
+		flag: true,
+		status,
+		playerName: chBoard.currPlayer.name,
+		currChessId: chBoard.currChess ? chBoard.currChess.id : undefined,
+		currSkillId: chBoard.currSkill ? chBoard.currSkill.id : undefined,
+		skillList: chBoard.currChess ? chBoard.currChess.skillList.map(sk => {
+			return {
+				id: sk.id,
+				isActive: sk.getCastRange().length > 0,
+				type: sk.type
+			};
+		}) : undefined
 	});
 });
-  
+
 
 // 获取初始地图
-app.get('/user/getSnapshot',(req:Request,res:Response)=>{
+app.get('/user/getSnapshot', (req: Request, res: Response) => {
 	let room = req['room'] as Replay;
 	let chBoard = room.chBoard;
-	
+
 
 	let info = chBoard.snapshot;
 	res.json({
-		flag:true,
+		flag: true,
 		info
 	});
 });
