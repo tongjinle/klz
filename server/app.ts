@@ -3,7 +3,7 @@
 
 import * as express from "express";
 import * as _ from 'underscore';
-import {ChessBoardStatus, ChangeType, ActionType, IPosition, IBox, IChessBoard, IChess, ISkill, IRecord, IPlayer, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType } from '../logic/types';
+import {ChessBoardJudge, ChessBoardStatus, ChangeType, ActionType, IPosition, IBox, IChessBoard, IChess, ISkill, IRecord, IPlayer, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType } from '../logic/types';
 import Replay from '../logic/replay';
 import ChessBoard from '../logic/chessBoard/chessBoard';
 import tokenGen from './tokenGen';
@@ -634,6 +634,7 @@ app.get('/user/getStatus', (req: Request, res: Response) => {
 	let user = req['user'] as serverTypes.user;
 
 	let status: serverTypes.chessBoardStatus;
+	let judge: ChessBoardJudge = ChessBoardJudge.none;
 	// 游戏尚未开始
 	if (chBoard.status == ChessBoardStatus.beforeStart) {
 		status = serverTypes.chessBoardStatus.beforeStart;
@@ -642,6 +643,7 @@ app.get('/user/getStatus', (req: Request, res: Response) => {
 	// 游戏已经结束
 	else if (chBoard.status == ChessBoardStatus.gameOver) {
 		status = serverTypes.chessBoardStatus.gameOver;
+		judge= chBoard.judge();
 	}
 
 	// 不是我的回合
@@ -681,7 +683,8 @@ app.get('/user/getStatus', (req: Request, res: Response) => {
 				isActive: sk.getCastRange().length > 0,
 				type: sk.type
 			};
-		}) : undefined
+		}) : undefined,
+		judge
 	});
 });
 

@@ -460,6 +460,12 @@ class ChessBoard implements IChessBoard {
 
 	// 胜负判断
 	judge(): ChessBoardJudge {
+		if(this.winColor == ChessColor.red){
+			return ChessBoardJudge.red;
+		}else if(this.winColor==ChessColor.black){
+			return ChessBoardJudge.black;
+		}
+		
 		let redChessCount = _.filter(this.chessList, ch => ch.color == ChessColor.red).length;
 		let blackChessCount = _.filter(this.chessList, ch => ch.color == ChessColor.black).length;
 
