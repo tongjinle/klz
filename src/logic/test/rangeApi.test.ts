@@ -1,10 +1,8 @@
 import assert = require("assert");
 import * as rangeApi from "../rangeApi";
-import { IPosition } from "../types";
 
+const sort = (pa, pb) => 1e5 * pb.x + pb.y - (1e5 * pa.x + pa.y);
 describe("range api", () => {
-  let sort = (pa, pb) => 1e5 * pb.x + pb.y - (1e5 * pa.x + pa.y);
-
   // (1,1)往南走2格
   // exp: [(1,0),(1,-1)]
   it("lineRange", () => {

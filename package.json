@@ -1,7 +1,7 @@
 {
   "name": "klz",
   "version": "1.0.0",
-  "description": "- node\r  - npm i jasmine -g",
+  "description": "卡拉赞象棋服务端",
   "main": "gruntfile.js",
   "scripts": {
     "test": "cross-env NODE_ENV=test npx mocha --require intelli-espower-loader dist/logic/test/**/*.test.js"
@@ -26,6 +26,6 @@
   },
   "devDependencies": {},
   "directories": {
-    "test": "dist/test"
+    "test": "dist/logic/test"
   }
 }

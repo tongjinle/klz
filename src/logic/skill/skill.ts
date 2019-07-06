@@ -1,24 +1,9 @@
-import {
-  ISkillInfo,
-  ChessRelationship,
-  IPosition,
-  IBox,
-  IChessBoard,
-  IChess,
-  ISkill,
-  IRecord,
-  IPlayer,
-  ChessColor,
-  ChessType,
-  ChessStatus,
-  PlayerStatus,
-  SkillType
-} from "../types";
 import * as api from "../api";
-import skillList from "./skillList";
-import Chess from "../chess/chess";
 import { genUniqueId } from "../api";
+import Chess from "../chess/chess";
 import ChessBoard from "../chessBoard/chessBoard";
+import { ChessRelationship, IPosition, ISkillInfo, SkillType } from "../types";
+import skillList from "./skillList";
 
 export default abstract class Skill {
   id: string;
@@ -37,15 +22,15 @@ export default abstract class Skill {
     return this.getCastRangeOnPurpose().filter(this.inChessBoardFilter);
   }
 
-  protected friendFilter(position: IPosition): boolean {
+  protected friendFilter = (position: IPosition) => {
     let ch = this.owner.chessBoard.getChessByPosition(position);
     return ch ? ch.color === this.owner.color : false;
-  }
+  };
 
-  protected enemyFilter(position: IPosition): boolean {
+  protected enemyFilter = (position: IPosition) => {
     let ch = this.owner.chessBoard.getChessByPosition(position);
     return ch ? ch.color !== this.owner.color : false;
-  }
+  };
 
   // 冷却
   cooldown: () => void;
@@ -55,18 +40,18 @@ export default abstract class Skill {
 
   // 棋盘边界过滤器
   // true 表示在棋盘中
-  private inChessBoardFilter(position: IPosition): boolean {
+  private inChessBoardFilter = (position: IPosition) => {
     return api.chessBoardApi.isInChessBoard(this.owner.chessBoard, position);
-  }
+  };
 
   // 遮挡过滤器
   // 查询pa是否有pb的视野
   // 如果在pa跟pb之间,有其他的chess,那么pa就没有视野
   // true 表示视野没有被遮挡
-  protected inChessShadowFilter(pa: IPosition, pb: IPosition): boolean {
+  protected inChessShadowFilter = (pa: IPosition, pb: IPosition) => {
     let range = api.rangeApi.getBetween(pa, pb);
     return !!range.find(po => !!this.owner.chessBoard.getChessByPosition(po));
-  }
+  };
 
   // 棋子敌我过滤器
   // relationship表示敌我选择
@@ -90,10 +75,6 @@ export default abstract class Skill {
 
   constructor() {
     this.id = genUniqueId();
-  }
-
-  static createSkillByType(skillType: SkillType): Skill {
-    return new skillList[skillType]();
   }
 
   toString(): ISkillInfo {

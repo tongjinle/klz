@@ -9,6 +9,7 @@ import {
   IPosition,
   SkillType
 } from "../types";
+import chessList from "./chessList";
 
 // 棋子基类
 export default abstract class Chess {

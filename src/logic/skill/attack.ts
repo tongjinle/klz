@@ -10,7 +10,7 @@ export default class Attack extends Skill {
     let owner = this.owner;
 
     let range = api.rangeApi.nearRange(owner.position, 1);
-    range = range.filter(this.friendFilter);
+    range = range.filter(this.enemyFilter);
 
     return range;
   }
