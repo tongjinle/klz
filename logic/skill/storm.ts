@@ -1,43 +1,32 @@
-/// <reference path="../../typings/index.d.ts" />
+import * as api from "../api";
+import { IPosition, SkillType } from "../types";
+import Skill from "./skill";
 
-import {ChessRelationship, IPosition, IBox, IChessBoard, IChess, ISkill,  IRecord, IPlayer, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType } from '../types';
-import Skill from './skill';
-import * as api from '../api';
-import _ = require('underscore');
-
+// 暴风雪
 export default class Storm extends Skill {
+  type = SkillType.storm;
 
-	type = SkillType.storm;
+  getCastRangeOnPurpose() {
+    let owner = this.owner;
 
-	getCastRangeOnPurpose() {
-		let owner = this.owner;
-		let chBoard = owner.chBoard;
+    let range = api.rangeApi.nearRange(owner.position, 1);
 
-		let range = api.rangeApi.nearRange(owner.posi, 1);
+    range = range.filter(this.enemyFilter);
 
-		range = _.filter(range, po => {
-			return this.chessFilter(po, ChessRelationship.enemy);
-		});
+    if (range.length) {
+      return [this.owner.position];
+    }
+    return [];
+  }
 
-		if (range.length) {
-			return [this.owner.posi];
-		}
-		return [];
-	}
-
-
-	effect(posi: IPosition) {
-		let damage = 3;
-		let range = api.rangeApi.circleRange(this.owner.posi, 1);
-		_.each(range, po => {
-			let ch = this.owner.chBoard.getChessByPosi(po);
-			if (ch) {
-				api.chessApi.setHp(ch, ch.hp - damage);
-			}
-		});
-	}
-
-
-
-
+  cast(position: IPosition) {
+    let damage = 3;
+    let range = api.rangeApi.circleRange(this.owner.position, 1);
+    range.forEach(po => {
+      let ch = this.owner.chessBoard.getChessByPosition(po);
+      if (ch) {
+        api.chessApi.setHp(ch, ch.hp - damage);
+      }
+    });
+  }
 }

@@ -1,20 +1,19 @@
-import  {IPosition, IBox, IChessBoard, IChess, ISkill,   IRecord,     IPlayer, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType } from '../types';
+import { ChessType } from "../types";
+import Cavalry from "./cavalry";
+import Footman from "./footman";
+import King from "./king";
+import Knight from "./knight";
+import Magic from "./magic";
+import Minister from "./minister";
 
-import Footman from './footman';
-import Cavalry from './cavalry';
-import King from './king';
-import Knight from './knight';
-import Magic from './magic';
-import Minister from './minister';
-
+// 棋子列表
 let chessList = {
-	[ChessType.footman]:Footman,
-	[ChessType.cavalry]:Cavalry,
-	[ChessType.king]:King,
-	[ChessType.knight]:Knight,
-	[ChessType.magic]:Magic,
-	[ChessType.minister]:Minister
-	
+  [ChessType.footman]: Footman,
+  [ChessType.cavalry]: Cavalry,
+  [ChessType.king]: King,
+  [ChessType.knight]: Knight,
+  [ChessType.magic]: Magic,
+  [ChessType.minister]: Minister
 };
 
 export default chessList;

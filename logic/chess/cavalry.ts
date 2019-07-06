@@ -1,35 +1,28 @@
-/// <reference path="../../typings/index.d.ts" />
-import {IPosition, IBox, IChessBoard, IChess, ISkill,   IRecord,     IPlayer, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType } from '../types';
+import Crash from "../skill/crash";
+import Chess from "./chess";
 
-import _ = require("underscore");
-import * as api from '../api';
-import Chess from './chess';
-
-
+// 骑兵
 export default class Cavalry extends Chess {
+  energy = 1;
 
-	energy = 1;
+  hp = 12;
+  maxhp = 12;
 
-	hp =12;
-	maxhp =12;
+  getMoveRangeOnPurpose() {
+    return [
+      { x: this.position.x - 2, y: this.position.y + 1 },
+      { x: this.position.x - 2, y: this.position.y - 1 },
+      { x: this.position.x + 2, y: this.position.y + 1 },
+      { x: this.position.x + 2, y: this.position.y - 1 },
+      { x: this.position.x + 1, y: this.position.y - 2 },
+      { x: this.position.x - 1, y: this.position.y - 2 },
+      { x: this.position.x + 1, y: this.position.y + 2 },
+      { x: this.position.x - 1, y: this.position.y + 2 }
+    ];
+  }
 
-	getMoveRangeOnPurpose() {
-		return [
-			{ x: this.posi.x - 2, y: this.posi.y + 1 },
-			{ x: this.posi.x - 2, y: this.posi.y - 1 },
-			{ x: this.posi.x + 2, y: this.posi.y + 1 },
-			{ x: this.posi.x + 2, y: this.posi.y - 1 },
-			{ x: this.posi.x + 1, y: this.posi.y - 2 },
-			{ x: this.posi.x - 1, y: this.posi.y - 2 },
-			{ x: this.posi.x + 1, y: this.posi.y + 2 },
-			{ x: this.posi.x - 1, y: this.posi.y + 2 }
-		];
-	};
-
-	constructor(){
-		super();
-		this.addSkill(api.skillApi.create(SkillType.crash));
-	}
-
-
+  constructor() {
+    super();
+    this.addSkill(new Crash());
+  }
 }

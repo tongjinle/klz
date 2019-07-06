@@ -1,31 +1,33 @@
-import {IPlayerInfo, IPlayer, ChessColor, PlayerStatus, ChessStatus} from '../types';
-import * as _ from 'underscore';
-
+import {
+  IPlayerInfo,
+  IPlayer,
+  ChessColor,
+  PlayerStatus,
+  ChessStatus
+} from "../types";
 
 export default class Player implements IPlayer {
-	name: string;
-	color: ChessColor;
-	status: PlayerStatus;
-	chStatus: ChessStatus;
-	energy: number;
+  name: string;
+  color: ChessColor;
+  status: PlayerStatus;
+  chessStatus: ChessStatus;
+  energy: number;
 
-	toString(): IPlayerInfo {
-		let info: IPlayerInfo = {} as IPlayerInfo;
-		info.name = this.name;
-		info.color = this.color;
-		info.status = this.status;
-		info.chStatus = this.chStatus;
-		info.energy = this.energy;
-		return info;
-	}
+  toString(): IPlayerInfo {
+    let info: IPlayerInfo = {} as IPlayerInfo;
+    info.name = this.name;
+    info.color = this.color;
+    info.status = this.status;
+    info.chStatus = this.chessStatus;
+    info.energy = this.energy;
+    return info;
+  }
 
-	static parse(info: IPlayerInfo): IPlayer {
-		let p: IPlayer = new Player();
-		p.name = info.name;
-		p.color = info.color;
-		p.status = info.status;
-		p.chStatus = info.chStatus;
-		p.energy = info.energy;
-		return p;
-	}
+  parse(info: IPlayerInfo): void {
+    this.name = info.name;
+    this.color = info.color;
+    this.status = info.status;
+    this.chessStatus = info.chStatus;
+    this.energy = info.energy;
+  }
 }

@@ -1,45 +1,33 @@
-import  {ChessRelationship, IPosition, IBox, IChessBoard, IChess, ISkill,   IRecord,     IPlayer, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType } from '../types';
-import  Skill from './skill';
-import * as api from '../api';
-import _ =  require('underscore');
+import * as api from "../api";
+import { IPosition, SkillType } from "../types";
+import Skill from "./skill";
 
+// 净化
 export default class Purge extends Skill {
+  type = SkillType.purge;
 
-	type = SkillType.purge;
+  getCastRangeOnPurpose() {
+    let owner = this.owner;
 
-	getCastRangeOnPurpose(){
-		let owner = this.owner;
-		let chBoard = owner.chBoard;
+    let range = api.rangeApi.nearRange(owner.position, 3);
 
-		let range = api.rangeApi.nearRange(owner.posi, 3);
-		
-		// 寻找敌人
-		range = _.filter(range, po => {
-			return this.chessFilter(po,ChessRelationship.enemy);
-		});
+    // 寻找敌人
+    range = range.filter(this.enemyFilter);
 
+    return range;
+  }
 
-		return range;
-	}
+  cast(position: IPosition) {
+    let range = api.rangeApi.getBetween(this.owner.position, position);
+    range = range.concat(position);
+    range = range.filter(this.enemyFilter);
 
-
-	effect(posi:IPosition){
-		let range = api.rangeApi.getBetween(this.owner.posi,posi);
-		range = range.concat(posi);
-		range = _.filter(range,po=>{
-			return this.chessFilter(po,ChessRelationship.enemy);
-		});
-
-		let damage = 2;
-		_.each(range,po=>{
-			let ch = this.owner.chBoard.getChessByPosi(po);
-			if(ch){
-				api.chessApi.setHp(ch,ch.hp-damage);
-			}
-		});
-	}
-
-
-	
-
+    let damage = 2;
+    range.forEach(po => {
+      let ch = this.owner.chessBoard.getChessByPosition(po);
+      if (ch) {
+        api.chessApi.setHp(ch, ch.hp - damage);
+      }
+    });
+  }
 }

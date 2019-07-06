@@ -1,163 +1,149 @@
-/// <reference path="../../typings/index.d.ts" />
-import * as _ from 'underscore';
-import * as api from '../api';
-import {IChessInfo, IPosition, IBox, IChessBoard, IChess, ISkill, IRecord, IPlayer, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType } from '../types';
-import chessList from './chessList';
+import * as api from "../api";
+import ChessBoard from "../chessBoard/chessBoard";
+import Skill from "../skill/skill";
+import {
+  ChessColor,
+  ChessStatus,
+  ChessType,
+  IChessInfo,
+  IPosition,
+  SkillType
+} from "../types";
 
+// 棋子基类
+export default abstract class Chess {
+  id: string;
+  color: ChessColor;
+  type: ChessType;
+  position: IPosition;
+  hp: number;
+  maxhp: number;
+  status: ChessStatus;
+  skillList: Skill[];
+  energy: number;
+  chessBoard: ChessBoard;
 
+  // 增加技能
+  addSkill(sk: Skill) {
+    this.skillList.push(sk);
+    sk.owner = this;
+  }
 
-export default class Chess implements IChess {
-	id: number;
-	color: ChessColor;
-	type: ChessType;
-	posi: IPosition;
-	hp: number;
-	maxhp: number;
-	status: ChessStatus;
-	skillList: ISkill[];
-	energy: number;
-	chBoard: IChessBoard;
+  // 获得可以移动的坐标列表(理论上)
+  protected abstract getMoveRangeOnPurpose(): IPosition[];
+  // 获得可以移动的坐标列表(实际上)
+  getMoveRange(): IPosition[] {
+    return (
+      this.getMoveRangeOnPurpose()
+        // 过滤掉不在棋盘中的
+        .filter(this.inChessBoardFilter)
+        // 过滤掉已经被占据的格子
+        .filter(this.hasChessFilter)
+    );
+  }
 
+  // 获取可以施放技能的格子
+  getCastRange(skillType: SkillType): IPosition[] {
+    let sk = this.skillList.find(sk => sk.type === skillType);
+    if (!sk) {
+      return [];
+    }
+    return sk.getCastRange().filter(this.inChessBoardFilter);
+  }
 
-	// private _hp : number;
-	// public get hp() : number {
-	// 	return this._hp;
-	// }
-	// public set hp(v : number) {
-	// 	this._hp = Math.max( Math.min(this.maxhp,v),0);
+  // 施放技能
+  cast(skType: SkillType, posiTarget: IPosition): void {
+    // this.cast = (skt, posi) => {
+    //   let sk: ISkill = _.find(this.skillList, sk => sk.type == skt);
+    //   api.skillApi.cast(sk, sk.owner.chBoard, posi);
+    // };
+  }
+  // 休息
+  rest(): void {
+    this.status = ChessStatus.rest;
+  }
 
-	// 	if(this._hp==0){
-	// 		this.chBoard.chessList = _.filter(this.chBoard.chessList,ch=>ch.id==this.id);
-	// 	}
-	// }
+  // 棋子死亡
+  dead(): void {}
 
-	// 增加技能
-	addSkill(sk: ISkill) {
-		this.skillList.push(sk);
-		sk.owner = this;
-	}
+  //
+  round(): void {
+    this.status = ChessStatus.beforeChoose;
+  }
 
-	// 获得可以移动的坐标列表
-	protected getMoveRangeOnPurpose(): IPosition[] { return undefined };
-	getMoveRange(): IPosition[] {
-		return _(this.getMoveRangeOnPurpose())
-			// 过滤掉不在棋盘中的
-			.filter(posi => this.inChessBoardFilter(posi))
-			// 过滤掉已经被占据的格子
-			.filter(posi => this.hasChessFilter(posi))
-			;
-	};
-	// 获取可以施放技能的格子
-	getCastRange(skt: SkillType): IPosition[] {
-		return _(_.find(this.skillList, sk => sk.type == skt).getCastRange())
-			.filter(posi => this.inChessBoardFilter(posi));
-	};
-	// 施放技能
-	cast(skType: SkillType, posiTarget: IPosition): void {
+  // 移动
+  move(posiTarget: IPosition): void {
+    api.chessApi.move(this, this.chessBoard, posiTarget);
 
-		this.cast = (skt, posi) => {
-			let sk: ISkill = _.find(this.skillList, sk => sk.type == skt);
-			api.skillApi.cast(sk, sk.owner.chBoard, posi);
-		};
-	};
-	// 休息
-	rest(): void {
-		this.status = ChessStatus.rest;
-	};
+    // 如果有技能可以cast,状态为beforeCast
+    if (this.canCastSkillList.length) {
+      this.status = ChessStatus.beforeCast;
+    } else {
+      // 否则直接进入休息
+      this.rest();
+    }
+  }
 
-	// 棋子死亡
-	dead(): void {
+  public get canCastSkillList(): Skill[] {
+    if (
+      [ChessStatus.beforeMove, ChessStatus.beforeCast].indexOf(this.status) ===
+      -1
+    ) {
+      return [];
+    }
+    return this.skillList.filter(sk => this.getCastRange(sk.type).length);
+  }
 
-	};
+  // 棋盘边界过滤器
+  private inChessBoardFilter(posi: IPosition): boolean {
+    return api.chessBoardApi.isInChessBoard(this.chessBoard, posi);
+  }
 
-	//
-	round(): void {
-		api.chessApi.setStatus(this, ChessStatus.beforeChoose);
-	};
-	// 移动
-	move(posiTarget: IPosition): void {
-		api.chessApi.move(this, this.chBoard, posiTarget);
+  // 已经占据的格子过滤器
+  // 一个格子里不能有2个棋子
+  // true 表示没有其他的棋子占据
+  private hasChessFilter(posi: IPosition): boolean {
+    return !this.chessBoard.chessList.find(
+      ch => ch.position.x == posi.x && ch.position.y == posi.y
+    );
+  }
 
-		// 如果有技能可以cast,状态为beforeCast
-		if (this.canCastSkillList.length) {
-			this.status = ChessStatus.beforeCast;
-		} else {
-			// 否则直接进入休息
-			this.rest();
-		}
+  constructor() {
+    this.id = Math.random()
+      .toString()
+      .slice(2);
+    this.status = ChessStatus.beforeChoose;
+    this.skillList = [];
 
-	};
+    this.maxhp = this.hp;
+  }
 
-	public get canCastSkillList(): ISkill[] {
-		if ([ChessStatus.beforeMove, ChessStatus.beforeCast].indexOf(this.status) >= 0) {
-			return _.filter(this.skillList, sk => {
-				return this.getCastRange(sk.type).length > 0;
-			});
-		}
-		return [];
-	}
+  destory(): void {}
 
+  toString(): IChessInfo {
+    let info: IChessInfo = {
+      chessBoardId: this.chessBoard.id,
+      color: this.color,
+      energy: this.energy,
+      hp: this.hp,
+      id: this.id,
+      maxhp: this.maxhp,
+      posi: { ...this.position },
+      status: this.status,
+      type: this.type
+    };
+    return info;
+  }
 
-	// 棋盘边界过滤器
-	private inChessBoardFilter(posi: IPosition): boolean {
-		return api.chessBoardApi.isInChessBoard(this.chBoard, posi);
-	}
-
-	// 已经占据的格子过滤器
-	// 一个格子里不能有2个棋子
-	// true 表示没有其他的棋子占据
-	private hasChessFilter(posi: IPosition): boolean {
-		return !_.find(this.chBoard.chessList, ch => ch.posi.x == posi.x && ch.posi.y == posi.y);
-	}
-
-	constructor() {
-		this.id = parseInt(_.uniqueId());
-		this.status = ChessStatus.beforeChoose;
-		this.skillList = [];
-
-		this.maxhp = this.hp;
-	}
-
-	toString(): IChessInfo {
-		let info: IChessInfo = {} as IChessInfo;
-		info.chBoardId = this.chBoard.id;
-		info.color = this.color;
-		info.energy = this.energy;
-		info.hp = this.hp;
-		info.id = this.id;
-		info.maxhp = this.maxhp;
-		info.posi = _.clone(this.posi);
-		info.status = this.status;
-		info.type = this.type;
-		return info;
-	}
-
-	static parse(info: IChessInfo, chBoard: IChessBoard): IChess {
-		let ch: IChess = new Chess();
-		ch.id = info.id;
-		ch.type = info.type;
-		ch.color = info.color;
-		ch.posi = info.posi;
-		ch.hp = info.hp;
-		ch.maxhp = info.maxhp;
-		ch.status = info.status;
-		ch.energy = info.energy;
-		ch.chBoard = chBoard;
-		return ch;
-	}
-
-	static createChessByType(cht: ChessType): IChess {
-		let ch = new chessList[cht]();
-		ch.type = cht;
-		return ch;
-	}
-
-
-
-
-
-
-
-
-
+  parse(info: IChessInfo, chBoard: ChessBoard): void {
+    this.id = info.id;
+    this.type = info.type;
+    this.color = info.color;
+    this.position = info.posi;
+    this.hp = info.hp;
+    this.maxhp = info.maxhp;
+    this.status = info.status;
+    this.energy = info.energy;
+    this.chessBoard = chBoard;
+  }
 }

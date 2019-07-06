@@ -1,27 +1,22 @@
-/// <reference path="../../typings/index.d.ts" />
-import {IPosition, IBox, IChessBoard, IChess, ISkill,   IRecord,     IPlayer, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType } from '../types';
+import * as api from "../api";
+import { SkillType } from "../types";
+import Chess from "./chess";
+import Storm from "../skill/storm";
 
-import * as api from '../api';
-import Chess from './chess';
-
+// 骑士
 export default class Knight extends Chess {
-	energy = 2;
+  energy = 2;
 
-	hp = 10;
-	maxhp =10;
+  hp = 10;
+  maxhp = 10;
 
-	getMoveRangeOnPurpose(){
-		return api.rangeApi.nearRange(this.posi,1);
-	}
+  getMoveRangeOnPurpose() {
+    return api.rangeApi.nearRange(this.position, 1);
+  }
 
+  constructor() {
+    super();
 
-
-	constructor() {
-		super();
-
-		this.addSkill(api.skillApi.create(SkillType.storm));
-	}
-
-
-
+    this.addSkill(new Storm());
+  }
 }

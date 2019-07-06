@@ -1,17 +1,12 @@
-/// <reference path="../typings/index.d.ts" />
+import * as rangeApi from "./rangeApi";
+import * as chessApi from "./chessApi";
+import * as skillApi from "./skillApi";
+import * as chessBoardApi from "./chessBoardApi";
 
-import {IPosition, IBox, IChessBoard, IChess, ISkill,   IRecord,     IPlayer, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType } from './types';
-import * as rangeApi from './rangeApi';
-import * as chessApi from './chessApi';
-import * as skillApi from './skillApi';
-import * as chessBoardApi from './chessBoardApi';
+const genUniqueId = () => {
+  return Math.random()
+    .toString()
+    .slice(2);
+};
 
-
-
-export {rangeApi, chessApi, skillApi, chessBoardApi};
-
-
-
-
-
-
+export { rangeApi, chessApi, skillApi, chessBoardApi, genUniqueId };

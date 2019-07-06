@@ -1,34 +1,28 @@
-/// <reference path="../../typings/index.d.ts" />
-import {IPosition, IBox, IChessBoard, IChess, ISkill,   IRecord,     IPlayer, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType } from '../types';
+import * as api from "../api";
+import Fire from "../skill/fire";
+import Nova from "../skill/nova";
+import { IPosition } from "../types";
+import Chess from "./chess";
 
-import _ = require("underscore");
-import * as api from '../api';
-import Chess from './chess';
-
+// 法师
 export default class Magic extends Chess {
+  hp = 8;
+  maxhp = 8;
+  energy = 4;
 
-	hp = 8;
-	maxhp = 8;
-	energy = 4;
+  getMoveRangeOnPurpose() {
+    let range: IPosition[] = [
+      ...api.rangeApi.nearRange(this.position, 4),
+      ...api.rangeApi.nearSlashRange(this.position, 3)
+    ];
+    return range;
+  }
 
-	getMoveRangeOnPurpose() {
-		let range: IPosition[] = [];
-		range = range.concat(api.rangeApi.nearRange(this.posi, 4));
-		range = range.concat(api.rangeApi.nearSlashRange(this.posi, 3));
-		return range;
-	}
+  constructor() {
+    super();
 
-
-	constructor() {
-		super();
-
-		// 技能列表
-		this.addSkill(api.skillApi.create(SkillType.fire));
-		this.addSkill(api.skillApi.create(SkillType.nova));
-
-	}
-
-
-
+    // 技能列表
+    this.addSkill(new Fire());
+    this.addSkill(new Nova());
+  }
 }
-
