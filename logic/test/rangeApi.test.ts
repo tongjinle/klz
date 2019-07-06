@@ -1,72 +1,78 @@
+import assert = require("assert");
 import * as rangeApi from "../rangeApi";
 import { IPosition } from "../types";
 
 describe("range api", () => {
-  let sort = (posi: IPosition) => [posi.x, posi.y].join("-");
+  let sort = (pa, pb) => 1e5 * pb.x + pb.y - (1e5 * pa.x + pa.y);
 
-  // it("lineRange", () => {
-  //   let exp = [{ x: 1, y: 0 }, { x: 1, y: -1 }];
-  //   expect(rangeApi.lineRange({ x: 1, y: 1 }, 2, 2)).toEqual(exp);
-  // });
+  // (1,1)往南走2格
+  // exp: [(1,0),(1,-1)]
+  it("lineRange", () => {
+    let rst = rangeApi.lineRange({ x: 1, y: 1 }, 2, 2);
+    let exp = [{ x: 1, y: 0 }, { x: 1, y: -1 }];
+    assert.deepEqual(exp.sort(sort), rst.sort(sort));
+  });
 
-  // it("slashRange", () => {
-  //   let exp = [{ x: 0, y: 0 }, { x: -1, y: -1 }];
-  //   expect(rangeApi.slashRange({ x: 1, y: 1 }, 2, 2)).toEqual(exp);
-  // });
+  // (1,1)往左下走2格
+  // exp: [(0,0),(-1,-1)]
+  it("slashRange", () => {
+    let rst = rangeApi.slashRange({ x: 1, y: 1 }, 2, 2);
+    let exp = [{ x: -1, y: -1 }, { x: 0, y: 0 }];
+    assert.deepEqual(exp.sort(sort), rst.sort(sort));
+  });
 
-  // it("nearRange", () => {
-  //   let exp = [
-  //     { x: 1, y: 0 },
-  //     { x: 1, y: -1 },
-  //     { x: 1, y: 2 },
-  //     { x: 1, y: 3 },
-  //     { x: 0, y: 1 },
-  //     { x: -1, y: 1 },
-  //     { x: 2, y: 1 },
-  //     { x: 3, y: 1 }
-  //   ];
-  //   let rst = rangeApi.nearRange({ x: 1, y: 1 }, 2);
-  //   expect(_.sortBy(rst, sort)).toEqual(_.sortBy(exp, sort));
-  // });
+  // (1,1)的外围两格
+  // exp: [(1,2),(1,3),(2,1),(3,1),(1,0),(1,-1),(0,1),(-1,1)]
+  it("nearRange", () => {
+    let exp = [
+      { x: 1, y: 0 },
+      { x: 1, y: -1 },
+      { x: 1, y: 2 },
+      { x: 1, y: 3 },
+      { x: 0, y: 1 },
+      { x: -1, y: 1 },
+      { x: 2, y: 1 },
+      { x: 3, y: 1 }
+    ];
+    let rst = rangeApi.nearRange({ x: 1, y: 1 }, 2);
+    assert.deepEqual(exp.sort(sort), rst.sort(sort));
+  });
 
-  // it("circleRange", () => {
-  //   let exp = [
-  //     { x: -1, y: 3 },
-  //     { x: -1, y: 2 },
-  //     { x: -1, y: 1 },
-  //     { x: -1, y: 0 },
-  //     { x: -1, y: -1 },
+  // (1,1)的两圈
+  it("circleRange", () => {
+    let exp = [
+      { x: -1, y: 3 },
+      { x: -1, y: 2 },
+      { x: -1, y: 1 },
+      { x: -1, y: 0 },
+      { x: -1, y: -1 },
 
-  //     { x: 0, y: 3 },
-  //     { x: 0, y: 2 },
-  //     { x: 0, y: 1 },
-  //     { x: 0, y: 0 },
-  //     { x: 0, y: -1 },
+      { x: 0, y: 3 },
+      { x: 0, y: 2 },
+      { x: 0, y: 1 },
+      { x: 0, y: 0 },
+      { x: 0, y: -1 },
 
-  //     { x: 1, y: 3 },
-  //     { x: 1, y: 2 },
-  //     { x: 1, y: 0 },
-  //     { x: 1, y: -1 },
+      { x: 1, y: 3 },
+      { x: 1, y: 2 },
+      { x: 1, y: 0 },
+      { x: 1, y: -1 },
 
-  //     { x: 2, y: 3 },
-  //     { x: 2, y: 2 },
-  //     { x: 2, y: 1 },
-  //     { x: 2, y: 0 },
-  //     { x: 2, y: -1 },
+      { x: 2, y: 3 },
+      { x: 2, y: 2 },
+      { x: 2, y: 1 },
+      { x: 2, y: 0 },
+      { x: 2, y: -1 },
 
-  //     { x: 3, y: 3 },
-  //     { x: 3, y: 2 },
-  //     { x: 3, y: 1 },
-  //     { x: 3, y: 0 },
-  //     { x: 3, y: -1 }
-  //   ];
-  //   expect(_.sortBy(rangeApi.circleRange({ x: 1, y: 1 }, 2), sort)).toEqual(
-  //     _.sortBy(exp, sort)
-  //   );
-  //   // console.log(_.sortBy(rangeApi.circleRange({ x: 1, y: 1 }, 2)));
-  //   // console.log('----');
-  //   // console.log(_.sortBy(exp, sort));
-  // });
+      { x: 3, y: 3 },
+      { x: 3, y: 2 },
+      { x: 3, y: 1 },
+      { x: 3, y: 0 },
+      { x: 3, y: -1 }
+    ];
+    let rst = rangeApi.circleRange({ x: 1, y: 1 }, 2);
+    assert.deepEqual(exp.sort(sort), rst.sort(sort));
+  });
 
   // it("manhattan", () => {
   //   let exp = [
@@ -92,37 +98,39 @@ describe("range api", () => {
   //   );
   // });
 
-  // it("unique", () => {
-  //   let source = [
-  //     { x: 1, y: 1 },
-  //     { x: 1, y: 1 },
-  //     { x: 1, y: 2 },
-  //     { x: 1, y: 2 }
-  //   ];
+  // 去重
+  it("unique", () => {
+    let source = [
+      { x: 1, y: 1 },
+      { x: 1, y: 1 },
+      { x: 1, y: 2 },
+      { x: 1, y: 2 }
+    ];
 
-  //   let target = [{ x: 1, y: 1 }, { x: 1, y: 2 }];
+    let rst = rangeApi.unique(source);
+    let exp = [{ x: 1, y: 1 }, { x: 1, y: 2 }];
 
-  //   let exp = rangeApi.unique(source);
+    assert.deepEqual(exp.sort(sort), rst.sort(sort));
+  });
 
-  //   expect(exp).toEqual(target);
-  // });
+  // [(1,1),(1,2),(1,3)]中减去[(1,1),(1,2)]
+  // exp: [(1,3)]
+  it("sub", () => {
+    let source = [{ x: 1, y: 1 }, { x: 1, y: 3 }, { x: 1, y: 2 }];
 
-  // it("sub", () => {
-  //   let source = [{ x: 1, y: 1 }, { x: 1, y: 3 }, { x: 1, y: 2 }];
+    let target = [{ x: 1, y: 1 }, { x: 1, y: 2 }];
 
-  //   let target = [{ x: 1, y: 1 }, { x: 1, y: 2 }];
+    let rst = rangeApi.sub(source, target);
+    let exp = [{ x: 1, y: 3 }];
+    assert.deepEqual(exp.sort(sort), rst.sort(sort));
+  });
 
-  //   let exp = rangeApi.sub(source, target);
+  it("getBetween", () => {
+    let pa = { x: 1, y: 4 };
+    let pb = { x: 1, y: 2 };
 
-  //   expect(exp).toEqual([{ x: 1, y: 3 }]);
-  // });
-
-  // it("getBetween", () => {
-  //   let pa = { x: 1, y: 4 };
-  //   let pb = { x: 1, y: 2 };
-
-  //   let target = [{ x: 1, y: 3 }];
-
-  //   expect(rangeApi.getBetween(pa, pb)).toEqual(target);
-  // });
+    let rst = [{ x: 1, y: 3 }];
+    let exp = rangeApi.getBetween(pa, pb);
+    assert.deepEqual(exp.sort(sort), rst.sort(sort));
+  });
 });

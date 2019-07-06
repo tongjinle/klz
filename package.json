@@ -4,7 +4,7 @@
   "description": "- node\r  - npm i jasmine -g",
   "main": "gruntfile.js",
   "scripts": {
-    "test": "cross-env NODE_ENV=test npx mocha --require intelli-espower-loader dist/test/simple/**/*.test.js"
+    "test": "cross-env NODE_ENV=test npx mocha --require intelli-espower-loader dist/logic/test/**/*.test.js"
   },
   "repository": {
     "type": "git",
