@@ -1,17 +1,16 @@
+import { genUniqueId } from "./api";
+import Chess from "./chess/chess";
+import chessList from "./chess/chessList";
 import ChessBoard from "./chessBoard/chessBoard";
 import {
-  PlayerStatus,
   ActionType,
-  IRecord,
-  SkillType,
   ChessColor,
   ChessType,
   IPosition,
-  IChess
+  IRecord,
+  PlayerStatus,
+  SkillType
 } from "./types";
-import Chess from "./chess/chess";
-import chessList from "./chess/chessList";
-import { genUniqueId } from "./api";
 
 export default class Replay {
   constructor() {

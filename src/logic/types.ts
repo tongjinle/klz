@@ -28,53 +28,6 @@ export interface IChessBoardInfo {
   currSkillId: string;
 }
 
-export interface IChessBoard {
-  id: number;
-  mapName: string;
-  seed: number;
-  roundIndex: number;
-  boxList: IBox[];
-  chessList: Chess[];
-  width: number;
-  height: number;
-  status: ChessBoardStatus;
-  winColor: ChessColor;
-  // 双方选手
-  playerList: IPlayer[];
-
-  currPlayer: IPlayer;
-  currChess: IChess;
-  currSkill: ISkill;
-
-  readMap(mapName: string): void;
-  setMapSeed(seed: number): void;
-  setMapSize(width: number, height: number): void;
-  setMapChess(
-    chessList: { chType: ChessType; color: ChessColor; position: IPosition }[]
-  ): void;
-  addPlayer(pName: string): boolean;
-  removePlayer(pName: string): boolean;
-  addChess(ch: IChess): boolean;
-  removeChess(ch: IChess): boolean;
-  ready(pName: string, status: PlayerStatus): boolean;
-  round(pName?: string): void;
-  rest(): void;
-  getActiveChessList(): IChess[];
-  chooseChess(ch: IChess): void;
-  unChooseChess(): void;
-  moveChess(position: IPosition): void;
-  chooseSkill(skType: SkillType): void;
-  unChooseSkill(): void;
-  chooseSkillTarget(position: IPosition): void;
-  getPlayerByName(pName: string): IPlayer;
-  getChessByPosi(position: IPosition): IChess;
-  judge(): ChessBoardJudge;
-
-  // 数据持久化
-  parse(data: string): void;
-  toString(): IChessBoardInfo;
-}
-
 export interface IChessInfo {
   id: string;
   color: ChessColor;
@@ -85,31 +38,6 @@ export interface IChessInfo {
   status: ChessStatus;
   energy: number;
   chessBoardId: string;
-}
-
-export interface IChess {
-  id: string;
-  color: ChessColor;
-  type: ChessType;
-  position: IPosition;
-  hp: number;
-  maxhp: number;
-  status: ChessStatus;
-  energy: number;
-  chBoard: IChessBoard;
-
-  skillList: ISkill[];
-  addSkill(sk: ISkill): void;
-  getMoveRange: () => IPosition[];
-  getCastRange: (skt: SkillType) => IPosition[];
-  round: () => void;
-  move: (posiTarget: IPosition) => void;
-  cast: (skType: SkillType, posiTarget: IPosition) => void;
-  rest: () => void;
-  dead: () => void;
-  canCastSkillList: ISkill[];
-
-  toString(): IChessInfo;
 }
 
 export interface ISkillInfo {
@@ -147,16 +75,6 @@ export interface IPlayerInfo {
   status: PlayerStatus;
   chStatus: ChessStatus;
   energy: number;
-}
-
-export interface IPlayer {
-  name: string;
-  color: ChessColor;
-  status: PlayerStatus;
-  chessStatus: ChessStatus;
-  energy: number;
-
-  toString(): IPlayerInfo;
 }
 
 // change

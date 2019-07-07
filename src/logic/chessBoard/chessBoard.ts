@@ -20,7 +20,6 @@ import {
   IChange,
   IChessBoardInfo,
   IMap,
-  IPlayer,
   IPosition,
   PlayerStatus,
   RestType,
@@ -57,17 +56,17 @@ class ChessBoard {
   status: ChessBoardStatus;
   winColor: ChessColor;
   // 双方选手
-  playerList: IPlayer[];
+  playerList: Player[];
 
   // 当前行棋方名字
   currPlayerName: string;
 
   // 当前行棋方
-  public get currPlayer(): IPlayer {
+  public get currPlayer(): Player {
     return this.playerList.find(p => p.name == this.currPlayerName);
   }
 
-  public set currPlayer(v: IPlayer) {
+  public set currPlayer(v: Player) {
     this.currPlayerName = v.name;
   }
 
@@ -151,7 +150,7 @@ class ChessBoard {
     const MAX_PLAYER_COUNT = conf.MAX_PLAYER_COUNT;
     let pList = this.playerList;
     let color: ChessColor;
-    let p: IPlayer;
+    let p: Player;
     if (pList.length == 2) {
       return false;
     }
@@ -241,8 +240,8 @@ class ChessBoard {
   // 1.如果是第一回合,则红色下棋;
   // 2.如果不是第一个回合,则交换为对手下棋
   round(playerName?: string) {
-    let p: IPlayer;
-    let lastP: IPlayer = this.currPlayer;
+    let p: Player;
+    let lastP: Player = this.currPlayer;
 
     // 清理
     if (this.currPlayer) {
@@ -546,7 +545,7 @@ class ChessBoard {
   }
 
   // 通过选手名字找选手
-  getPlayerByName(pName: string): IPlayer {
+  getPlayerByName(pName: string): Player {
     return this.playerList.find(p => p.name == pName);
   }
 

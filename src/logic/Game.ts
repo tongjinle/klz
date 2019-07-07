@@ -1,18 +1,14 @@
-import {ChessBoardStatus, IMap, IPosition, IBox, IChessBoard, IChess, ISkill,   IRecord,     IPlayer, ChessColor, ChessType, ChessStatus, PlayerStatus, SkillType } from './types';
-import ChessBoard from './chessBoard/chessBoard';
+import ChessBoard from "./chessBoard/chessBoard";
+import { IRecord } from "./types";
 
 class Game {
-	// 属性
-	// ***************************************************
+  // 属性
+  // ***************************************************
 
-	// 棋盘
-	chBoard: IChessBoard;
-	// 记录
-	recoList: IRecord[];
-
-	 
-
-
+  // 棋盘
+  chBoard: ChessBoard;
+  // 记录
+  recoList: IRecord[];
 }
 
 export default Game;

@@ -1,12 +1,6 @@
-import {
-  IPlayerInfo,
-  IPlayer,
-  ChessColor,
-  PlayerStatus,
-  ChessStatus
-} from "../types";
+import { ChessColor, ChessStatus, IPlayerInfo, PlayerStatus } from "../types";
 
-export default class Player implements IPlayer {
+export default class Player {
   name: string;
   color: ChessColor;
   status: PlayerStatus;
