@@ -53,12 +53,16 @@ export default abstract class Chess {
   }
 
   // 施放技能
-  cast(skType: SkillType, posiTarget: IPosition): void {
-    // this.cast = (skt, posi) => {
-    //   let sk: ISkill = _.find(this.skillList, sk => sk.type == skt);
-    //   api.skillApi.cast(sk, sk.owner.chBoard, posi);
-    // };
+  cast(skType: SkillType, position: IPosition): void {
+    let sk = this.skillList.find(sk => sk.type === skType);
+    sk.cast(position);
   }
+
+  // 设置生命值
+  setHp(hp: number): void {
+    this.hp = hp < 0 ? 0 : hp > this.maxhp ? this.maxhp : hp;
+  }
+
   // 休息
   rest(): void {
     this.status = ChessStatus.rest;
@@ -73,8 +77,8 @@ export default abstract class Chess {
   }
 
   // 移动
-  move(posiTarget: IPosition): void {
-    api.chessApi.move(this, this.chessBoard, posiTarget);
+  move(position: IPosition): void {
+    this.position = position;
 
     // 如果有技能可以cast,状态为beforeCast
     if (this.canCastSkillList.length) {
@@ -96,16 +100,16 @@ export default abstract class Chess {
   }
 
   // 棋盘边界过滤器
-  private inChessBoardFilter = (posi: IPosition) => {
-    return api.chessBoardApi.isInChessBoard(this.chessBoard, posi);
+  private inChessBoardFilter = (position: IPosition) => {
+    return this.chessBoard.isInChessBoard(position);
   };
 
   // 已经占据的格子过滤器
   // 一个格子里不能有2个棋子
   // true 表示没有其他的棋子占据
-  private hasChessFilter = (posi: IPosition) => {
+  private hasChessFilter = (position: IPosition) => {
     return !this.chessBoard.chessList.find(
-      ch => ch.position.x == posi.x && ch.position.y == posi.y
+      ch => ch.position.x == position.x && ch.position.y == position.y
     );
   };
 
@@ -129,7 +133,7 @@ export default abstract class Chess {
       hp: this.hp,
       id: this.id,
       maxhp: this.maxhp,
-      posi: { ...this.position },
+      position: { ...this.position },
       status: this.status,
       type: this.type
     };
@@ -140,7 +144,7 @@ export default abstract class Chess {
     this.id = info.id;
     this.type = info.type;
     this.color = info.color;
-    this.position = info.posi;
+    this.position = info.position;
     this.hp = info.hp;
     this.maxhp = info.maxhp;
     this.status = info.status;

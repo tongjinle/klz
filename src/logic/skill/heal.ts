@@ -24,7 +24,7 @@ export default class Heal extends Skill {
     let heal = 6;
     let ch = this.owner.chessBoard.getChessByPosition(position);
     if (ch) {
-      api.chessApi.setHp(ch, ch.hp + heal);
+      ch.setHp(ch.hp + heal);
     }
   }
 }

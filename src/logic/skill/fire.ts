@@ -25,7 +25,7 @@ export default class Fire extends Skill {
     let damage = 8;
     let ch = this.owner.chessBoard.getChessByPosition(position);
     if (ch) {
-      api.chessApi.setHp(ch, ch.hp - damage);
+      ch.setHp(ch.hp - damage);
     }
   }
 }

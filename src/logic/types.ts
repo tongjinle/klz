@@ -50,7 +50,7 @@ export interface IChessBoard {
   setMapSeed(seed: number): void;
   setMapSize(width: number, height: number): void;
   setMapChess(
-    chessList: { chType: ChessType; color: ChessColor; posi: IPosition }[]
+    chessList: { chType: ChessType; color: ChessColor; position: IPosition }[]
   ): void;
   addPlayer(pName: string): boolean;
   removePlayer(pName: string): boolean;
@@ -62,12 +62,12 @@ export interface IChessBoard {
   getActiveChessList(): IChess[];
   chooseChess(ch: IChess): void;
   unChooseChess(): void;
-  moveChess(posi: IPosition): void;
+  moveChess(position: IPosition): void;
   chooseSkill(skType: SkillType): void;
   unChooseSkill(): void;
-  chooseSkillTarget(posi: IPosition): void;
+  chooseSkillTarget(position: IPosition): void;
   getPlayerByName(pName: string): IPlayer;
-  getChessByPosi(posi: IPosition): IChess;
+  getChessByPosi(position: IPosition): IChess;
   judge(): ChessBoardJudge;
 
   // 数据持久化
@@ -79,7 +79,7 @@ export interface IChessInfo {
   id: string;
   color: ChessColor;
   type: ChessType;
-  posi: IPosition;
+  position: IPosition;
   hp: number;
   maxhp: number;
   status: ChessStatus;
@@ -91,7 +91,7 @@ export interface IChess {
   id: string;
   color: ChessColor;
   type: ChessType;
-  posi: IPosition;
+  position: IPosition;
   hp: number;
   maxhp: number;
   status: ChessStatus;

@@ -41,7 +41,7 @@ export default abstract class Skill {
   // 棋盘边界过滤器
   // true 表示在棋盘中
   private inChessBoardFilter = (position: IPosition) => {
-    return api.chessBoardApi.isInChessBoard(this.owner.chessBoard, position);
+    return this.owner.chessBoard.isInChessBoard(position);
   };
 
   // 遮挡过滤器

@@ -139,8 +139,8 @@ export function getBetween(pa: IPosition, pb: IPosition): IPosition[] {
 }
 
 // 获取position的唯一主键
-function getPosiKey(posi: IPosition) {
-  return [posi.x, posi.y].join("-");
+function getPosiKey(position: IPosition) {
+  return [position.x, position.y].join("-");
 }
 
 // 去重

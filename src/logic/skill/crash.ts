@@ -20,7 +20,7 @@ export default class Crash extends Skill {
     let damage = 3;
     let ch = this.owner.chessBoard.getChessByPosition(position);
     if (ch) {
-      api.chessApi.setHp(ch, ch.hp - damage);
+      ch.setHp(ch.hp - damage);
     }
   }
 }

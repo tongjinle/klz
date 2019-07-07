@@ -26,7 +26,7 @@ export default class Purge extends Skill {
     range.forEach(po => {
       let ch = this.owner.chessBoard.getChessByPosition(po);
       if (ch) {
-        api.chessApi.setHp(ch, ch.hp - damage);
+        ch.setHp(ch.hp - damage);
       }
     });
   }

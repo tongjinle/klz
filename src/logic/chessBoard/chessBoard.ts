@@ -132,9 +132,10 @@ class ChessBoard {
     }[]
   ) {
     chessList.forEach(d => {
-      let ch = api.chessApi.create(d.chessType);
-      api.chessApi.setColor(ch, d.color);
-      api.chessApi.setPosition(ch, d.position);
+      let ch = this.createChess(d.chessType);
+
+      ch.color = d.color;
+      ch.position = d.position;
       this.addChess(ch);
 
       this.writeRecord(ActionType.addChess, {
@@ -177,6 +178,18 @@ class ChessBoard {
       return true;
     }
     return false;
+  }
+
+  createChess(type: ChessType): Chess {
+    let ch: Chess = new chessList[type]();
+    // id
+    ch.id = genUniqueId();
+    // type
+    ch.type = type;
+    // status
+    ch.status = ChessStatus.rest;
+
+    return ch;
   }
 
   addChess(chess: Chess): void {
@@ -543,6 +556,15 @@ class ChessBoard {
       ch => ch.position.x == position.x && ch.position.y == position.y
     );
   }
+
+  isInChessBoard = (position: IPosition) => {
+    return (
+      position.x >= 0 &&
+      position.x < this.width &&
+      position.y >= 0 &&
+      position.y < this.height
+    );
+  };
 }
 
 export default ChessBoard;

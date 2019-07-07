@@ -19,7 +19,7 @@ export default class Attack extends Skill {
     let damage = 1;
     let ch = this.owner.chessBoard.getChessByPosition(position);
     if (ch) {
-      api.chessApi.setHp(ch, ch.hp - damage);
+      ch.setHp(ch.hp - damage);
     }
   }
 }
