@@ -96,18 +96,18 @@ export default abstract class Chess {
   }
 
   // 棋盘边界过滤器
-  private inChessBoardFilter(posi: IPosition): boolean {
+  private inChessBoardFilter = (posi: IPosition) => {
     return api.chessBoardApi.isInChessBoard(this.chessBoard, posi);
-  }
+  };
 
   // 已经占据的格子过滤器
   // 一个格子里不能有2个棋子
   // true 表示没有其他的棋子占据
-  private hasChessFilter(posi: IPosition): boolean {
+  private hasChessFilter = (posi: IPosition) => {
     return !this.chessBoard.chessList.find(
       ch => ch.position.x == posi.x && ch.position.y == posi.y
     );
-  }
+  };
 
   constructor() {
     this.id = Math.random()

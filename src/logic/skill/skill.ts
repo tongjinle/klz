@@ -50,7 +50,7 @@ export default abstract class Skill {
   // true 表示视野没有被遮挡
   protected inChessShadowFilter = (pa: IPosition, pb: IPosition) => {
     let range = api.rangeApi.getBetween(pa, pb);
-    return !!range.find(po => !!this.owner.chessBoard.getChessByPosition(po));
+    return !range.find(po => !!this.owner.chessBoard.getChessByPosition(po));
   };
 
   // 棋子敌我过滤器
