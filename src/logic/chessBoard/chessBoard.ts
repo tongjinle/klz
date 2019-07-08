@@ -75,9 +75,6 @@ class ChessBoard {
 
   snapshot: IChessBoardInfo;
 
-  // 方法
-  // ***************************************************
-
   // 记录rep
   writeRecord(action: ActionType, data: any) {
     this.rep.recoList.push({
@@ -98,6 +95,7 @@ class ChessBoard {
     this.chgTable.recoList.push(chg);
   }
 
+  // 读取地图
   readMap(mapName: string) {
     let map: IMap = maps[mapName];
     this.mapName = mapName;
@@ -109,7 +107,6 @@ class ChessBoard {
   // 设置随机种子
   setMapSeed(seed: number) {
     this.seed = seed;
-
     this.writeRecord(ActionType.setMapSeed, { seed });
   }
 
@@ -145,17 +142,31 @@ class ChessBoard {
     });
   }
 
-  // 增加选手
-  addPlayer(playerName: string): boolean {
+  // 能否增加选手
+  // 1 棋盘已经到达了最大选手数量,不能增加
+  // 2 选手不能同名
+  // 3 棋盘的状态已经不是"开始前"""
+  canPlayer(playerName: string): boolean {
     const MAX_PLAYER_COUNT = conf.MAX_PLAYER_COUNT;
-    let pList = this.playerList;
-    let color: ChessColor;
-    let p: Player;
-    if (pList.length == 2) {
+
+    if (this.playerList.length === MAX_PLAYER_COUNT) {
       return false;
     }
 
-    color = pList.length == 0 ? ChessColor.red : ChessColor.black;
+    if (this.playerList.find(p => p.name === playerName)) {
+      return false;
+    }
+
+    if (this.status !== ChessBoardStatus.beforeStart) {
+      return false;
+    }
+
+    return true;
+  }
+
+  // 增加选手
+  addPlayer(playerName: string, color: ChessColor): void {
+    let p: Player;
 
     p = new Player();
     p.name = playerName;
@@ -165,20 +176,19 @@ class ChessBoard {
     p.energy = conf.PLAYER_ENERGY;
 
     this.playerList.push(p);
+  }
+
+  canRemovePlayer(playerName: string): boolean {
     return true;
   }
 
   // 删除选手
-  removePlayer(playerName: string): boolean {
+  removePlayer(playerName: string): void {
     let pList = this.playerList;
-    let p = this.getPlayerByName(playerName);
-    if (p) {
-      this.playerList = pList.filter(p => p.name != playerName);
-      return true;
-    }
-    return false;
+    this.playerList = pList.filter(p => p.name != playerName);
   }
 
+  // 根据棋子类型,创建一个棋子
   createChess(type: ChessType): Chess {
     let ch: Chess = new chessList[type]();
     // id
@@ -191,19 +201,40 @@ class ChessBoard {
     return ch;
   }
 
+  // 增加一个棋子
   addChess(chess: Chess): void {
     this.chessList.push(chess);
     chess.chessBoard = this;
   }
 
+  // 删除一个棋子
   removeChess(chess: Chess): void {
     this.chessList = this.chessList.filter(ch => ch.id != chess.id);
-    chess.destory();
+  }
+
+  // 能否准备
+  // 1 合法的选手
+  // 2 棋盘的状态,必须为"开始前"
+  canReady(
+    playerName: string,
+    status: PlayerStatus.ready | PlayerStatus.notReady
+  ): boolean {
+    if (!this.playerList.find(p => p.name == playerName)) {
+      return false;
+    }
+
+    if (this.status !== ChessBoardStatus.beforeStart) {
+      return false;
+    }
+    return true;
   }
 
   // 选手准备/反准备
-  ready(pName: string, status: PlayerStatus): void {
-    let p = this.playerList.find(p => p.name == pName);
+  ready(
+    playerName: string,
+    status: PlayerStatus.ready | PlayerStatus.notReady
+  ): void {
+    let p = this.playerList.find(p => p.name == playerName);
     p.status = status;
 
     // 是否都准备完毕
@@ -220,7 +251,7 @@ class ChessBoard {
   // 是否可以开始游戏
   private canStart(): boolean {
     return (
-      this.playerList.length == 2 &&
+      this.playerList.length == conf.MAX_PLAYER_COUNT &&
       this.playerList.every(p => p.status == PlayerStatus.ready)
     );
   }
@@ -229,6 +260,7 @@ class ChessBoard {
   start() {
     this.snapshot = this.toString();
 
+    // 红色选手先走
     this.status = ChessBoardStatus.red;
     let p = this.playerList.find(p => p.color == ChessColor.red);
     this.round(p.name);
@@ -257,6 +289,9 @@ class ChessBoard {
     }
 
     // 下一个选手
+    // 1 如果有指定,就用指定的
+    // 2 否则,交换下棋
+    // 3 无法计算交换,则红色选手
     if (playerName) {
       this.currPlayerName = playerName;
       p = this.getPlayerByName(playerName);
@@ -283,21 +318,27 @@ class ChessBoard {
   getActiveChessList(): Chess[] {
     let p = this.currPlayer;
 
-    return this.chessList
-      .filter(ch => ch.color == p.color)
-      .filter(ch => ch.energy <= p.energy)
-      .filter(
-        ch =>
-          ch.getMoveRange().length > 0 ||
-          // false
-          !!ch.skillList.find(sk => ch.getCastRange(sk.type).length > 0)
-      );
+    return (
+      this.chessList
+        // 当前棋手的棋子
+        .filter(ch => ch.color == p.color)
+        // 行动力满足
+        .filter(ch => ch.energy <= p.energy)
+        // 有可行走的棋子 或者 有可施放技能的棋子
+        .filter(
+          ch =>
+            ch.getMoveRange().length > 0 ||
+            // false
+            !!ch.skillList.find(sk => ch.getCastRange(sk.type).length > 0)
+        )
+    );
   }
 
+  // 棋子是否可以被选择
   canChooseChess(chess: Chess) {
-    // 判断是否可以选择
     return this.getActiveChessList().find(ch => ch === chess);
   }
+
   // 选手选择棋子
   chooseChess(chess: Chess) {
     //  当前棋子的状态为"beforeMove"
@@ -308,6 +349,7 @@ class ChessBoard {
     this.currPlayer.chessStatus = ChessStatus.beforeMove;
   }
 
+  // 反选棋子
   unChooseChess() {
     this.currPlayer.chessStatus = ChessStatus.beforeChoose;
     if (this.currChess) {
@@ -347,6 +389,15 @@ class ChessBoard {
     }
   }
 
+  // 能否选择技能
+  canChooseSkill(): boolean {
+    return (
+      this.currPlayer &&
+      this.currChess &&
+      this.currChess.canCastSkillList.length > 0
+    );
+  }
+
   // 选手选择技能
   chooseSkill(skType: SkillType) {
     this.currSkill = this.currChess.skillList.find(sk => sk.type === skType);
@@ -358,50 +409,55 @@ class ChessBoard {
   }
 
   // 选手反选技能
-  unchooseSkill() {
+  unchooseSkill(): void {
     this.currSkill = undefined;
   }
 
-  //   canCanChooseSkillTarget(position: IPosition):boolean {
-  // return this.currChess && this.currSkill && !!this.currSkill.getCastRange().find(        po => po.x === position.x && po.y === position.y)
-  // 	}
+  // 能否选择技能施放坐标
+  canChooseSkillTarget(position: IPosition): boolean {
+    return (
+      this.currSkill &&
+      !!this.currSkill
+        .getCastRange()
+        .find(posi => posi.x == position.x && posi.y == position.y)
+    );
+  }
 
   // 选手选择技能目标
-  chooseSkillTarget(posi: IPosition) {
-    //   let lastChessHpDict = getChessHpDict(this.chessList);
-    //   this.currSkill.cast(posi);
-    // 	let currChessHpDict = getChessHpDict(this.chessList);
+  chooseSkillTarget(posi: IPosition): void {
+    let lastChessHpDict = getChessHpDict(this.chessList);
+    this.currSkill.cast(posi);
+    let currChessHpDict = getChessHpDict(this.chessList);
 
-    // 	for(v of currChessHpDict){
+    // 记录生命值的变化
+    for (let key in currChessHpDict) {
+      let value = currChessHpDict[key];
+      if (value != lastChessHpDict[key]) {
+        this.writeChange(ChangeType.hp, {
+          sourceChessId: this.currChess.id,
+          targetChessId: key,
+          skillId: this.currSkill.id,
+          abs: value,
+          rela: value - lastChessHpDict[key]
+        });
+      }
+    }
 
-    // 	}
-    //   currChessHpDict.forEach( (v, k) => {
-    //     if (v != lastChessHpDict[k]) {
-    //       this.writeChange(ChangeType.hp, {
-    //         sourceChessId: this.currChess.id,
-    //         targetChessId: k,
-    //         skillId: this.currSkill.id,
-    //         abs: v,
-    //         rela: v - lastChessHpDict[k]
-    //       });
-    //     }
-    //   });
+    // 移除死亡的棋子
+    this.chessList.filter(ch => ch.hp === 0).forEach(ch => ch.die());
+    this.chessList = this.chessList.filter(ch => ch.hp > 0);
 
-    //   // 移除死亡的棋子
-    //   this.chessList = _.filter(this.chessList, ch => ch.hp > 0);
+    this.writeRecord(ActionType.chooseSkill, {
+      skillType: this.currSkill.type
+    });
+    this.writeRecord(ActionType.castSkill, { position: { ...posi } });
 
-    //   this.writeRecord(ActionType.chooseSkill, {
-    //     skillType: this.currSkill.type
-    //   });
-    //   this.writeRecord(ActionType.castSkill, { position: _.clone(posi) });
+    this.currSkill = undefined;
+    this.currChess.status = ChessStatus.rest;
+    this.currPlayer.chessStatus = ChessStatus.rest;
+    this.currPlayer.status = PlayerStatus.waiting;
 
-    //   this.currSkill = undefined;
-    //   this.currChess.status = ChessStatus.rest;
-    //   this.currPlayer.chessStatus = ChessStatus.rest;
-    //   this.currPlayer.status = PlayerStatus.waiting;
-
-    //   this.rest();
-    // }
+    this.rest();
 
     function getChessHpDict(chessList: Chess[]): { [chessId: string]: number } {
       var dict: { [chessId: string]: number } = {};
@@ -443,24 +499,11 @@ class ChessBoard {
   }
 
   // 选手投降
-  surrender(playerName): ChessBoardStatus {
-    // 不合法的玩家投降
+  surrender(playerName: string): void {
     let player = this.playerList.find(p => p.name == playerName);
-    if (!player) {
-      return;
-    }
-    // 非进行中的棋局
-    if (
-      this.status != ChessBoardStatus.red &&
-      this.status != ChessBoardStatus.black
-    ) {
-      return;
-    }
-
     this.status = ChessBoardStatus.gameOver;
     this.winColor =
       player.color == ChessColor.red ? ChessColor.black : ChessColor.red;
-    return this.status;
   }
 
   // 胜负判断
@@ -545,8 +588,8 @@ class ChessBoard {
   }
 
   // 通过选手名字找选手
-  getPlayerByName(pName: string): Player {
-    return this.playerList.find(p => p.name == pName);
+  getPlayerByName(playerName: string): Player {
+    return this.playerList.find(p => p.name == playerName);
   }
 
   // 通过坐标找棋子
@@ -556,6 +599,7 @@ class ChessBoard {
     );
   }
 
+  // 棋盘边界筛子
   isInChessBoard = (position: IPosition) => {
     return (
       position.x >= 0 &&

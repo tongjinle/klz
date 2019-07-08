@@ -123,7 +123,7 @@ export default abstract class Chess {
     this.maxhp = this.hp;
   }
 
-  destory(): void {}
+  die(): void {}
 
   toString(): IChessInfo {
     let info: IChessInfo = {

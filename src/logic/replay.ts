@@ -86,8 +86,8 @@ export default class Replay {
 
   private parseDict: { [action: string]: (data: any) => void } = {
     [ActionType.addPlayer]: (data: { red: string; black: string }) => {
-      this.chBoard.addPlayer(data.red);
-      this.chBoard.addPlayer(data.black);
+      this.chBoard.addPlayer(data.red, ChessColor.red);
+      this.chBoard.addPlayer(data.black, ChessColor.black);
 
       this.chBoard.ready(data.red, PlayerStatus.ready);
       this.chBoard.ready(data.black, PlayerStatus.ready);
