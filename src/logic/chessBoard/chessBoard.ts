@@ -145,8 +145,9 @@ class ChessBoard {
   // 能否增加选手
   // 1 棋盘已经到达了最大选手数量,不能增加
   // 2 选手不能同名
-  // 3 棋盘的状态已经不是"开始前"""
-  canPlayer(playerName: string): boolean {
+  // 3 选手颜色不能相同
+  // 4 棋盘的状态已经不是"开始前"""
+  canAddPlayer(playerName: string, color: ChessColor): boolean {
     const MAX_PLAYER_COUNT = conf.MAX_PLAYER_COUNT;
 
     if (this.playerList.length === MAX_PLAYER_COUNT) {
@@ -154,6 +155,10 @@ class ChessBoard {
     }
 
     if (this.playerList.find(p => p.name === playerName)) {
+      return false;
+    }
+
+    if (this.playerList.find(p => p.color === color)) {
       return false;
     }
 
@@ -335,8 +340,8 @@ class ChessBoard {
   }
 
   // 棋子是否可以被选择
-  canChooseChess(chess: Chess) {
-    return this.getActiveChessList().find(ch => ch === chess);
+  canChooseChess(chess: Chess): boolean {
+    return !!this.getActiveChessList().find(ch => ch === chess);
   }
 
   // 选手选择棋子
@@ -409,7 +414,7 @@ class ChessBoard {
   }
 
   // 选手反选技能
-  unchooseSkill(): void {
+  unChooseSkill(): void {
     this.currSkill = undefined;
   }
 

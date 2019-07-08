@@ -1,7 +1,7 @@
 import Chess from "./chess";
 
 // 步兵
-export default class Wood extends Chess {
+export default class EmptyChess extends Chess {
   // 能量需求
   energy = 1;
   // 生命值

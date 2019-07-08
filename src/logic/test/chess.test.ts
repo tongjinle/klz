@@ -5,7 +5,7 @@ import Skill from "../skill/skill";
 import { ChessColor, ChessType, SkillType } from "../types";
 import Footman from "../chess/footman";
 import Knight from "../chess/knight";
-import Wood from "../chess/wood";
+import EmptyChess from "../chess/emptyChess";
 import Cavalry from "../chess/cavalry";
 import Minister from "../chess/minister";
 import Magic from "../chess/magic";
@@ -66,9 +66,9 @@ describe("chess list", () => {
     me.color = ChessColor.red;
     chBoard.addChess(me);
 
-    let ch1: Chess = new Wood();
+    let ch1: Chess = new EmptyChess();
     ch1.position = { x: 1, y: 5 };
-    let ch2: Chess = new Wood();
+    let ch2: Chess = new EmptyChess();
     ch2.position = { x: 1, y: 3 };
     ch1.hp = ch2.hp = 100;
     ch1.color = ch2.color = ChessColor.black;
@@ -95,7 +95,7 @@ describe("chess list", () => {
     me.color = ChessColor.red;
     chBoard.addChess(me);
 
-    let ch1 = new Wood();
+    let ch1 = new EmptyChess();
     ch1.position = { x: 2, y: 5 };
     ch1.color = ChessColor.black;
     chBoard.addChess(ch1);
@@ -118,7 +118,7 @@ describe("chess list", () => {
     chBoard.addChess(me);
 
     // 不满血友军,合法治疗目标
-    let f1 = new Wood();
+    let f1 = new EmptyChess();
     f1.color = ChessColor.red;
     f1.position = { x: 3, y: 4 };
     f1.hp = 2;
@@ -126,7 +126,7 @@ describe("chess list", () => {
     chBoard.addChess(f1);
 
     // 满血友军
-    let f2 = new Wood();
+    let f2 = new EmptyChess();
     f2.color = ChessColor.red;
     f2.position = { x: 4, y: 4 };
     f2.hp = 100;
@@ -134,7 +134,7 @@ describe("chess list", () => {
     chBoard.addChess(f2);
 
     // 超出距离的不满血友军
-    let f3 = new Wood();
+    let f3 = new EmptyChess();
     f3.color = ChessColor.red;
     f3.position = { x: 3, y: 3 };
     f3.hp = 2;
@@ -142,7 +142,7 @@ describe("chess list", () => {
     chBoard.addChess(f3);
 
     // 不满血的敌军
-    let e1 = new Wood();
+    let e1 = new EmptyChess();
     e1.color = ChessColor.black;
     e1.position = { x: 1, y: 4 };
     e1.hp = 2;
@@ -165,7 +165,7 @@ describe("chess list", () => {
     chBoard.addChess(me);
 
     // 不满血友军,合法治疗目标
-    let f1 = new Wood();
+    let f1 = new EmptyChess();
     f1.color = ChessColor.red;
     f1.position = { x: 3, y: 4 };
     f1.hp = 2;
@@ -173,7 +173,7 @@ describe("chess list", () => {
     chBoard.addChess(f1);
 
     // 不满血友军,合法治疗目标
-    let f2 = new Wood();
+    let f2 = new EmptyChess();
     f2.color = ChessColor.red;
     f2.position = { x: 4, y: 4 };
     f2.hp = 90;
@@ -196,7 +196,7 @@ describe("chess list", () => {
     chBoard.addChess(me);
 
     // 不满血友军,合法治疗目标
-    let f1 = new Wood();
+    let f1 = new EmptyChess();
     f1.color = ChessColor.red;
     f1.position = { x: 3, y: 4 };
     f1.hp = 2;
@@ -204,7 +204,7 @@ describe("chess list", () => {
     chBoard.addChess(f1);
 
     // 满血友军
-    let f2 = new Wood();
+    let f2 = new EmptyChess();
     f2.color = ChessColor.red;
     f2.position = { x: 4, y: 4 };
     f2.hp = 99;
@@ -230,14 +230,14 @@ describe("chess list", () => {
     chBoard.addChess(me);
 
     // 不满血的敌军
-    let e1 = new Wood();
+    let e1 = new EmptyChess();
     e1.color = ChessColor.black;
     e1.position = { x: 1, y: 4 };
     e1.hp = 20;
     e1.maxhp = 100;
     chBoard.addChess(e1);
 
-    let e2 = new Wood();
+    let e2 = new EmptyChess();
     e2.color = ChessColor.black;
     e2.position = { x: 0, y: 4 };
     e2.hp = 20;
@@ -267,7 +267,7 @@ describe("chess list", () => {
     me.position = { x: 1, y: 2 };
     chBoard.addChess(me);
 
-    let ch = new Wood();
+    let ch = new EmptyChess();
     ch.color = ChessColor.black;
     ch.position = { x: 1, y: 3 };
     chBoard.addChess(ch);
@@ -312,13 +312,13 @@ describe("chess list", () => {
     me.position = { x: 1, y: 2 };
     chBoard.addChess(me);
 
-    let e1 = new Wood();
+    let e1 = new EmptyChess();
     e1.color = ChessColor.black;
     e1.hp = 20;
     e1.position = { x: 1, y: 3 };
     chBoard.addChess(e1);
 
-    let e2 = new Wood();
+    let e2 = new EmptyChess();
     e2.color = ChessColor.black;
     e2.position = { x: 1, y: 5 };
     chBoard.addChess(e2);
@@ -343,19 +343,19 @@ describe("chess list", () => {
     me.position = { x: 1, y: 2 };
     chBoard.addChess(me);
 
-    let e1 = new Wood();
+    let e1 = new EmptyChess();
     e1.color = ChessColor.black;
     e1.position = { x: 1, y: 3 };
     e1.hp = 20;
     chBoard.addChess(e1);
 
-    let e2 = new Wood();
+    let e2 = new EmptyChess();
     e2.color = ChessColor.black;
     e2.position = { x: 1, y: 4 };
     e2.hp = 20;
     chBoard.addChess(e2);
 
-    let e3 = new Wood();
+    let e3 = new EmptyChess();
     e3.color = ChessColor.black;
     e3.position = { x: 1, y: 5 };
     e3.hp = 20;
@@ -378,13 +378,13 @@ describe("chess list", () => {
     me.position = { x: 1, y: 2 };
     chBoard.addChess(me);
 
-    let e1 = new Wood();
+    let e1 = new EmptyChess();
     e1.color = ChessColor.black;
     e1.position = { x: 1, y: 3 };
     e1.hp = 20;
     chBoard.addChess(e1);
 
-    let e2 = new Wood();
+    let e2 = new EmptyChess();
     e2.color = ChessColor.black;
     e2.position = { x: 2, y: 3 };
     e2.hp = 20;

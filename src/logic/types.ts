@@ -179,6 +179,7 @@ export enum ChessBoardJudge {
 }
 
 export enum SkillType {
+  emptySkill,
   attack,
   storm,
   crash,
