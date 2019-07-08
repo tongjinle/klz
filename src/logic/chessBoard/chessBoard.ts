@@ -41,6 +41,7 @@ class ChessBoard {
     this.playerList = [];
     this.status = ChessBoardStatus.beforeStart;
     this.replay = new Replay();
+    this.replay.chessBoard = this;
     this.chgTable = new ChangeTable();
   }
 

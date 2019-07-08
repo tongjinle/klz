@@ -31,7 +31,7 @@ export type AddPlayerRecord = {
 // 增加棋子的记录格式
 export type AddChessRecord = {
   chessType: ChessType;
-  color: ChessColor;
+  chessColor: ChessColor;
   position: IPosition;
 };
 

@@ -120,8 +120,8 @@ export interface IRecord {
 //////////////////////////////////////////////////////////////////////////////////////////
 
 export enum ChessColor {
-  red,
-  black
+  red = "red",
+  black = "black"
 }
 
 export enum ChessRelationship {
@@ -130,12 +130,12 @@ export enum ChessRelationship {
 }
 
 export enum ChessType {
-  footman,
-  knight,
-  cavalry,
-  minister,
-  magic,
-  king
+  footman = "footman",
+  knight = "knight",
+  cavalry = "cavalry",
+  minister = "minister",
+  magic = "magic",
+  king = "king"
 }
 
 // move之后可以cast

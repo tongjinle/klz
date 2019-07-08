@@ -74,8 +74,8 @@ export default class Replay {
     },
 
     [ActionType.addChess]: (data: AddChessRecord) => {
-      let ch: Chess = new chessList[data.chessType]();
-      ch.color = data.color;
+      let ch: Chess = this.chessBoard.createChess(data.chessType);
+      ch.color = data.chessColor;
       ch.position = data.position;
       this.chessBoard.addChess(ch);
     },
