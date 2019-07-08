@@ -11,136 +11,94 @@ import {
   PlayerStatus,
   SkillType
 } from "./types";
+import {
+  AddPlayerRecord,
+  SetMapSeedRecord,
+  SetMapSizeRecord,
+  SetMapNameRecord,
+  SetMapChessRecord,
+  AddChessRecord,
+  RemoveChessRecord,
+  ChooseChessRecord,
+  MoveChessRecord,
+  CastSkillRecord,
+  ChooseSkillRecord
+} from "./recordTypes";
 
 export default class Replay {
   constructor() {
     this.id = genUniqueId();
-    this.recoList = [];
+    this.recordList = [];
   }
 
   id: string;
   seed: number;
-  chBoard: ChessBoard;
-  recoList: IRecord[];
-  parse(reco: IRecord): void {
-    this.chBoard = this.chBoard || new ChessBoard();
+  chessBoard: ChessBoard;
+  recordList: IRecord[];
+  parse(record: IRecord): void {
+    this.chessBoard = this.chessBoard || new ChessBoard();
 
-    this.parseDict[reco.action](reco.data);
-    this.recoList.push(reco);
+    this.parseDict[record.actionType](record.data);
+    this.recordList.push(record);
   }
 
-  // 链式写法
-  private queryRecoList: IRecord[];
-  queryByRound(round: number): Replay {
-    this.queryRecoList = this.queryRecoList || this.recoList;
-    this.queryRecoList = this.queryRecoList.filter(reco => reco.round == round);
-    return this;
-  }
-
-  queryByActionType(action: ActionType): Replay {
-    this.queryRecoList = this.queryRecoList || this.recoList;
-    this.queryRecoList = this.queryRecoList.filter(
-      reco => reco.action == action
-    );
-    return this;
-  }
-
-  queryByParams(params): Replay {
-    // this.queryRecoList = this.queryRecoList || this.recoList;
-    // let isMatch = (oa, ob): boolean => {
-    //   let flag: boolean = false;
-
-    //   if (_.isObject(oa) && _.isObject(ob)) {
-    //     _.find(ob, (obv, k) => {
-    //       let oav = oa[k];
-    //       flag = isMatch(oav, obv);
-    //       if (!flag) {
-    //         return true;
-    //       }
-    //     });
-    //   } else if (_.isArray(oa) && _.isArray(ob)) {
-    //     _.find(ob, (obv, i) => {
-    //       let oav = oa[i];
-    //       flag = isMatch(oav, obv);
-    //       if (!flag) {
-    //         return true;
-    //       }
-    //     });
-    //   } else {
-    //     return oa === ob;
-    //   }
-
-    //   return flag;
-    // };
-    // this.queryRecoList = _.filter(this.queryRecoList, reco =>
-    //   isMatch(reco.data, params)
-    // );
-    return this;
-  }
-
-  toList(): IRecord[] {
-    let rst: IRecord[] = this.queryRecoList;
-    this.queryRecoList = undefined;
+  query(round: number, action: ActionType): IRecord[] {
+    let rst: IRecord[] = [];
+    rst = this.recordList
+      .filter(reco => reco.round == round)
+      .filter(reco => reco.actionType == action);
     return rst;
   }
 
   private parseDict: { [action: string]: (data: any) => void } = {
-    [ActionType.addPlayer]: (data: { red: string; black: string }) => {
-      this.chBoard.addPlayer(data.red, ChessColor.red);
-      this.chBoard.addPlayer(data.black, ChessColor.black);
+    [ActionType.addPlayer]: (data: AddPlayerRecord) => {
+      this.chessBoard.addPlayer(data.red, ChessColor.red);
+      this.chessBoard.addPlayer(data.black, ChessColor.black);
 
-      this.chBoard.ready(data.red, PlayerStatus.ready);
-      this.chBoard.ready(data.black, PlayerStatus.ready);
+      this.chessBoard.ready(data.red, PlayerStatus.ready);
+      this.chessBoard.ready(data.black, PlayerStatus.ready);
     },
-    [ActionType.setMapSeed]: (data: { seed: number }) => {
-      this.chBoard.setMapSeed(data.seed);
+    [ActionType.setMapSeed]: (data: SetMapSeedRecord) => {
+      this.chessBoard.setMapSeed(data.seed);
     },
-    [ActionType.setMapSize]: (data: { width: number; height: number }) => {
-      this.chBoard.setMapSize(data.width, data.height);
-    },
-
-    [ActionType.setMapChess]: (data: {
-      chessList: {
-        chessType: ChessType;
-        color: ChessColor;
-        position: IPosition;
-      }[];
-    }) => {
-      this.chBoard.setMapChess(data.chessList);
+    [ActionType.setMapSize]: (data: SetMapSizeRecord) => {
+      this.chessBoard.setMapSize(data.width, data.height);
     },
 
-    [ActionType.readMap]: (data: { mapName: string }) => {
-      this.chBoard.readMap(data.mapName);
+    [ActionType.setMapChess]: (data: SetMapChessRecord) => {
+      this.chessBoard.setMapChess(data.chessList);
     },
 
-    [ActionType.addChess]: (data: {
-      chessType: ChessType;
-      position: IPosition;
-      chessColor: ChessColor;
-    }) => {
+    [ActionType.readMap]: (data: SetMapNameRecord) => {
+      this.chessBoard.readMap(data.mapName);
+    },
+
+    [ActionType.addChess]: (data: AddChessRecord) => {
       let ch: Chess = new chessList[data.chessType]();
-      ch.color = data.chessColor;
+      ch.color = data.color;
       ch.position = data.position;
-      this.chBoard.addChess(ch);
+      this.chessBoard.addChess(ch);
     },
-    [ActionType.removeChess]: (data: { position: IPosition }) => {
-      this.chBoard.removeChess(this.chBoard.getChessByPosition(data.position));
+    [ActionType.removeChess]: (data: RemoveChessRecord) => {
+      this.chessBoard.removeChess(
+        this.chessBoard.getChessByPosition(data.position)
+      );
     },
-    [ActionType.chooseChess]: (data: { position: IPosition }) => {
-      let ch = this.chBoard.getChessByPosition(data.position);
-      this.chBoard.chooseChess(ch);
+    [ActionType.chooseChess]: (data: ChooseChessRecord) => {
+      let ch = this.chessBoard.getChessByPosition(data.position);
+      this.chessBoard.chooseChess(ch);
     },
-    [ActionType.moveChess]: (data: { position: IPosition }) => {
-      this.chBoard.moveChess(data.position);
+    [ActionType.moveChess]: (data: MoveChessRecord) => {
+      this.chessBoard.moveChess(data.position);
     },
-    [ActionType.chooseSkill]: (data: { skillType: SkillType }) => {
-      this.chBoard.chooseSkill(data.skillType);
+    [ActionType.chooseSkill]: (data: ChooseSkillRecord) => {
+      this.chessBoard.chooseSkill(data.skillType);
     },
-    [ActionType.castSkill]: (data: { position: IPosition }) => {
-      this.chBoard.chooseSkillTarget(data.position);
+    [ActionType.castSkill]: (data: CastSkillRecord) => {
+      this.chessBoard.chooseSkillTarget(data.position);
     },
     [ActionType.rest]: () => {
-      this.chBoard.rest();
+      this.chessBoard.rest();
     }
   };
 }

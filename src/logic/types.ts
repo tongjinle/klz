@@ -109,7 +109,7 @@ export interface IHpChange
 //  replay
 export interface IRecord {
   round: number;
-  action: ActionType;
+  actionType: ActionType;
   data: any;
 }
 
@@ -198,8 +198,10 @@ export enum ActionType {
   addChess = "addChess",
   removeChess = "removeChess",
   chooseChess = "chooseChess",
+  unChooseChess = "unChooseChess",
   moveChess = "moveChess",
   chooseSkill = "chooseSkill",
+  unChooseSkill = "unChooseSkill",
   castSkill = "castSkill",
   rest = "rest",
   round = "round",

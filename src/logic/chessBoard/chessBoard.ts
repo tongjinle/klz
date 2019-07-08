@@ -23,8 +23,10 @@ import {
   IPosition,
   PlayerStatus,
   RestType,
-  SkillType
+  SkillType,
+  IRecord
 } from "../types";
+import { ChooseChessRecord } from "../recordTypes";
 
 class ChessBoard {
   private maxEnergy = conf.MAX_ENERGY;
@@ -38,13 +40,13 @@ class ChessBoard {
     this.boxList = [];
     this.playerList = [];
     this.status = ChessBoardStatus.beforeStart;
-    this.rep = new Replay();
+    this.replay = new Replay();
     this.chgTable = new ChangeTable();
   }
 
   id: string;
   mapName: string;
-  rep: Replay;
+  replay: Replay;
   chgTable: ChangeTable;
 
   seed: number;
@@ -77,9 +79,9 @@ class ChessBoard {
 
   // 记录rep
   writeRecord(action: ActionType, data: any) {
-    this.rep.recoList.push({
+    this.replay.recordList.push({
       round: this.roundIndex,
-      action,
+      actionType: action,
       data
     });
   }

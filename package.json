@@ -4,7 +4,9 @@
   "description": "卡拉赞象棋服务端",
   "main": "gruntfile.js",
   "scripts": {
-    "test": "cross-env NODE_ENV=test npx mocha --require intelli-espower-loader dist/logic/test/**/*.test.js"
+    "test": "cross-env NODE_ENV=test npx mocha --require intelli-espower-loader dist/logic/test/**/*.test.js",
+    "clear": "rm -rf dist",
+    "build": "npm run clear && tsc"
   },
   "repository": {
     "type": "git",
