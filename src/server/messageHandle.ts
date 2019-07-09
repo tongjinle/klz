@@ -1,33 +1,19 @@
 import { Socket } from "socket.io";
-
-enum MessageType {
-  chat = "chat",
-  roomList = "roomList",
-  createRoom = "createRoom",
-  enterRoom = "enterRoom",
-  leaveRoom = "leaveRoom",
-  ready = "ready",
-  unReady = "unReady",
-  chooseChess = "chooseChess",
-  unChooseChess = "unChooseChess",
-  unChooseSkill = "unChooseSkill",
-  surrend = "surrend",
-  castSkill = "castSkill"
-}
-
-// 聊天数据格式
-type chatDataType = { text: string };
-
-// 游戏房间列表数据格式
-type roomStatus = "beforeEnter" | "beforeReady" | "play" | "gameover";
-type roomDataType = { title: string; status: string };
+import {
+  ChatRequest,
+  RoomListResponse,
+  RoomEnterRequest,
+  RoomEnterResponse
+} from "./protocol";
+import MessageType from "./messageType";
+import roomMgr from "./roomMgr";
 
 let genDict = socket => {
   let dict: { [type: string]: (data: any) => void } = {};
 
   // 聊天
-  dict[MessageType.chat] = (data: chatDataType) => {
-    socket.broadcast.emit(("message" = "message"), {
+  dict[MessageType.chat] = (data: ChatRequest) => {
+    socket.broadcast.emit(MessageType.chat, {
       type: MessageType.chat,
       data
     });
@@ -35,14 +21,26 @@ let genDict = socket => {
 
   // 查询房间列表
   dict[MessageType.roomList] = () => {
-    let data: roomDataType[] = [];
+    let data: RoomListResponse[] = roomMgr.toString();
     socket.emit("message", { type: MessageType.roomList, data });
   };
 
   // 创建房间
-  dict[MessageType.createRoom];
+  //   dict[MessageType.createRoom]=({roomName:string})=>{
+  //       let room :RoomDataType= {title:'',}
+  //   };
 
   // 进入房间
+  dict[MessageType.enterRoom] = (data: RoomEnterRequest) => {
+    let id = data.id;
+    let room = roomMgr.find(id);
+    let resData: RoomEnterResponse;
+    if (room) {
+      resData = {};
+    } else {
+    }
+  };
+
   // 离开房间
   // 准备
   // 反准备
