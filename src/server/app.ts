@@ -79,9 +79,9 @@ io.on("connect", socket => {
   //     socket.disconnect();
   //   }
   // });
-
-  socket.on(SocketType.message, data => {
-    messageHandle(socket, data.type, data.data);
+  socket.on("message", (type, data) => {
+    console.log("message receive");
+    messageHandle(socket, type, data);
   });
 
   socket.on("disconnect", reason => {

@@ -5,6 +5,7 @@
   "main": "gruntfile.js",
   "scripts": {
     "test": "cross-env NODE_ENV=test npx mocha --require intelli-espower-loader dist/test/**/*.test.js",
+    "testapp": "cross-env NODE_ENV=test npx mocha --require intelli-espower-loader dist/test/**/app.test.js",
     "clear": "rm -rf dist",
     "build": "npm run clear && tsc"
   },
@@ -32,8 +33,11 @@
     "power-assert": "^1.6.0",
     "socket.io": "^2.2.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/socket.io-client": "^1.4.32",
+    "socket.io-client": "^2.2.0"
+  },
   "directories": {
-    "test": "dist/logic/test"
+    "test": "dist/test"
   }
 }

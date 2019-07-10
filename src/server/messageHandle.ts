@@ -51,8 +51,7 @@ let genDict = (socket: Socket) => {
     let roomId = data.roomId;
     let userId = socket.id;
     // 如果已经在房间了,就不能进入了
-    let ids = Object.keys(socket.rooms);
-    if (ids.length > 0) {
+    if (socket["roomId"]) {
       resData = { code: -1, message: "已经在房间了" };
       send(MessageType.enterRoomResponse, resData);
       return;
@@ -68,6 +67,7 @@ let genDict = (socket: Socket) => {
       resData = { code: 0 };
       // socket 加入房间
       socket.join(roomId);
+      socket["roomId"] = roomId;
       room.userIdList.push(userId);
       if (room.userIdList.length === 2) {
         room.status = RoomStatus.full;
@@ -91,14 +91,13 @@ let genDict = (socket: Socket) => {
     let notiData: LeaveRoomNotify;
     let userId = socket.id;
     // 查看现在是不是在房间中
-    let ids = Object.keys(socket.rooms);
-    if (ids.length === 0) {
+    if (!socket["roomId"]) {
       resData = { code: -1, message: "并未在任何房间" };
       send(MessageType.leaveRoomResponse, resData);
       return;
     }
 
-    let roomId = ids[0];
+    let roomId: string = socket["roomId"];
     let room = roomMgr.find(roomId);
     if (!room) {
       resData = { code: -2, message: "找不到该id的房间" };
@@ -107,6 +106,7 @@ let genDict = (socket: Socket) => {
     }
 
     socket.leave(roomId);
+    socket["roomId"] = undefined;
     room.userIdList = room.userIdList.filter(id => id !== userId);
     room.status = RoomStatus.notFull;
     resData = { code: 0 };
@@ -131,6 +131,7 @@ let genDict = (socket: Socket) => {
 };
 
 function handle(socket: Socket, type: MessageType, data: any) {
+  console.log({ type, data });
   genDict(socket)[type](data);
 }
 
