@@ -38,47 +38,47 @@ io.on("connect", socket => {
   console.log("user connenct");
   socket.emit(SocketType.connect);
 
-  // 注册
-  socket.on(SocketType.reg, () => {
-    let username = Math.floor(Math.random() * 1e12).toString(16);
-    userList.push({ username, isLogin: false });
-    socket.emit(SocketType.reg, { username });
-  });
+  // // 注册
+  // socket.on(SocketType.reg, () => {
+  //   let username = Math.floor(Math.random() * 1e12).toString(16);
+  //   userList.push({ username, isLogin: false });
+  //   socket.emit(SocketType.reg, { username });
+  // });
 
-  // 登录
-  socket.on(SocketType.login, ({ username }) => {
-    let rst: { flag: boolean };
-    let user = userList.find(user => user.username === username);
-    if (user) {
-      rst = { flag: true };
-      socket["username"] = username;
-      user.isLogin = true;
-    } else {
-      rst = { flag: false };
-    }
+  // // 登录
+  // socket.on(SocketType.login, ({ username }) => {
+  //   let rst: { flag: boolean };
+  //   let user = userList.find(user => user.username === username);
+  //   if (user) {
+  //     rst = { flag: true };
+  //     socket["username"] = username;
+  //     user.isLogin = true;
+  //   } else {
+  //     rst = { flag: false };
+  //   }
 
-    socket.emit(SocketType.login, rst);
-  });
+  //   socket.emit(SocketType.login, rst);
+  // });
 
-  // 登出
-  socket.on(SocketType.logout, () => {
-    let rst: { flag: boolean };
-    let username = socket["username"];
-    let user: IUser;
-    if (username) {
-      user = userList.find(user => user.username === username);
-    }
-    if (username && user) {
-      user.isLogin = false;
-      rst = { flag: true };
-    } else {
-      rst = { flag: false };
-    }
-    socket.emit(SocketType.logout, rst);
-    if (rst.flag) {
-      socket.disconnect();
-    }
-  });
+  // // 登出
+  // socket.on(SocketType.logout, () => {
+  //   let rst: { flag: boolean };
+  //   let username = socket["username"];
+  //   let user: IUser;
+  //   if (username) {
+  //     user = userList.find(user => user.username === username);
+  //   }
+  //   if (username && user) {
+  //     user.isLogin = false;
+  //     rst = { flag: true };
+  //   } else {
+  //     rst = { flag: false };
+  //   }
+  //   socket.emit(SocketType.logout, rst);
+  //   if (rst.flag) {
+  //     socket.disconnect();
+  //   }
+  // });
 
   socket.on(SocketType.message, data => {
     messageHandle(socket, data.type, data.data);

@@ -18,9 +18,8 @@ export type ChatNotify = { text: string };
 // 游戏房间列表数据格式
 export type LobbyRequest = {};
 export type LobbyResponse = {
-  code: number;
   list: IRoomInfo[];
-};
+} & baseResponse;
 
 // 进入房间
 export type EnterRoomRequest = { roomId: string };
