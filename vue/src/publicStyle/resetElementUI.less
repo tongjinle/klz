@@ -1,0 +1,57 @@
+/*
+    重置element-ui样式
+*/
+
+@import './variables.less';
+
+// dialog 垂直水平居中
+.el-dialog__wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .el-dialog {
+        margin: 0 !important;
+    }
+    &[size=small]{
+        .el-dialog { max-width: 500px; }
+    }
+}
+
+// table
+.el-table {
+    font-size: 12px;
+    td {
+        padding: 4px 0;
+    }
+    thead {
+        color: @base-color;
+        tr {
+            th {
+                background: @table-title-bg;
+                padding: 5px 0;
+            }
+        }
+    }
+
+    &.bj-none{
+        thead tr th{
+            background: none;
+        }    
+    }
+}
+
+// button
+.el-button--text{
+    color: @base-blue;
+}
+
+// step步骤
+.el-step__main{
+    cursor: pointer;
+}
+.el-step__title.is-process{
+    font-weight: 400;
+}
+.el-step__title{
+    font-size: 14px;
+}

@@ -1,0 +1,15 @@
+{
+  "dev-config": "",
+  "test-config": "http://47.96.129.18:8888/",
+  "master-config": "http://47.96.129.18:8888/",
+
+
+  
+  "接口名字":"--------------------",
+  "LOGIN": "admin/login",
+  "sug": "sug",
+  "wx": "https://open.weixin.qq.com/connect/oauth2/authorize",
+
+  "测试本地接口": "",
+  "LOCAL": "hellow.json"
+}
