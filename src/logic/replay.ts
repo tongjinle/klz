@@ -95,7 +95,7 @@ export default class Replay {
       this.chessBoard.chooseSkill(data.skillType);
     },
     [ActionType.castSkill]: (data: CastSkillRecord) => {
-      this.chessBoard.chooseSkillTarget(data.position);
+      this.chessBoard.castSkill(data.position);
     },
     [ActionType.rest]: () => {
       this.chessBoard.rest();

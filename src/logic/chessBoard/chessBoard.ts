@@ -1,9 +1,8 @@
-import * as api from "../api";
 import { genUniqueId } from "../api";
 import ChangeTable from "../changeTable";
 import Chess from "../chess/chess";
 import chessList from "../chess/chessList";
-import { conf } from "../conf";
+import { conf } from "../config";
 import maps from "../maps";
 import Player from "../player/player";
 import Replay from "../replay";
@@ -23,10 +22,8 @@ import {
   IPosition,
   PlayerStatus,
   RestType,
-  SkillType,
-  IRecord
+  SkillType
 } from "../types";
-import { ChooseChessRecord } from "../recordTypes";
 
 class ChessBoard {
   private maxEnergy = conf.MAX_ENERGY;
@@ -432,7 +429,7 @@ class ChessBoard {
   }
 
   // 选手选择技能目标
-  chooseSkillTarget(posi: IPosition): void {
+  castSkill(posi: IPosition): void {
     let lastChessHpDict = getChessHpDict(this.chessList);
     this.currSkill.cast(posi);
     let currChessHpDict = getChessHpDict(this.chessList);

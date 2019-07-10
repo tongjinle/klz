@@ -94,7 +94,7 @@ describe("write replay", () => {
 
   // 使用技能
   it("castSkill", () => {
-    chBoard.chooseSkillTarget({ x: 4, y: 1 });
+    chBoard.castSkill({ x: 4, y: 1 });
     {
       let reco = rep.recordList.find(
         n => n.actionType === ActionType.chooseSkill

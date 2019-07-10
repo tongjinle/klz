@@ -1,28 +1,45 @@
-import { RoomListResponse } from "./protocol";
-import Room from "./room";
+import Room, { RoomStatus } from "./room";
 
-const ROOM_COUNT = 10;
+export interface IRoomInfo {
+  id: string;
+  name: string;
+  status: RoomStatus;
+  userIdList: string[];
+}
 class RoomMgr {
   private list: Room[] = [];
 
   constructor() {
-    this.create();
+    // 系统生成房间
+    const ROOM_COUNT = 10;
+    this.create(ROOM_COUNT);
   }
 
-  private create(): void {
-    for (let i = 0; i < ROOM_COUNT; i++) {
+  private create(count: number): void {
+    for (let i = 0; i < count; i++) {
       let name = `${i}号房间`;
       let room = new Room(name);
       this.list.push(room);
     }
   }
 
-  find(id: string): Room {
-    return undefined;
+  find(roomId: string): Room {
+    return this.list.find(n => n.id === roomId);
   }
 
-  toString(): RoomListResponse[] {
-    return [];
+  getLobbyInfo(): IRoomInfo[] {
+    return this.list.map(ro => {
+      return this.getRoomInfo(ro);
+    });
+  }
+
+  getRoomInfo(room: Room): IRoomInfo {
+    return {
+      id: room.id,
+      name: room.name,
+      status: room.status,
+      userIdList: room.userIdList
+    };
   }
 }
 let mgr = new RoomMgr();

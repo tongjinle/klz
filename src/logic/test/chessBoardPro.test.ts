@@ -405,7 +405,7 @@ describe("chessBoard basis", () => {
 
     chBoard.chooseChess(chOfJack);
     chBoard.chooseSkill(0);
-    chBoard.chooseSkillTarget({ x: 1, y: 4 });
+    chBoard.castSkill({ x: 1, y: 4 });
     assert(chOfTom.hp === 9);
     assert(chOfJack.status === ChessStatus.rest);
     assert(jack.status === PlayerStatus.waiting);
