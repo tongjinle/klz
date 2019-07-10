@@ -1,15 +1,15 @@
 import assert = require("assert");
-import Chess from "../chess/chess";
-import ChessBoard from "../chessBoard/chessBoard";
-import Skill from "../skill/skill";
-import { ChessColor, ChessType, SkillType } from "../types";
-import Footman from "../chess/footman";
-import Knight from "../chess/knight";
-import EmptyChess from "../chess/emptyChess";
-import Cavalry from "../chess/cavalry";
-import Minister from "../chess/minister";
-import Magic from "../chess/magic";
-import King from "../chess/king";
+import Chess from "../logic/chess/chess";
+import ChessBoard from "../logic/chessBoard/chessBoard";
+import Skill from "../logic/skill/skill";
+import { ChessColor, ChessType, SkillType } from "../logic/types";
+import Footman from "../logic/chess/footman";
+import Knight from "../logic/chess/knight";
+import EmptyChess from "../logic/chess/emptyChess";
+import Cavalry from "../logic/chess/cavalry";
+import Minister from "../logic/chess/minister";
+import Magic from "../logic/chess/magic";
+import King from "../logic/chess/king";
 
 const sort = (pa, pb) => 1e5 * pb.x + pb.y - (1e5 * pa.x + pa.y);
 

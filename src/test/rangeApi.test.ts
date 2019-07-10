@@ -1,5 +1,5 @@
 import assert = require("assert");
-import * as rangeApi from "../rangeApi";
+import * as rangeApi from "../logic/rangeApi";
 
 const sort = (pa, pb) => 1e5 * pb.x + pb.y - (1e5 * pa.x + pa.y);
 describe("range api", () => {

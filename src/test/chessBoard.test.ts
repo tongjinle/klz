@@ -1,6 +1,6 @@
 import assert = require("assert");
-import ChessBoard from "../chessBoard/chessBoard";
-import { ChessColor, ChessBoardStatus, PlayerStatus } from "../types";
+import ChessBoard from "../logic/chessBoard/chessBoard";
+import { ChessColor, ChessBoardStatus, PlayerStatus } from "../logic/types";
 
 describe("chessBoard", () => {
   let chBoard: ChessBoard;

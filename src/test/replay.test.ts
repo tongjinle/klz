@@ -1,8 +1,8 @@
 import assert = require("assert");
-import ChessBoard from "../chessBoard/chessBoard";
-import Player from "../player/player";
-import Replay from "../replay";
-import { ActionType, ChessColor, ChessType, IRecord } from "../types";
+import ChessBoard from "../logic/chessBoard/chessBoard";
+import Player from "../logic/player/player";
+import Replay from "../logic/replay";
+import { ActionType, ChessColor, ChessType, IRecord } from "../logic/types";
 
 describe("replay", () => {
   let rep: Replay;
