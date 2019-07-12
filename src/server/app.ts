@@ -3,6 +3,7 @@ import socketServer from "socket.io";
 import http from "http";
 import cors from "cors";
 import messageHandle from "./messageHandle";
+import roomMgr from "./roomMgr";
 
 let app = express();
 
@@ -10,8 +11,9 @@ const port = 3000;
 
 app.use(cors());
 
-app.get("/test", (req, res) => {
-  res.json({ game: "klz" });
+app.get("/info", (req, res) => {
+  let info = roomMgr.getLobbyInfo();
+  res.json({ info });
 });
 
 enum SocketType {
