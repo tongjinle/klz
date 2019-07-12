@@ -4,6 +4,7 @@ import http from "http";
 import cors from "cors";
 import messageHandle from "./messageHandle";
 import roomMgr from "./roomMgr";
+import { RoomStatus } from "./room";
 
 let app = express();
 
@@ -11,9 +12,15 @@ const port = 3000;
 
 app.use(cors());
 
+let userIdList: string[] = [];
+
 app.get("/info", (req, res) => {
   let info = roomMgr.getLobbyInfo();
   res.json({ info });
+});
+
+app.get("/userIdList", (req, res) => {
+  res.json({ userIdList });
 });
 
 enum SocketType {
@@ -37,7 +44,9 @@ let server = http.createServer(app);
 let io = socketServer(server);
 
 io.on("connect", socket => {
-  console.log("user connenct");
+  console.log("user connenct:", socket.id);
+  userIdList.push(socket.id);
+
   socket.emit(SocketType.connect);
 
   // // 注册
@@ -87,7 +96,21 @@ io.on("connect", socket => {
   });
 
   socket.on("disconnect", reason => {
-    console.log("disconent:", reason);
+    let id = socket.id;
+    userIdList = userIdList.filter(userId => userId !== id);
+
+    // roomMgr.removeId();
+    let roomId = socket["roomId"];
+    if (roomId) {
+      let room = roomMgr.find(roomId);
+      room.userIdList = room.userIdList.filter(userId => userId !== id);
+      room.status = RoomStatus.notFull;
+    }
+
+    socket.leaveAll();
+
+    console.log("disconent id:", id);
+    console.log("disconent reason:", reason);
   });
 });
 

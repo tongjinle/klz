@@ -64,7 +64,7 @@ let genDict = (socket: Socket) => {
         send(MessageType.enterRoomResponse, resData);
         return;
       }
-      resData = { code: 0 };
+      resData = { code: 0, info: roomMgr.getRoomInfo(room) };
       // socket 加入房间
       socket.join(roomId);
       socket["roomId"] = roomId;
@@ -132,7 +132,12 @@ let genDict = (socket: Socket) => {
 
 function handle(socket: Socket, type: MessageType, data: any) {
   console.log({ type, data });
-  genDict(socket)[type](data);
+  let fn = genDict(socket)[type];
+  if (fn) {
+    fn(data);
+  } else {
+    console.warn(`no such ${type} method`);
+  }
 }
 
 export default handle;
