@@ -9,18 +9,24 @@ import {
   EnterRoomNotify,
   LeaveRoomRequest,
   LeaveRoomResponse,
-  LeaveRoomNotify
+  LeaveRoomNotify,
+  ReadyRequest,
+  ReadyResponse,
+  ReadyNotify
 } from "./protocol";
 import MessageType from "./messageType";
-import roomMgr from "./roomMgr";
+import lobby from "./lobby";
 import { RoomStatus } from "./room";
 
 let genDict = (socket: Socket) => {
   let dict: { [type: string]: (data: any) => void } = {};
 
+  // 发送消息
   let send = (type: MessageType, data: any) => socket.send(type, data);
+  // 发送通知
   let notify = (type: MessageType, data: any) =>
     socket.broadcast.send(type, data);
+  // 发送在房间中的通知
   let notifyInRoom = (roomId: string, type: MessageType, data: any) =>
     socket.to(roomId).broadcast.send(type, data);
 
@@ -35,7 +41,7 @@ let genDict = (socket: Socket) => {
 
   // 查询房间列表
   dict[MessageType.lobbyRequest] = () => {
-    let data: LobbyResponse = { code: 0, list: roomMgr.getLobbyInfo() };
+    let data: LobbyResponse = { code: 0, list: lobby.getLobbyInfo() };
     send(MessageType.lobbyResponse, data);
   };
 
@@ -50,32 +56,33 @@ let genDict = (socket: Socket) => {
     let notiData: EnterRoomNotify;
     let roomId = data.roomId;
     let userId = socket.id;
+
+    //
+    let user = lobby.findUser(userId);
+
     // 如果已经在房间了,就不能进入了
-    if (socket["roomId"]) {
+    if (user.roomId) {
       resData = { code: -1, message: "已经在房间了" };
       send(MessageType.enterRoomResponse, resData);
       return;
     }
 
-    let room = roomMgr.find(roomId);
+    let room = lobby.findRoom(roomId);
     if (room) {
       if (room.userIdList.length === 2) {
         resData = { code: -3, message: "房间已经满员了" };
         send(MessageType.enterRoomResponse, resData);
         return;
       }
-      resData = { code: 0, info: roomMgr.getRoomInfo(room) };
+
       // socket 加入房间
-      socket.join(roomId);
-      socket["roomId"] = roomId;
-      room.userIdList.push(userId);
-      if (room.userIdList.length === 2) {
-        room.status = RoomStatus.full;
-      }
+      lobby.joinRoom(userId, roomId);
+      resData = { code: 0, info: lobby.getRoomInfo(room) };
+
       send(MessageType.enterRoomResponse, resData);
 
       // 通知
-      notiData = { info: roomMgr.getRoomInfo(room) };
+      notiData = { info: lobby.getRoomInfo(room) };
       notifyInRoom(roomId, MessageType.enterRoomNotify, notiData);
       return;
     } else {
@@ -98,7 +105,7 @@ let genDict = (socket: Socket) => {
     }
 
     let roomId: string = socket["roomId"];
-    let room = roomMgr.find(roomId);
+    let room = lobby.findRoom(roomId);
     if (!room) {
       resData = { code: -2, message: "找不到该id的房间" };
       send(MessageType.leaveRoomResponse, resData);
@@ -118,6 +125,17 @@ let genDict = (socket: Socket) => {
   };
 
   // 准备
+  dict[MessageType.readyRequest] = (data: ReadyRequest) => {
+    let resData: ReadyResponse;
+    let notiData: ReadyNotify;
+
+    let userId = socket.id;
+    lobby.userReady(userId);
+
+    resData = { code: 0 };
+    send(MessageType.readyResponse, resData);
+  };
+
   // 反准备
   // 投降
   // 选择棋子

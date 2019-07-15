@@ -4,7 +4,7 @@ import {
   ChessColor,
   IChessBoardInfo
 } from "../logic/types";
-import { IRoomInfo } from "./roomMgr";
+import { IRoomInfo } from "./lobby";
 
 interface IEffect {}
 

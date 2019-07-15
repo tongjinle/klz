@@ -1,4 +1,5 @@
 import { genUniqueId } from "../logic/api";
+import User from "./user";
 
 // 房间状态
 export enum RoomStatus {
@@ -17,6 +18,7 @@ export default class Room {
   name: string;
   status: RoomStatus;
   userIdList: string[];
+  gameId: string;
 
   constructor(name: string) {
     this.id = genUniqueId();

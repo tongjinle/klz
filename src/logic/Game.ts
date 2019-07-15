@@ -1,14 +1,17 @@
 import ChessBoard from "./chessBoard/chessBoard";
 import { IRecord } from "./types";
+import { genUniqueId } from "./api";
 
 class Game {
-  // 属性
-  // ***************************************************
-
+  // id
+  id: string;
   // 棋盘
   chBoard: ChessBoard;
-  // 记录
-  recoList: IRecord[];
+
+  constructor() {
+    this.id = genUniqueId();
+    this.chBoard = new ChessBoard();
+  }
 }
 
 export default Game;
