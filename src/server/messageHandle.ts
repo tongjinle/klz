@@ -97,14 +97,16 @@ let genDict = (socket: Socket) => {
     let resData: LeaveRoomResponse;
     let notiData: LeaveRoomNotify;
     let userId = socket.id;
+
+    let user = lobby.findUser(userId);
+    let roomId: string = user.roomId;
     // 查看现在是不是在房间中
-    if (!socket["roomId"]) {
+    if (!user.roomId) {
       resData = { code: -1, message: "并未在任何房间" };
       send(MessageType.leaveRoomResponse, resData);
       return;
     }
 
-    let roomId: string = socket["roomId"];
     let room = lobby.findRoom(roomId);
     if (!room) {
       resData = { code: -2, message: "找不到该id的房间" };
@@ -112,10 +114,8 @@ let genDict = (socket: Socket) => {
       return;
     }
 
-    socket.leave(roomId);
-    socket["roomId"] = undefined;
-    room.userIdList = room.userIdList.filter(id => id !== userId);
-    room.status = RoomStatus.notFull;
+    lobby.leaveRoom(userId, roomId);
+
     resData = { code: 0 };
     send(MessageType.leaveRoomResponse, resData);
 

@@ -14,7 +14,7 @@ export interface IRoomInfo {
 // 游戏需要的人数
 const GAME_USER_COUNT = 2;
 
-class RoomMgr {
+class Lobby {
   private socketList: Socket[] = [];
   // 房间列表
   private roomList: Room[] = [];
@@ -94,6 +94,18 @@ class RoomMgr {
     if (room.userIdList.length === GAME_USER_COUNT) {
       room.status = RoomStatus.full;
     }
+  }
+
+  // 离开房间
+  leaveRoom(userId: string, roomId: string): void {
+    let socket = this.findSocket(userId);
+    let user = this.findUser(userId);
+    let room = this.findRoom(roomId);
+
+    socket.leave(roomId);
+    user.roomId = undefined;
+    room.userIdList = room.userIdList.filter(id => id !== userId);
+    room.status = RoomStatus.notFull;
   }
 
   findSocket(id: string): Socket {
@@ -177,5 +189,5 @@ class RoomMgr {
     // game.chBoard.start();
   }
 }
-let mgr = new RoomMgr();
-export default mgr;
+let lobby = new Lobby();
+export default lobby;
