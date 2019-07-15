@@ -2,6 +2,8 @@ import Room, { RoomStatus } from "./room";
 import User, { UserStatus } from "./user";
 import Game from "../logic/Game";
 import { Socket } from "socket.io";
+import { BaseResponse } from "./protocol";
+import { BasePrivateKeyEncodingOptions } from "crypto";
 
 export interface IRoomInfo {
   id: string;
@@ -82,8 +84,29 @@ class Lobby {
     }
   }
 
+  // 能否加入房间
+  canEnterRoom(userId: string, roomId: string): BaseResponse {
+    let rst: BaseResponse = { code: 0 };
+    let user = lobby.findUser(userId);
+    // 如果已经在房间了,就不能进入了
+    if (user.roomId) {
+      return { code: -1, message: "已经在房间了" };
+      return rst;
+    }
+
+    let room = lobby.findRoom(roomId);
+    if (room) {
+      if (room.userIdList.length === 2) {
+        return { code: -3, message: "房间已经满员了" };
+      }
+    } else {
+      return { code: -2, message: "找不到该id的房间" };
+    }
+    return rst;
+  }
+
   // 加入房间
-  joinRoom(userId: string, roomId: string): void {
+  enterRoom(userId: string, roomId: string): void {
     let socket = this.findSocket(userId);
     let user = this.findUser(userId);
     let room = this.findRoom(roomId);

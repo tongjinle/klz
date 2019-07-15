@@ -57,39 +57,22 @@ let genDict = (socket: Socket) => {
     let roomId = data.roomId;
     let userId = socket.id;
 
-    //
-    let user = lobby.findUser(userId);
-
-    // 如果已经在房间了,就不能进入了
-    if (user.roomId) {
-      resData = { code: -1, message: "已经在房间了" };
-      send(MessageType.enterRoomResponse, resData);
+    let can = lobby.canEnterRoom(userId, roomId);
+    if (can.code) {
+      send(MessageType.enterRoomResponse, can);
       return;
     }
 
     let room = lobby.findRoom(roomId);
-    if (room) {
-      if (room.userIdList.length === 2) {
-        resData = { code: -3, message: "房间已经满员了" };
-        send(MessageType.enterRoomResponse, resData);
-        return;
-      }
+    // socket 加入房间
+    lobby.enterRoom(userId, roomId);
+    resData = { code: 0, info: lobby.getRoomInfo(room) };
 
-      // socket 加入房间
-      lobby.joinRoom(userId, roomId);
-      resData = { code: 0, info: lobby.getRoomInfo(room) };
+    send(MessageType.enterRoomResponse, resData);
 
-      send(MessageType.enterRoomResponse, resData);
-
-      // 通知
-      notiData = { info: lobby.getRoomInfo(room) };
-      notifyInRoom(roomId, MessageType.enterRoomNotify, notiData);
-      return;
-    } else {
-      resData = { code: -2, message: "找不到该id的房间" };
-      send(MessageType.enterRoomResponse, resData);
-      return;
-    }
+    // 通知
+    notiData = { info: lobby.getRoomInfo(room) };
+    notifyInRoom(roomId, MessageType.enterRoomNotify, notiData);
   };
 
   // 离开房间
@@ -134,6 +117,14 @@ let genDict = (socket: Socket) => {
 
     resData = { code: 0 };
     send(MessageType.readyResponse, resData);
+
+    // notify
+    notiData = { userId };
+    let user = lobby.findUser(userId);
+    notifyInRoom(user.roomId, MessageType.readyNotify, notiData);
+
+    // 查看游戏是不是开始了
+    // todo
   };
 
   // 反准备
