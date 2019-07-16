@@ -4,6 +4,7 @@ import Game from "../logic/Game";
 import { Socket } from "socket.io";
 import { BaseResponse } from "./protocol";
 import { BasePrivateKeyEncodingOptions } from "crypto";
+import { genUniqueId } from "../logic/api";
 
 export interface IRoomInfo {
   id: string;
@@ -13,30 +14,106 @@ export interface IRoomInfo {
   gameId: string;
 }
 
+// 检测是不是用户合法
+function checkUser(getUserIdParams: (...args) => string) {
+  return function(target, methodName: string, descriptor: PropertyDescriptor) {
+    let origin = target[methodName];
+    target[methodName] = function(...args) {
+      let userId = getUserIdParams(...args);
+      let user = this.findUser(userId);
+      if (!user) {
+        return { code: -100, message: "没有该用户" };
+      }
+      return origin.apply(this, args);
+    };
+  };
+}
+
+// 检查是不是房间合法
+function checkRoom(getRoomIdParams: (...args) => string) {
+  return function(target, methodName: string, descriptor: PropertyDescriptor) {
+    let origin = target[methodName];
+    target[methodName] = function(...args) {
+      let roomId = getRoomIdParams(...args);
+      let room = this.findRoom(roomId);
+      if (!room) {
+        return { code: -101, message: "没有该房间" };
+      }
+      return origin.apply(this, args);
+    };
+  };
+}
+
 // 游戏需要的人数
 const GAME_USER_COUNT = 2;
+const ROOM_COUNT = 10;
 
 class Lobby {
   private socketList: Socket[] = [];
   // 房间列表
   private roomList: Room[] = [];
   // 用户列表
-  private userList: User[] = [];
+  // private userList: User[] = [];
+  public userList: User[] = [];
   // 游戏列表
   private gameList: Game[] = [];
 
+  public id: string;
   constructor() {
+    this.id = genUniqueId();
     // 系统生成房间
-    const ROOM_COUNT = 10;
-    this.create(ROOM_COUNT);
+    this.createRoom(ROOM_COUNT);
+    this.roomList.forEach(room => {
+      this.createGame(room.id);
+    });
   }
 
-  private create(count: number): void {
+  findSocket(id: string): Socket {
+    return this.socketList.find(n => n.id === id);
+  }
+
+  findRoom(id: string): Room {
+    return this.roomList.find(n => n.id === id);
+  }
+
+  findUser(id: string): User {
+    return this.userList.find(n => n.id === id);
+  }
+
+  findGame(id: string): Game {
+    return this.gameList.find(n => n.id === id);
+  }
+  // 获取大厅信息
+  getLobbyInfo(): IRoomInfo[] {
+    return this.roomList.map(ro => {
+      return this.getRoomInfo(ro);
+    });
+  }
+
+  // 获取房间细节信息
+  getRoomInfo(room: Room): IRoomInfo {
+    return {
+      id: room.id,
+      name: room.name,
+      status: room.status,
+      userIdList: room.userIdList,
+      gameId: room.gameId
+    };
+  }
+
+  private createRoom(count: number): void {
     for (let i = 0; i < count; i++) {
       let name = `${i}号房间`;
       let room = new Room(name);
       this.roomList.push(room);
     }
+  }
+
+  private createGame(roomId: string): void {
+    let room = this.findRoom(roomId);
+    let game = new Game();
+    room.gameId = game.id;
+    this.gameList.push(game);
   }
 
   addSocket(socket: Socket): void {
@@ -71,36 +148,38 @@ class Lobby {
   // 删除一个用户
   // 一般用在socket断开连接的时候
   removeUser(userId: string): void {
+    console.log("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
     let user = this.findUser(userId);
     if (user) {
       this.userList = this.userList.filter(user => user.id !== userId);
 
       let roomId = user.roomId;
-      if (roomId) {
-        let room = this.findRoom(roomId);
-        room.userIdList = room.userIdList.filter(id => id !== roomId);
+      let room = this.findRoom(roomId);
+      if (room) {
+        room.userIdList = room.userIdList.filter(id => id !== userId);
         room.status = RoomStatus.notFull;
       }
     }
   }
 
   // 能否加入房间
+  @checkUser(function(...args) {
+    return args[0];
+  })
+  @checkRoom(function(...args) {
+    return args[1];
+  })
   canEnterRoom(userId: string, roomId: string): BaseResponse {
     let rst: BaseResponse = { code: 0 };
     let user = lobby.findUser(userId);
     // 如果已经在房间了,就不能进入了
     if (user.roomId) {
       return { code: -1, message: "已经在房间了" };
-      return rst;
     }
 
     let room = lobby.findRoom(roomId);
-    if (room) {
-      if (room.userIdList.length === 2) {
-        return { code: -3, message: "房间已经满员了" };
-      }
-    } else {
-      return { code: -2, message: "找不到该id的房间" };
+    if (room.userIdList.length === 2) {
+      return { code: -2, message: "房间已经满员了" };
     }
     return rst;
   }
@@ -119,10 +198,33 @@ class Lobby {
     }
   }
 
+  // 能否离开房间
+  @checkUser(function(...args) {
+    return args[0];
+  })
+  @checkRoom(function(this: Lobby, ...args) {
+    let user = this.findUser(args[0]);
+    return user.roomId;
+  })
+  canLeaveRoom(userId: string): BaseResponse {
+    let rst: BaseResponse = { code: 0 };
+
+    let user = this.findUser(userId);
+    let roomId = user.roomId;
+    let room = this.findRoom(roomId);
+    if (!room.userIdList.find(id => id === userId)) {
+      return { code: -1, message: "房间中不存在该用户" };
+    }
+
+    return rst;
+  }
+
   // 离开房间
-  leaveRoom(userId: string, roomId: string): void {
+  leaveRoom(userId: string): void {
     let socket = this.findSocket(userId);
     let user = this.findUser(userId);
+
+    let roomId = user.roomId;
     let room = this.findRoom(roomId);
 
     socket.leave(roomId);
@@ -131,50 +233,65 @@ class Lobby {
     room.status = RoomStatus.notFull;
   }
 
-  findSocket(id: string): Socket {
-    return this.socketList.find(n => n.id === id);
-  }
+  // 玩家能否准备
+  @checkUser(function(...args) {
+    return args[0];
+  })
+  @checkRoom(function(this: Lobby, ...args) {
+    let user = this.findUser(args[0]);
+    return user.roomId;
+  })
+  canUserReady(userId: string): BaseResponse {
+    let rst: BaseResponse = { code: 0 };
 
-  findRoom(id: string): Room {
-    return this.roomList.find(n => n.id === id);
-  }
+    // 用户已经准备
+    let user = this.findUser(userId);
+    if (user.status === UserStatus.ready) {
+      return { code: -1, message: "用户已经准备" };
+    }
 
-  findUser(id: string): User {
-    return this.userList.find(n => n.id === id);
-  }
+    let roomId = user.roomId;
+    let room = this.findRoom(roomId);
+    // 房间已经开始开始游戏
+    if (room.status === RoomStatus.play) {
+      return { code: -2, message: "房间已经开始游戏" };
+    }
 
-  findGame(id: string): Game {
-    return this.gameList.find(n => n.id === id);
-  }
-
-  // 获取大厅信息
-  getLobbyInfo(): IRoomInfo[] {
-    return this.roomList.map(ro => {
-      return this.getRoomInfo(ro);
-    });
-  }
-
-  // 获取房间细节信息
-  getRoomInfo(room: Room): IRoomInfo {
-    return {
-      id: room.id,
-      name: room.name,
-      status: room.status,
-      userIdList: room.userIdList,
-      gameId: room.gameId
-    };
+    return rst;
   }
 
   // 玩家准备
   userReady(userId: string): void {
     let user = this.findUser(userId);
     user.status = UserStatus.ready;
-
-    // 尝试开启游戏
-    if (this.canStartGame(user.roomId)) {
-      this.startGame(user.roomId);
-    }
   }
+
+  // 玩家能否反准备
+  @checkUser(function(...args) {
+    return args[0];
+  })
+  @checkRoom(function(this: Lobby, ...args) {
+    let user = this.findUser(args[0]);
+    return user.roomId;
+  })
+  canUserUnReady(userId: string): BaseResponse {
+    let rst: BaseResponse = { code: 0 };
+    // 用户尚未准备
+    let user = this.findUser(userId);
+    if (user.status === UserStatus.notReady) {
+      return { code: -1, message: "用户尚未准备" };
+    }
+
+    let roomId = user.roomId;
+    let room = this.findRoom(roomId);
+    // 房间已经开始开始游戏
+    if (room.status === RoomStatus.play) {
+      return { code: -2, message: "房间已经开始游戏" };
+    }
+
+    return rst;
+  }
+
   // 玩家反准备
   userUnReady(userId: string): void {
     let user = this.findUser(userId);
@@ -185,6 +302,9 @@ class Lobby {
   // 是否房间中的玩家已经满员,且都已经准备
   canStartGame(roomId: string): boolean {
     let room = this.findRoom(roomId);
+    if (!room) {
+      return false;
+    }
 
     // 是否满员
     let isMatch = room.userIdList.length === GAME_USER_COUNT;
@@ -209,8 +329,11 @@ class Lobby {
     let room = this.findRoom(roomId);
     let game = this.findGame(room.gameId);
     room.status = RoomStatus.play;
-    // game.chBoard.start();
+    game.chBoard.start();
   }
 }
-let lobby = new Lobby();
+let lobby: Lobby;
+if (!lobby) {
+  lobby = new Lobby();
+}
 export default lobby;

@@ -5,10 +5,12 @@ import cors from "cors";
 import messageHandle from "./messageHandle";
 import lobby from "./lobby";
 import { RoomStatus } from "./room";
-
+console.log("messageHandle lobbyId", lobby.id);
 let app = express();
 
 const port = 3000;
+
+console.log("in app.ts", lobby.id);
 
 app.use(cors());
 
@@ -45,8 +47,11 @@ io.on("connect", socket => {
   console.log("user connenct:", socket.id);
   let userId: string = socket.id;
   if (lobby.canAddUser(userId)) {
+    console.log("add userId:", userId);
     lobby.addUser(userId);
     lobby.addSocket(socket);
+
+    console.log(lobby.userList);
   }
 
   socket.emit(SocketType.connect);
@@ -61,8 +66,10 @@ io.on("connect", socket => {
     lobby.removeUser(userId);
     lobby.removeSocket(userId);
 
+    console.log("****************************************");
     console.log("disconent id:", userId);
     console.log("disconent reason:", reason);
+    console.log("****************************************");
   });
 });
 

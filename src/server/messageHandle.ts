@@ -1,22 +1,7 @@
 import { Socket } from "socket.io";
-import {
-  ChatRequest,
-  LobbyResponse,
-  EnterRoomRequest,
-  EnterRoomResponse,
-  ChatResponse,
-  ChatNotify,
-  EnterRoomNotify,
-  LeaveRoomRequest,
-  LeaveRoomResponse,
-  LeaveRoomNotify,
-  ReadyRequest,
-  ReadyResponse,
-  ReadyNotify
-} from "./protocol";
-import MessageType from "./messageType";
 import lobby from "./lobby";
-import { RoomStatus } from "./room";
+import MessageType from "./messageType";
+import * as protocol from "./protocol";
 
 let genDict = (socket: Socket) => {
   let dict: { [type: string]: (data: any) => void } = {};
@@ -31,17 +16,17 @@ let genDict = (socket: Socket) => {
     socket.to(roomId).broadcast.send(type, data);
 
   // 聊天
-  dict[MessageType.chatRequest] = (data: ChatRequest) => {
-    let resData: ChatResponse = { code: 0 };
+  dict[MessageType.chatRequest] = (data: protocol.ChatRequest) => {
+    let resData: protocol.ChatResponse = { code: 0 };
     send(MessageType.chatResponse, resData);
 
-    let resNotify: ChatNotify = data;
+    let resNotify: protocol.ChatNotify = data;
     notify(MessageType.chatNotify, resNotify);
   };
 
   // 查询房间列表
   dict[MessageType.lobbyRequest] = () => {
-    let data: LobbyResponse = { code: 0, list: lobby.getLobbyInfo() };
+    let data: protocol.LobbyResponse = { code: 0, list: lobby.getLobbyInfo() };
     send(MessageType.lobbyResponse, data);
   };
 
@@ -51,83 +36,125 @@ let genDict = (socket: Socket) => {
   //   };
 
   // 进入房间
-  dict[MessageType.enterRoomRequest] = (data: EnterRoomRequest) => {
-    let resData: EnterRoomResponse;
-    let notiData: EnterRoomNotify;
+  dict[MessageType.enterRoomRequest] = (data: protocol.EnterRoomRequest) => {
+    let resData: protocol.EnterRoomResponse;
+    let notiData: protocol.EnterRoomNotify;
     let roomId = data.roomId;
     let userId = socket.id;
 
+    // can
     let can = lobby.canEnterRoom(userId, roomId);
     if (can.code) {
       send(MessageType.enterRoomResponse, can);
       return;
     }
 
+    // action
     let room = lobby.findRoom(roomId);
-    // socket 加入房间
     lobby.enterRoom(userId, roomId);
+
     resData = { code: 0, info: lobby.getRoomInfo(room) };
-
-    send(MessageType.enterRoomResponse, resData);
-
-    // 通知
     notiData = { info: lobby.getRoomInfo(room) };
+
+    // message
+    send(MessageType.enterRoomResponse, resData);
     notifyInRoom(roomId, MessageType.enterRoomNotify, notiData);
   };
 
   // 离开房间
-  dict[MessageType.leaveRoomRequest] = (data: LeaveRoomRequest) => {
-    let resData: LeaveRoomResponse;
-    let notiData: LeaveRoomNotify;
+  dict[MessageType.leaveRoomRequest] = (data: protocol.LeaveRoomRequest) => {
+    let resData: protocol.LeaveRoomResponse;
+    let notiData: protocol.LeaveRoomNotify;
     let userId = socket.id;
 
+    // can
+    let can = lobby.canLeaveRoom(userId);
+    if (can.code) {
+      send(MessageType.leaveRoomResponse, can);
+      return;
+    }
+
+    // action
     let user = lobby.findUser(userId);
-    let roomId: string = user.roomId;
-    // 查看现在是不是在房间中
-    if (!user.roomId) {
-      resData = { code: -1, message: "并未在任何房间" };
-      send(MessageType.leaveRoomResponse, resData);
-      return;
-    }
-
-    let room = lobby.findRoom(roomId);
-    if (!room) {
-      resData = { code: -2, message: "找不到该id的房间" };
-      send(MessageType.leaveRoomResponse, resData);
-      return;
-    }
-
-    lobby.leaveRoom(userId, roomId);
+    let roomId = user.roomId;
+    lobby.leaveRoom(userId);
 
     resData = { code: 0 };
-    send(MessageType.leaveRoomResponse, resData);
-
-    // 通知
     notiData = { userId };
+
+    // message
+    send(MessageType.leaveRoomResponse, resData);
     notifyInRoom(roomId, MessageType.leaveRoomNotify, notiData);
   };
 
   // 准备
-  dict[MessageType.readyRequest] = (data: ReadyRequest) => {
-    let resData: ReadyResponse;
-    let notiData: ReadyNotify;
+  dict[MessageType.readyRequest] = (data: protocol.ReadyRequest) => {
+    let resData: protocol.ReadyResponse;
+    let notiData: protocol.ReadyNotify;
 
     let userId = socket.id;
+    // can
+    let can = lobby.canUserReady(userId);
+    console.log({ can });
+    if (can.code) {
+      send(MessageType.leaveRoomResponse, can);
+      return;
+    }
+
+    //action
     lobby.userReady(userId);
+    let user = lobby.findUser(userId);
+    let roomId = user.roomId;
 
     resData = { code: 0 };
-    send(MessageType.readyResponse, resData);
-
-    // notify
     notiData = { userId };
-    let user = lobby.findUser(userId);
-    notifyInRoom(user.roomId, MessageType.readyNotify, notiData);
+
+    // message
+    send(MessageType.readyResponse, resData);
+    notifyInRoom(roomId, MessageType.readyNotify, notiData);
 
     // 查看游戏是不是开始了
-    // todo
+    // 尝试开启游戏
+    if (lobby.canStartGame(roomId)) {
+      lobby.startGame(roomId);
+
+      let room = lobby.findRoom(roomId);
+      let game = lobby.findGame(room.gameId);
+      // notify
+      let notiDataOfStartGame: protocol.GameStartNotify;
+      notiDataOfStartGame = { info: game.chBoard.toString() };
+      notifyInRoom(roomId, MessageType.gameStartNotify, notiDataOfStartGame);
+    }
   };
 
   // 反准备
+  dict[MessageType.unReadyRequest] = (data: protocol.UnReadyRequest) => {
+    let resData: protocol.UnReadyResponse;
+    let notiData: protocol.UnReadyNotify;
+
+    let userId = socket.id;
+
+    // can
+    let can = lobby.canUserUnReady(userId);
+    if (can.code) {
+      send(MessageType.unReadyResponse, can);
+      return;
+    }
+
+    // action
+    lobby.userUnReady(userId);
+
+    resData = { code: 0 };
+    notiData = { userId };
+    let user = lobby.findUser(userId);
+    let room = lobby.findRoom(user.roomId);
+    let roomId = room.id;
+
+    // message
+    send(MessageType.unReadyResponse, resData);
+    notifyInRoom(roomId, MessageType.unReadyNotify, notiData);
+  };
+
   // 投降
   // 选择棋子
   // 反选择棋子
@@ -145,7 +172,9 @@ function handle(socket: Socket, type: MessageType, data: any) {
   if (fn) {
     fn(data);
   } else {
+    console.warn(`***********************************************************`);
     console.warn(`no such ${type} method`);
+    console.warn(`***********************************************************`);
   }
 }
 
