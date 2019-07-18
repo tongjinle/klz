@@ -154,7 +154,6 @@ class Lobby {
   // 删除一个用户
   // 一般用在socket断开连接的时候
   removeUser(userId: string): void {
-    console.log("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
     let user = this.findUser(userId);
     if (user) {
       this.userList = this.userList.filter(user => user.id !== userId);
@@ -348,6 +347,7 @@ class Lobby {
     room.status = RoomStatus.play;
 
     let chBoard = game.chBoard;
+    chBoard.readMap("normal");
     room.userIdList.forEach((userId, i) => {
       chBoard.addPlayer(userId, i === 0 ? ChessColor.red : ChessColor.black);
       chBoard.ready(userId, PlayerStatus.ready);

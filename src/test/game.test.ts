@@ -7,6 +7,7 @@ import MessageType from "../server/messageType";
 import * as protocol from "../server/protocol";
 import { UserStatus } from "../server/user";
 import { read } from "fs";
+import { IChessBoardInfo } from "../logic/types";
 
 function delay(ms: number) {
   return new Promise(resolve => {
@@ -20,6 +21,7 @@ describe("app", () => {
   let tom: SocketIOClient.Socket;
   let roomIdList: string[];
   let firstRoomId: string;
+  let gameInfo: IChessBoardInfo;
 
   beforeEach(async function() {
     this.timeout(30 * 1000);
@@ -71,6 +73,7 @@ describe("app", () => {
       return new Promise(resolve => {
         socket.on("message", (type, data: protocol.GameStartNotify) => {
           if (MessageType.gameStartNotify === type) {
+            gameInfo = data.info;
             resolve();
           }
         });
@@ -100,9 +103,12 @@ describe("app", () => {
     worker.kill();
   });
 
-  it("haha", async function() {
+  it("map", async function() {
     this.timeout(10 * 1000);
-    await delay(3 * 1000);
-    console.log("haha");
+
+    assert(gameInfo.mapName === "normal");
+    assert(gameInfo.width === 8 && gameInfo.height === 8);
+    assert(gameInfo.seed);
+    assert(gameInfo.chessList && gameInfo.chessList.length);
   });
 });
