@@ -15,6 +15,21 @@ function delay(ms: number) {
   });
 }
 
+function createAssert<T>(
+  socket: SocketIOClient.Socket,
+  checkType: MessageType,
+  check: (data: T) => void
+) {
+  return new Promise(resolve => {
+    socket.on("message", (type: MessageType, data: T) => {
+      if (checkType === type) {
+        check(data);
+        resolve();
+      }
+    });
+  });
+}
+
 describe("app", () => {
   let worker: ChildProcess;
   let jack: SocketIOClient.Socket;
@@ -111,4 +126,47 @@ describe("app", () => {
     assert(gameInfo.seed);
     assert(gameInfo.chessList && gameInfo.chessList.length);
   });
+
+  // 请求回合
+  // 请求当前玩家
+  it("round", async function() {
+    jack.send(MessageType.roundRequest);
+    createAssert<protocol.RoundResponse>(
+      jack,
+      MessageType.roundResponse,
+      data => {
+        assert(data.round === 1);
+        assert(data.userId === jack.id);
+      }
+    );
+  });
+
+  // 请求当前可以行动的棋子
+  it("activeChessList", async function() {
+    jack.send(MessageType.activeChessListRequest);
+    createAssert<protocol.ActiveChessListResponse>(
+      jack,
+      MessageType.activeChessListResponse,
+      data => {
+        assert(data.chessIdList.length);
+      }
+    );
+  });
+
+  // 选择棋子
+
+  // 请求当前棋子
+  // 请求当前棋子可以行动的坐标
+  // 请求当前棋子可以使用的技能
+  // 移动棋子
+  // 他人监听棋子的移动
+  // 请求当前棋子可以使用的技能
+  // 选择技能
+  // 请求当前技能
+  // 请求当前技能可以施放的坐标
+  // 施放技能
+  // 他人监听技能的施放
+  // 监听回合的切换(所有人)
+  // 监听游戏的结束(所有人)
+  // 监听投降(所有人)
 });

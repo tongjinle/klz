@@ -89,3 +89,8 @@ export type SurrenderNotify = { userId: string };
 
 // 游戏结束
 export type GameOverNotify = { winColor: ChessColor };
+
+// 回合
+export type RoundRequest = {};
+export type RoundResponse = { round: number; userId: string } & BaseResponse;
+export type RoundNotify = { round: number; userId: string };

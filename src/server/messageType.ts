@@ -32,7 +32,7 @@ enum MessageType {
   gameStartResponse = "gameStartResponse",
   gameStartNotify = "gameStartNotify",
   // 回合切换
-  roundRequest = "roundRequest",
+  roundRequest = "roundRequest" /** 请求当前回合,而不是请求回合的切换 */,
   roundResponse = "roundResponse",
   roundNotify = "roundNotify",
   // 获取可以选择的棋子
