@@ -5,6 +5,7 @@ import SocketClient from "socket.io-client";
 import lobby from "../server/lobby";
 import MessageType from "../server/messageType";
 import * as protocol from "../server/protocol";
+import { UserStatus } from "../server/user";
 
 console.log("in app.test.ts", lobby.id);
 
@@ -53,7 +54,7 @@ describe("app", () => {
     worker.kill();
   });
 
-  xit("lobby", async function() {
+  it("lobby", async function() {
     console.log(lobby.userList);
 
     jack.send(MessageType.lobbyRequest);
@@ -73,7 +74,7 @@ describe("app", () => {
 
   // jack进入房间
   // 期望:jack收到res
-  xit("enterRoom", async function() {
+  it("enterRoom", async function() {
     jack.send(MessageType.enterRoomRequest, { roomId: roomIdList[0] });
     return new Promise(resolve => {
       jack.on("message", (type, data) => {
@@ -88,7 +89,7 @@ describe("app", () => {
 
   // tom也进入房间
   // 期望:jack收到noti
-  xit("enterRoom-notify", async function() {
+  it("enterRoom-notify", async function() {
     tom.send(MessageType.enterRoomRequest, { roomId: roomIdList[0] });
     return new Promise(resolve => {
       jack.on("message", (type, data: protocol.EnterRoomNotify) => {
@@ -103,7 +104,7 @@ describe("app", () => {
 
   // lucy尝试进入房间
   // 期望:lucy收到失败的res(因为房间已经满员)
-  xit("enterRoom-response-fail", async function() {
+  it("enterRoom-response-fail", async function() {
     lucy.send(MessageType.enterRoomRequest, { roomId: roomIdList[0] });
     return new Promise(resolve => {
       lucy.on("message", (type, data) => {
@@ -119,7 +120,7 @@ describe("app", () => {
   // jack离开房间
   // 期望:jack收到离开的res
   // 期望:tom收到jack离开的noti
-  xit("leaveRoom", async function() {
+  it("leaveRoom", async function() {
     jack.send(MessageType.leaveRoomRequest, { roomId: roomIdList[0] });
     return Promise.all([
       new Promise(resolve => {
@@ -145,7 +146,7 @@ describe("app", () => {
 
   // tom准备
   // 期望:tom收到res
-  xit("ready", async function() {
+  it("ready", async function() {
     tom.send(MessageType.readyRequest);
     return new Promise(resolve => {
       tom.on("message", (type, data: protocol.ReadyResponse) => {
@@ -159,17 +160,16 @@ describe("app", () => {
 
   // jack进入房间
   // 期望:jack在res中收到tom的准备状态
-  xit("enterRoom-after others ready", async function() {
+  it("enterRoom-after others ready", async function() {
     jack.send(MessageType.enterRoomRequest, { roomId: roomIdList[0] });
     return new Promise(resolve => {
       jack.on("message", (type, data: protocol.EnterRoomResponse) => {
         console.log(type, data);
         if (MessageType.enterRoomResponse === type) {
           assert(data.code === 0);
-          let otherUserId = data.info.userIdList.find(id => id !== jack.id);
-          let user = lobby.findUser(otherUserId);
-
-          // assert(user.status === UserStatus.ready);
+          let index = data.info.userIdList.findIndex(id => id !== jack.id);
+          let status = data.info.userStatusList[index];
+          assert(status === UserStatus.ready);
           resolve();
         }
       });
@@ -178,7 +178,7 @@ describe("app", () => {
 
   // tom反准备
   // 期望:jack收到tom反准备的noti
-  xit("unready", async function() {
+  it("unready", async function() {
     tom.send(MessageType.unReadyRequest);
     return new Promise(resolve => {
       jack.on("message", (type, data: protocol.UnReadyNotify) => {

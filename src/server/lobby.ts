@@ -11,6 +11,7 @@ export interface IRoomInfo {
   name: string;
   status: RoomStatus;
   userIdList: string[];
+  userStatusList: UserStatus[];
   gameId: string;
 }
 
@@ -97,6 +98,10 @@ class Lobby {
       name: room.name,
       status: room.status,
       userIdList: room.userIdList,
+      userStatusList: room.userIdList.map(userId => {
+        let user = this.findUser(userId);
+        return user ? user.status : undefined;
+      }),
       gameId: room.gameId
     };
   }
