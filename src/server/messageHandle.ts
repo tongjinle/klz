@@ -18,6 +18,7 @@ let genDict = (socket: Socket) => {
   // 发送给房间中所有人(本人也接受到消息)
   let notifyAllInRoom = (roomId: string, type: MessageType, data: any) => {
     let room = lobby.findRoom(roomId);
+    console.log("messageHandle.notifyAllInRoom:", room.userIdList);
     room.userIdList
       .map(userId => lobby.findSocket(userId))
       .forEach(socket => {
@@ -137,8 +138,6 @@ let genDict = (socket: Socket) => {
       let notiDataOfStartGame: protocol.GameStartNotify;
       notiDataOfStartGame = { info: game.chBoard.toString() };
       notifyAllInRoom(roomId, MessageType.gameStartNotify, notiDataOfStartGame);
-
-      console.log("messageHandle:游戏开始的信息发送了", notiDataOfStartGame);
     }
   };
 

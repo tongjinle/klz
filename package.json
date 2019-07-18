@@ -7,6 +7,7 @@
     "start": "node ./dist/server/app.js",
     "test": "cross-env NODE_ENV=test npx mocha --require intelli-espower-loader dist/test/**/*.test.js",
     "testapp": "cross-env NODE_ENV=test npx mocha --require intelli-espower-loader dist/test/**/app.test.js",
+    "testgame": "cross-env NODE_ENV=test npx mocha --require intelli-espower-loader dist/test/**/game.test.js",
     "clear": "rm -rf dist",
     "build": "npm run clear && tsc"
   },

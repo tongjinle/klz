@@ -7,8 +7,6 @@ import MessageType from "../server/messageType";
 import * as protocol from "../server/protocol";
 import { UserStatus } from "../server/user";
 
-console.log("in app.test.ts", lobby.id);
-
 function delay(ms: number) {
   return new Promise(resolve => {
     setTimeout(resolve, ms);
@@ -34,8 +32,6 @@ describe("app", () => {
     tom = SocketClient("http://localhost:3000");
     lucy = SocketClient("http://localhost:3000");
     await delay(2 * 1000);
-
-    console.log("init sockets:", lobby.userList);
   });
 
   afterEach(async function() {
@@ -62,7 +58,6 @@ describe("app", () => {
       jack.on("message", (type, data) => {
         if (MessageType.lobbyResponse === type) {
           assert(data.list.length > 0);
-          console.log(lobby.userList);
           // 后面要用到roomId
           roomIdList = data.list.map(n => n.id);
 
