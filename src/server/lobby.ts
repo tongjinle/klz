@@ -5,6 +5,7 @@ import { Socket } from "socket.io";
 import { BaseResponse } from "./protocol";
 import { BasePrivateKeyEncodingOptions } from "crypto";
 import { genUniqueId } from "../logic/api";
+import { ChessColor, PlayerStatus } from "../logic/types";
 
 export interface IRoomInfo {
   id: string;
@@ -308,12 +309,14 @@ class Lobby {
   canStartGame(roomId: string): boolean {
     let room = this.findRoom(roomId);
     if (!room) {
+      console.log("canStartGame:找不到房间", roomId);
       return false;
     }
 
     // 是否满员
     let isMatch = room.userIdList.length === GAME_USER_COUNT;
     if (!isMatch) {
+      console.log("canStartGame:人员不够", room.userIdList);
       return false;
     }
 
@@ -322,6 +325,15 @@ class Lobby {
       return user.status === UserStatus.ready;
     });
     if (!isAllReady) {
+      // console.log(
+      //   "canStartGame:尚未完全准备",
+      //   room.userIdList.map(userId => {
+      //     return {
+      //       userId,
+      //       status: this.findUser(userId).status
+      //     };
+      //   })
+      // );
       return false;
     }
 
@@ -334,7 +346,13 @@ class Lobby {
     let room = this.findRoom(roomId);
     let game = this.findGame(room.gameId);
     room.status = RoomStatus.play;
-    game.chBoard.start();
+
+    let chBoard = game.chBoard;
+    room.userIdList.forEach((userId, i) => {
+      chBoard.addPlayer(userId, i === 0 ? ChessColor.red : ChessColor.black);
+      chBoard.ready(userId, PlayerStatus.ready);
+      // chBoard会自动start
+    });
   }
 }
 let lobby: Lobby;

@@ -1,9 +1,9 @@
 // 枚举 用户准备状态
 export enum UserStatus {
   // 未准备
-  notReady,
+  notReady = "notReady",
   // 准备中
-  ready
+  ready = "ready"
 }
 
 // 用户实体类

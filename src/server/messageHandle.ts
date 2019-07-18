@@ -2,6 +2,7 @@ import { Socket } from "socket.io";
 import lobby from "./lobby";
 import MessageType from "./messageType";
 import * as protocol from "./protocol";
+import { lookup } from "dns";
 
 let genDict = (socket: Socket) => {
   let dict: { [type: string]: (data: any) => void } = {};
@@ -11,9 +12,18 @@ let genDict = (socket: Socket) => {
   // 发送通知
   let notify = (type: MessageType, data: any) =>
     socket.broadcast.send(type, data);
-  // 发送在房间中的通知
+  // 发送在房间中的通知(本人不接受消息)
   let notifyInRoom = (roomId: string, type: MessageType, data: any) =>
     socket.to(roomId).broadcast.send(type, data);
+  // 发送给房间中所有人(本人也接受到消息)
+  let notifyAllInRoom = (roomId: string, type: MessageType, data: any) => {
+    let room = lobby.findRoom(roomId);
+    room.userIdList
+      .map(userId => lobby.findSocket(userId))
+      .forEach(socket => {
+        socket.send(type, data);
+      });
+  };
 
   // 聊天
   dict[MessageType.chatRequest] = (data: protocol.ChatRequest) => {
@@ -97,7 +107,7 @@ let genDict = (socket: Socket) => {
     let can = lobby.canUserReady(userId);
     console.log({ can });
     if (can.code) {
-      send(MessageType.leaveRoomResponse, can);
+      send(MessageType.readyResponse, can);
       return;
     }
 
@@ -116,14 +126,19 @@ let genDict = (socket: Socket) => {
     // 查看游戏是不是开始了
     // 尝试开启游戏
     if (lobby.canStartGame(roomId)) {
+      console.log("messageHandle:游戏开始了", roomId);
       lobby.startGame(roomId);
 
       let room = lobby.findRoom(roomId);
+      console.log(roomId, room);
       let game = lobby.findGame(room.gameId);
+
       // notify
       let notiDataOfStartGame: protocol.GameStartNotify;
       notiDataOfStartGame = { info: game.chBoard.toString() };
-      notifyInRoom(roomId, MessageType.gameStartNotify, notiDataOfStartGame);
+      notifyAllInRoom(roomId, MessageType.gameStartNotify, notiDataOfStartGame);
+
+      console.log("messageHandle:游戏开始的信息发送了", notiDataOfStartGame);
     }
   };
 

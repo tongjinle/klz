@@ -164,7 +164,6 @@ describe("app", () => {
     jack.send(MessageType.enterRoomRequest, { roomId: roomIdList[0] });
     return new Promise(resolve => {
       jack.on("message", (type, data: protocol.EnterRoomResponse) => {
-        console.log(type, data);
         if (MessageType.enterRoomResponse === type) {
           assert(data.code === 0);
           let index = data.info.userIdList.findIndex(id => id !== jack.id);
@@ -194,7 +193,8 @@ describe("app", () => {
   // jack准备
   // 期望:tom收到jack准备的noti
   // 期望:因为都准备了,开启游戏,双方收到游戏开始的noti
-  xit("startGame", async function() {
+  it("startGame", async function() {
+    this.timeout(10 * 1000);
     tom.send(MessageType.readyRequest);
     jack.send(MessageType.readyRequest);
 
@@ -211,6 +211,7 @@ describe("app", () => {
         jack.on("message", (type, data: protocol.GameStartNotify) => {
           if (MessageType.gameStartNotify === type) {
             assert(data.info);
+            resolve();
           }
         });
       }),
@@ -218,6 +219,7 @@ describe("app", () => {
         tom.on("message", (type, data: protocol.GameStartNotify) => {
           if (MessageType.gameStartNotify === type) {
             assert(data.info);
+            resolve();
           }
         });
       })
