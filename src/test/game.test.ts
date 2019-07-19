@@ -65,7 +65,6 @@ describe("app", () => {
       return new Promise(resolve => {
         socket.send(MessageType.enterRoomRequest, { roomId: firstRoomId });
         socket.on("message", (type, data: protocol.EnterRoomResponse) => {
-          console.log(type, data);
           if (MessageType.enterRoomResponse === type) {
             resolve();
           }
@@ -131,7 +130,7 @@ describe("app", () => {
   // 请求当前玩家
   it("round", async function() {
     jack.send(MessageType.roundRequest);
-    createAssert<protocol.RoundResponse>(
+    await createAssert<protocol.RoundResponse>(
       jack,
       MessageType.roundResponse,
       data => {
@@ -144,18 +143,24 @@ describe("app", () => {
   // 请求当前可以行动的棋子
   it("activeChessList", async function() {
     jack.send(MessageType.activeChessListRequest);
-    createAssert<protocol.ActiveChessListResponse>(
+    await createAssert<protocol.ActiveChessListResponse>(
       jack,
       MessageType.activeChessListResponse,
       data => {
+        console.log(data.chessIdList);
         assert(data.chessIdList.length);
       }
     );
   });
 
   // 选择棋子
+  // it('chooseChess',async function(){
+  //   jack.send(MessageType.chooseChessRequest,{chessId:})
+
+  // })
 
   // 请求当前棋子
+
   // 请求当前棋子可以行动的坐标
   // 请求当前棋子可以使用的技能
   // 移动棋子

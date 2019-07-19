@@ -7,6 +7,23 @@ import { lookup } from "dns";
 let genDict = (socket: Socket) => {
   let dict: { [type: string]: (data: any) => void } = {};
 
+  // 帮助函数
+  const help = {
+    getUser: () => lobby.findUser(socket.id),
+    getRoom: () => {
+      let user = help.getUser();
+      if (user) {
+        return lobby.findRoom(user.roomId);
+      }
+    },
+    getGame: () => {
+      let room = help.getRoom();
+      if (room) {
+        return lobby.findGame(room.gameId);
+      }
+    }
+  };
+
   // 发送消息
   let send = (type: MessageType, data: any) => socket.send(type, data);
   // 发送通知
@@ -18,7 +35,7 @@ let genDict = (socket: Socket) => {
   // 发送给房间中所有人(本人也接受到消息)
   let notifyAllInRoom = (roomId: string, type: MessageType, data: any) => {
     let room = lobby.findRoom(roomId);
-    console.log("messageHandle.notifyAllInRoom:", room.userIdList);
+    // console.log("messageHandle.notifyAllInRoom:", room.userIdList);
     room.userIdList
       .map(userId => lobby.findSocket(userId))
       .forEach(socket => {
@@ -170,7 +187,50 @@ let genDict = (socket: Socket) => {
   };
 
   // 投降
+
+  // 查询回合
+  dict[MessageType.roundRequest] = (data: protocol.RoundRequest) => {
+    let resData: protocol.RoundResponse;
+    let userId = socket.id;
+    let game = help.getGame();
+    resData = {
+      code: 0,
+      userId: game.chBoard.currPlayerName,
+      round: game.chBoard.roundIndex
+    };
+    send(MessageType.roundResponse, resData);
+  };
+
+  // 请求可以选择的棋子
+  dict[MessageType.activeChessListRequest] = (
+    data: protocol.ActiveChessListRequest
+  ) => {
+    let resData: protocol.ActiveChessListResponse;
+    let game = help.getGame();
+    let list = game.chBoard.getActiveChessList();
+    resData = { code: 0, chessIdList: list.map(ch => ch.id) };
+    send(MessageType.activeChessListResponse, resData);
+  };
+
   // 选择棋子
+  dict[MessageType.chooseChessRequest] = (
+    data: protocol.ChooseChessRequest
+  ) => {
+    let resData: protocol.ChooseChessResponse;
+
+    let game = help.getGame();
+    // can
+    // todo
+
+    // action
+    let ch = game.chBoard.getChessByPosition(data.position);
+    game.chBoard.chooseChess(ch);
+
+    // message
+    resData = { code: 0 };
+    send(MessageType.chooseChessResponse, resData);
+  };
+
   // 反选择棋子
   // 移动棋子
   // 选择技能

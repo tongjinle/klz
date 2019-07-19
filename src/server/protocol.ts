@@ -46,7 +46,7 @@ export type GameStartNotify = { info: IChessBoardInfo };
 
 // 获取可以选择的棋子
 export type ActiveChessListRequest = {};
-export type ActiveChessListResponse = { chessIdList: string[] };
+export type ActiveChessListResponse = { chessIdList: string[] } & BaseResponse;
 
 // 选择棋子
 export type ChooseChessRequest = { position: IPosition };

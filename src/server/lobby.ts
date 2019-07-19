@@ -85,6 +85,19 @@ class Lobby {
   findGame(id: string): Game {
     return this.gameList.find(n => n.id === id);
   }
+
+  // @checkUser(args=>args[0])
+  // canFindGameByUserId(id:string):BaseResponse{
+  //   return {code:0}
+  // }
+
+  findGameByUserId(id: string): Game {
+    let user = this.findUser(id);
+    let room = this.findRoom(user.roomId);
+    let game = this.findGame(room.gameId);
+    return game;
+  }
+
   // 获取大厅信息
   getLobbyInfo(): IRoomInfo[] {
     return this.roomList.map(ro => {
