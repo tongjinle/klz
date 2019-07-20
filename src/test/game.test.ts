@@ -38,7 +38,7 @@ describe("app", () => {
   let firstRoomId: string;
   let gameInfo: IChessBoardInfo;
 
-  beforeEach(async function() {
+  before(async function() {
     this.timeout(30 * 1000);
     let file = path.resolve(__dirname, "../server/app.js");
     console.log(file);
@@ -107,7 +107,7 @@ describe("app", () => {
     ]);
   });
 
-  afterEach(async function() {
+  after(async function() {
     this.timeout(10 * 1000);
 
     jack.disconnect();
@@ -140,8 +140,8 @@ describe("app", () => {
     );
   });
 
-  // 请求当前可以行动的棋子
   it("activeChessList", async function() {
+    // 请求当前可以行动的棋子
     jack.send(MessageType.activeChessListRequest);
     await createAssert<protocol.ActiveChessListResponse>(
       jack,
@@ -154,16 +154,41 @@ describe("app", () => {
   });
 
   // 选择棋子
-  // it('chooseChess',async function(){
-  //   jack.send(MessageType.chooseChessRequest,{chessId:})
-
-  // })
+  // 选择(0,1)的步兵
+  it("choose chess", async function() {
+    let query: protocol.ChooseChessRequest = {
+      position: { x: 0, y: 1 }
+    };
+    jack.send(MessageType.chooseChessRequest, query);
+    await createAssert<protocol.ChooseChessResponse>(
+      jack,
+      MessageType.chooseChessResponse,
+      data => {
+        assert(data.code === 0);
+      }
+    );
+  });
 
   // 请求当前棋子
 
   // 请求当前棋子可以行动的坐标
-  // 请求当前棋子可以使用的技能
+  // (0,1)的步兵的移动位置是[(0,2)]
+  it("moveRange", async function() {
+    jack.send(MessageType.rangeRequest);
+    await createAssert<protocol.RangeResponse>(
+      jack,
+      MessageType.rangeResponse,
+      data => {
+        console.log(data);
+        assert.deepEqual(data.positionList, [{ x: 0, y: 2 }]);
+      }
+    );
+  });
+
   // 移动棋子
+  it("move chess", async function() {});
+  // 请求当前棋子可以使用的技能
+
   // 他人监听棋子的移动
   // 请求当前棋子可以使用的技能
   // 选择技能

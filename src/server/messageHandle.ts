@@ -36,11 +36,9 @@ let genDict = (socket: Socket) => {
   let notifyAllInRoom = (roomId: string, type: MessageType, data: any) => {
     let room = lobby.findRoom(roomId);
     // console.log("messageHandle.notifyAllInRoom:", room.userIdList);
-    room.userIdList
-      .map(userId => lobby.findSocket(userId))
-      .forEach(socket => {
-        socket.send(type, data);
-      });
+    room.userIdList.map(userId => lobby.findSocket(userId)).forEach(socket => {
+      socket.send(type, data);
+    });
   };
 
   // 聊天
@@ -231,8 +229,42 @@ let genDict = (socket: Socket) => {
     send(MessageType.chooseChessResponse, resData);
   };
 
+  // 请求棋子可以移动的距离
+  dict[MessageType.rangeRequest] = (data: protocol.MoveChessRequest) => {
+    let resData: protocol.RangeResponse;
+    let game = help.getGame();
+
+    // can
+    // todo
+
+    // action
+    let positionList = game.chBoard.currChess.getMoveRange();
+
+    // message
+    resData = { code: 0, positionList };
+    send(MessageType.rangeResponse, resData);
+  };
+
   // 反选择棋子
   // 移动棋子
+  dict[MessageType.moveChessRequest] = (data: protocol.MoveChessRequest) => {
+    let resData: protocol.MoveChessResponse;
+    let notiData: protocol.MoveChessNotify;
+
+    let game = help.getGame();
+
+    // can
+    // todo
+
+    // action
+    game.chBoard.moveChess(data.position);
+    resData = { code: 0 };
+    send(MessageType.moveChessResponse, resData);
+
+    // game.chBoard
+    // notiData ={}
+  };
+
   // 选择技能
   // 反选择技能
   // 施放技能

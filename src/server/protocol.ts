@@ -58,10 +58,18 @@ export type UnChooseChessRequest = {};
 export type UnChooseChessResponse = {} & BaseResponse;
 export type UnChooseChessNotify = { userId: string; position: IPosition };
 
+// 反选择棋子
+export type RangeRequest = {};
+export type RangeResponse = { positionList: IPosition[] } & BaseResponse;
+
 // 移动棋子
 export type MoveChessRequest = { position: IPosition };
 export type MoveChessResponse = {} & BaseResponse;
-export type MoveChessNotify = { userId: string; position: IPosition };
+export type MoveChessNotify = {
+  userId: string;
+  chessId: string;
+  position: IPosition;
+};
 
 // 获取可以选择的技能
 export type ActiveSkillListRequest = {};

@@ -43,6 +43,14 @@ enum MessageType {
   chooseChessRequest = "chooseChessRequest",
   chooseChessResponse = "chooseChessResponse",
   chooseChessNotify = "chooseChessNotify",
+  // 获取棋子可以移动的格子
+  rangeRequest = "rangeRequest",
+  rangeResponse = "rangeResponse",
+  rangeNotify = "rangeNotify",
+  // 移动棋子
+  moveChessRequest = "moveChessRequest",
+  moveChessResponse = "moveChessResponse",
+  moveChessNotify = "moveChessNotify",
   // 反选择棋子
   unChooseChessRequest = "unChooseChessRequest",
   unChooseChessResponse = "unChooseChessResponse",
