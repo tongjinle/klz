@@ -78,33 +78,12 @@ export interface IPlayerInfo {
 }
 
 // change
-export interface IChange<T extends {}> {
+export interface IChange {
   round: number;
   playerName: string;
   type: ChangeType;
-  detail: T;
+  data: UnionChange;
 }
-
-export interface IPositionChange
-  extends IChange<{
-    abs: IPosition;
-    rela: IPosition;
-  }> {}
-
-export interface IEnergyChange
-  extends IChange<{
-    restType: RestType;
-    abs: number;
-    rela: number;
-  }> {}
-
-export interface IHpChange
-  extends IChange<{
-    sourceChessId: number;
-    targetChessId: number;
-    abs: number;
-    rela: number;
-  }> {}
 
 //  replay
 export interface IRecord {
@@ -209,14 +188,45 @@ export enum ActionType {
 }
 
 export enum ChangeType {
-  position,
-  hp,
-  energy
+  position = "position",
+  hp = "hp",
+  energy = "energy"
 }
 
+/**
+ * hp的改变
+ */
+export type HpChange = {
+  sourceChessId: string;
+  targetChessId: string;
+  skillId: string;
+  abs: number;
+  rela: number;
+};
+
+/**
+ * Energy的改变
+ */
+export type EnergyChange = {
+  abs: number;
+  rela: number;
+  restType: RestType;
+};
+
+export type PositionChange = {
+  sourceChessId: string;
+  abs: IPosition;
+  rela: IPosition;
+};
+
+export type UnionChange = HpChange | EnergyChange | PositionChange;
+
+/**
+ * 休息方式
+ */
 export enum RestType {
-  active,
-  passive
+  active = "active",
+  passive = "passive"
 }
 
 /////////////////////////////////////////////////////////////

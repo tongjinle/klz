@@ -2,7 +2,9 @@ import {
   IPosition,
   SkillType,
   ChessColor,
-  IChessBoardInfo
+  IChessBoardInfo,
+  IChange,
+  UnionChange
 } from "../logic/types";
 import { IRoomInfo } from "./lobby";
 
@@ -73,7 +75,9 @@ export type MoveChessNotify = {
 
 // 获取可以选择的技能
 export type ActiveSkillListRequest = {};
-export type ActiveSkillListResponse = { skillIdList: string[] };
+export type ActiveSkillListResponse = {
+  skillTypeList: SkillType[];
+} & BaseResponse;
 
 // 选择技能
 export type ChooseSkillRequest = { skillType: SkillType };
@@ -87,8 +91,8 @@ export type UnChooseSkillNotify = { userId: string; skillType: SkillType };
 
 // 施放技能
 export type CastSkillRequest = { position: IPosition };
-export type CastSkillResponse = { effect: IEffect } & BaseResponse;
-export type CastSkillNotify = { effect: IEffect } & BaseResponse;
+export type CastSkillResponse = {} & BaseResponse;
+export type CastSkillNotify = { change: IChange } & BaseResponse;
 
 // 投降
 export type SurrenderRequest = {};

@@ -6,11 +6,11 @@ class Game {
   // id
   id: string;
   // 棋盘
-  chBoard: ChessBoard;
+  chessBoard: ChessBoard;
 
   constructor() {
     this.id = genUniqueId();
-    this.chBoard = new ChessBoard();
+    this.chessBoard = new ChessBoard();
   }
 }
 

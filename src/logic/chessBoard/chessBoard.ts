@@ -22,7 +22,11 @@ import {
   IPosition,
   PlayerStatus,
   RestType,
-  SkillType
+  SkillType,
+  EnergyChange,
+  PositionChange,
+  HpChange,
+  UnionChange
 } from "../types";
 
 class ChessBoard {
@@ -32,23 +36,23 @@ class ChessBoard {
 
   constructor() {
     this.id = genUniqueId();
-    this.roundIndex = 0;
+    this.round = 0;
     this.chessList = [];
     this.boxList = [];
     this.playerList = [];
     this.status = ChessBoardStatus.beforeStart;
     this.replay = new Replay();
     this.replay.chessBoard = this;
-    this.chgTable = new ChangeTable();
+    this.changeTable = new ChangeTable();
   }
 
   id: string;
   mapName: string;
   replay: Replay;
-  chgTable: ChangeTable;
+  changeTable: ChangeTable;
 
   seed: number;
-  roundIndex: number;
+  round: number;
   boxList: IBox[];
   chessList: Chess[];
   width: number;
@@ -78,21 +82,21 @@ class ChessBoard {
   // 记录rep
   writeRecord(action: ActionType, data: any) {
     this.replay.recordList.push({
-      round: this.roundIndex,
+      round: this.round,
       actionType: action,
       data
     });
   }
 
   // 记录change
-  writeChange(cht: ChangeType, data: any) {
-    let chg: IChange<{}> = {
-      round: this.roundIndex,
+  writeChange(type: ChangeType, data: UnionChange) {
+    let chg: IChange = {
+      round: this.round,
       playerName: this.currPlayer.name,
-      type: cht,
-      detail: data
+      type,
+      data
     };
-    this.chgTable.recoList.push(chg);
+    this.changeTable.recordList.push(chg);
   }
 
   // 读取地图
@@ -268,7 +272,7 @@ class ChessBoard {
     // 红色选手先走
     this.status = ChessBoardStatus.red;
     let p = this.playerList.find(p => p.color == ChessColor.red);
-    this.round(p.name);
+    this.turnRound(p.name);
   }
 
   // 选手获得行动机会
@@ -276,7 +280,7 @@ class ChessBoard {
   // 如果没有明确选手名字
   // 1.如果是第一回合,则红色下棋;
   // 2.如果不是第一个回合,则交换为对手下棋
-  round(playerName?: string) {
+  turnRound(playerName?: string) {
     let p: Player;
     let lastP: Player = this.currPlayer;
 
@@ -316,7 +320,7 @@ class ChessBoard {
       this.status = ChessBoardStatus[ChessColor[p.color]];
     }
 
-    this.roundIndex++;
+    this.round++;
   }
 
   // 获取可以被选择的棋子
@@ -382,11 +386,12 @@ class ChessBoard {
     });
 
     // 记录change
-    this.writeChange(ChangeType.position, {
+    let change: PositionChange = {
       sourceChessId: this.currChess.id,
       abs: { ...position },
       rela: { x: position.x - lastPosi.x, y: position.y - lastPosi.y }
-    });
+    };
+    this.writeChange(ChangeType.position, change);
 
     this.currPlayer.chessStatus = ch.status;
     if (this.currPlayer.chessStatus === ChessStatus.rest) {
@@ -438,13 +443,14 @@ class ChessBoard {
     for (let key in currChessHpDict) {
       let value = currChessHpDict[key];
       if (value != lastChessHpDict[key]) {
-        this.writeChange(ChangeType.hp, {
+        let change: HpChange = {
           sourceChessId: this.currChess.id,
           targetChessId: key,
           skillId: this.currSkill.id,
           abs: value,
           rela: value - lastChessHpDict[key]
-        });
+        };
+        this.writeChange(ChangeType.hp, change);
       }
     }
 
@@ -489,18 +495,19 @@ class ChessBoard {
 
       restType = RestType.active;
 
-      // write replay
-      this.writeRecord(ActionType.rest, undefined);
+      // // write replay
+      // this.writeRecord(ActionType.rest, undefined);
     }
 
     // write change
-    this.writeChange(ChangeType.energy, {
+    let change: EnergyChange = {
       abs: this.currPlayer.energy,
       rela: this.currPlayer.energy - lastEnergy,
       restType
-    });
+    };
+    this.writeChange(ChangeType.energy, change);
 
-    this.round();
+    this.turnRound();
   }
 
   // 选手投降
@@ -575,7 +582,7 @@ class ChessBoard {
     info.id = this.id;
     info.mapName = this.mapName;
     info.seed = this.seed;
-    info.roundIndex = this.roundIndex;
+    info.roundIndex = this.round;
     info.width = this.width;
     info.height = this.height;
     info.status = this.status;

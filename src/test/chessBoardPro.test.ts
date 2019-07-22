@@ -36,13 +36,13 @@ describe("chessBoard basis", () => {
 
   // round可以强行设定当前行棋的选手
   it("currPlayer", () => {
-    chBoard.round("tom");
+    chBoard.turnRound("tom");
     assert(chBoard.currPlayer.name === "tom");
   });
 
   //  获取当前选手的状态
   it("currPlayerStatus", () => {
-    chBoard.round("jack");
+    chBoard.turnRound("jack");
     assert(jack.status === PlayerStatus.thinking);
     assert(jack.chessStatus === ChessStatus.beforeChoose);
   });

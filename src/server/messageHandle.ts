@@ -3,6 +3,7 @@ import lobby from "./lobby";
 import MessageType from "./messageType";
 import * as protocol from "./protocol";
 import { lookup } from "dns";
+import { ChangeType } from "../logic/types";
 
 let genDict = (socket: Socket) => {
   let dict: { [type: string]: (data: any) => void } = {};
@@ -21,6 +22,12 @@ let genDict = (socket: Socket) => {
       if (room) {
         return lobby.findGame(room.gameId);
       }
+    },
+    getChessBoard: () => {
+      let game = help.getGame();
+      if (game) {
+        return game.chessBoard;
+      }
     }
   };
 
@@ -36,9 +43,11 @@ let genDict = (socket: Socket) => {
   let notifyAllInRoom = (roomId: string, type: MessageType, data: any) => {
     let room = lobby.findRoom(roomId);
     // console.log("messageHandle.notifyAllInRoom:", room.userIdList);
-    room.userIdList.map(userId => lobby.findSocket(userId)).forEach(socket => {
-      socket.send(type, data);
-    });
+    room.userIdList
+      .map(userId => lobby.findSocket(userId))
+      .forEach(socket => {
+        socket.send(type, data);
+      });
   };
 
   // 聊天
@@ -151,7 +160,7 @@ let genDict = (socket: Socket) => {
 
       // notify
       let notiDataOfStartGame: protocol.GameStartNotify;
-      notiDataOfStartGame = { info: game.chBoard.toString() };
+      notiDataOfStartGame = { info: game.chessBoard.toString() };
       notifyAllInRoom(roomId, MessageType.gameStartNotify, notiDataOfStartGame);
     }
   };
@@ -193,8 +202,8 @@ let genDict = (socket: Socket) => {
     let game = help.getGame();
     resData = {
       code: 0,
-      userId: game.chBoard.currPlayerName,
-      round: game.chBoard.roundIndex
+      userId: game.chessBoard.currPlayerName,
+      round: game.chessBoard.round
     };
     send(MessageType.roundResponse, resData);
   };
@@ -205,7 +214,7 @@ let genDict = (socket: Socket) => {
   ) => {
     let resData: protocol.ActiveChessListResponse;
     let game = help.getGame();
-    let list = game.chBoard.getActiveChessList();
+    let list = game.chessBoard.getActiveChessList();
     resData = { code: 0, chessIdList: list.map(ch => ch.id) };
     send(MessageType.activeChessListResponse, resData);
   };
@@ -221,8 +230,8 @@ let genDict = (socket: Socket) => {
     // todo
 
     // action
-    let ch = game.chBoard.getChessByPosition(data.position);
-    game.chBoard.chooseChess(ch);
+    let ch = game.chessBoard.getChessByPosition(data.position);
+    game.chessBoard.chooseChess(ch);
 
     // message
     resData = { code: 0 };
@@ -238,7 +247,7 @@ let genDict = (socket: Socket) => {
     // todo
 
     // action
-    let positionList = game.chBoard.currChess.getMoveRange();
+    let positionList = game.chessBoard.currChess.getMoveRange();
 
     // message
     resData = { code: 0, positionList };
@@ -251,23 +260,110 @@ let genDict = (socket: Socket) => {
     let resData: protocol.MoveChessResponse;
     let notiData: protocol.MoveChessNotify;
 
+    let userId = socket.id;
+    let room = help.getRoom();
     let game = help.getGame();
 
     // can
     // todo
 
     // action
-    game.chBoard.moveChess(data.position);
+    let chessId = game.chessBoard.currChess.id;
+    let position = data.position;
+    game.chessBoard.moveChess(data.position);
     resData = { code: 0 };
     send(MessageType.moveChessResponse, resData);
 
     // game.chBoard
-    // notiData ={}
+    notiData = { userId, chessId, position };
+    notifyInRoom(room.id, MessageType.moveChessNotify, notiData);
+  };
+
+  // 当前棋子可选择的技能
+  dict[MessageType.activeSkillListRequest] = (
+    data: protocol.ActiveChessListResponse
+  ) => {
+    let resData: protocol.ActiveSkillListResponse;
+
+    let chBoard = help.getChessBoard();
+    // can
+    // todo
+
+    // action
+    let chess = chBoard.currChess;
+    let skillTypeList = chess.canCastSkillList.map(sk => sk.type);
+
+    // message
+    resData = { code: 0, skillTypeList };
+    console.log({ resData });
+    send(MessageType.activeSkillListResponse, resData);
   };
 
   // 选择技能
+  dict[MessageType.chooseSkillRequest] = (
+    data: protocol.ChooseSkillRequest
+  ) => {
+    let resData: protocol.ChooseSkillResponse;
+
+    // can
+    // todo
+
+    // action
+    let chBoard = help.getChessBoard();
+    let skillType = data.skillType;
+    chBoard.chooseSkill(skillType);
+    resData = { code: 0 };
+    send(MessageType.chooseSkillResponse, resData);
+  };
+
   // 反选择技能
+  dict[MessageType.unChooseSkillRequest] = (
+    data: protocol.UnChooseSkillRequest
+  ) => {
+    let resData: protocol.UnChooseSkillResponse;
+
+    // can
+    // todo
+
+    // action
+    let chBoard = help.getChessBoard();
+    chBoard.unChooseSkill();
+
+    // message
+    resData = { code: 0 };
+    send(MessageType.unChooseSkillResponse, resData);
+  };
+
   // 施放技能
+  dict[MessageType.castSkillRequest] = (data: protocol.CastSkillRequest) => {
+    let resData: protocol.CastSkillResponse;
+    let notiData: protocol.CastSkillNotify;
+
+    let chBoard = help.getChessBoard();
+    let room = help.getRoom();
+    // can
+    // todo
+
+    // action
+    let lastRound = chBoard.round;
+    let position = data.position;
+    chBoard.castSkill(position);
+
+    // message
+    resData = { code: 0 };
+    send(MessageType.castSkillResponse, resData);
+    // noti
+    let change = chBoard.changeTable.recordList.find(
+      re => re.round === lastRound && re.type === ChangeType.hp
+    );
+    console.log(position);
+    // console.log(chBoard.changeTable.recordList);
+    console.log(change);
+
+    notiData = { code: 0, change };
+    notifyAllInRoom(room.id, MessageType.castSkillNotify, notiData);
+    // todo
+  };
 
   return dict;
 };

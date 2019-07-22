@@ -359,7 +359,7 @@ class Lobby {
     let game = this.findGame(room.gameId);
     room.status = RoomStatus.play;
 
-    let chBoard = game.chBoard;
+    let chBoard = game.chessBoard;
     chBoard.readMap("normal");
     room.userIdList.forEach((userId, i) => {
       chBoard.addPlayer(userId, i === 0 ? ChessColor.red : ChessColor.black);
