@@ -115,7 +115,7 @@ describe("app", () => {
   // jack离开房间
   // 期望:jack收到离开的res
   // 期望:tom收到jack离开的noti
-  it("leaveRoom", async function() {
+  xit("leaveRoom", async function() {
     jack.send(MessageType.leaveRoomRequest, { roomId: roomIdList[0] });
     return Promise.all([
       new Promise(resolve => {
@@ -141,7 +141,7 @@ describe("app", () => {
 
   // tom准备
   // 期望:tom收到res
-  it("ready", async function() {
+  xit("ready", async function() {
     tom.send(MessageType.readyRequest);
     return new Promise(resolve => {
       tom.on("message", (type, data: protocol.ReadyResponse) => {
@@ -155,7 +155,7 @@ describe("app", () => {
 
   // jack进入房间
   // 期望:jack在res中收到tom的准备状态
-  it("enterRoom-after others ready", async function() {
+  xit("enterRoom-after others ready", async function() {
     jack.send(MessageType.enterRoomRequest, { roomId: roomIdList[0] });
     return new Promise(resolve => {
       jack.on("message", (type, data: protocol.EnterRoomResponse) => {
@@ -172,7 +172,7 @@ describe("app", () => {
 
   // tom反准备
   // 期望:jack收到tom反准备的noti
-  it("unready", async function() {
+  xit("unready", async function() {
     tom.send(MessageType.unReadyRequest);
     return new Promise(resolve => {
       jack.on("message", (type, data: protocol.UnReadyNotify) => {
@@ -188,7 +188,7 @@ describe("app", () => {
   // jack准备
   // 期望:tom收到jack准备的noti
   // 期望:因为都准备了,开启游戏,双方收到游戏开始的noti
-  it("startGame", async function() {
+  xit("startGame", async function() {
     this.timeout(10 * 1000);
     tom.send(MessageType.readyRequest);
     jack.send(MessageType.readyRequest);
