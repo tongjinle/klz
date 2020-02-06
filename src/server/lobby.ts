@@ -1,11 +1,13 @@
-import Room, { RoomStatus } from "./room";
-import User, { UserStatus } from "./user";
-import Game from "../logic/Game";
 import { Socket } from "socket.io";
-import { BaseResponse } from "./protocol";
-import { BasePrivateKeyEncodingOptions } from "crypto";
 import { genUniqueId } from "../logic/api";
-import { ChessColor, PlayerStatus } from "../logic/types";
+import Game from "../logic/Game";
+import { ChessColor } from "../logic/types";
+import * as config from "./config";
+import { BaseResponse as FlagResponse } from "./protocol";
+import Room from "./room";
+import { RoomStatus, UserStatus } from "./types";
+import User from "./user";
+import Rule, { KlzRule } from "./rule";
 
 export interface IRoomInfo {
   id: string;
@@ -16,58 +18,29 @@ export interface IRoomInfo {
   gameId: string;
 }
 
-// 检测是不是用户合法
-function checkUser(getUserIdParams: (...args) => string) {
-  return function(target, methodName: string, descriptor: PropertyDescriptor) {
-    let origin = target[methodName];
-    target[methodName] = function(...args) {
-      let userId = getUserIdParams(...args);
-      let user = this.findUser(userId);
-      if (!user) {
-        return { code: -100, message: "没有该用户" };
-      }
-      return origin.apply(this, args);
-    };
-  };
-}
-
-// 检查是不是房间合法
-function checkRoom(getRoomIdParams: (...args) => string) {
-  return function(target, methodName: string, descriptor: PropertyDescriptor) {
-    let origin = target[methodName];
-    target[methodName] = function(...args) {
-      let roomId = getRoomIdParams(...args);
-      let room = this.findRoom(roomId);
-      if (!room) {
-        return { code: -101, message: "没有该房间" };
-      }
-      return origin.apply(this, args);
-    };
-  };
-}
-
-// 游戏需要的人数
-const GAME_USER_COUNT = 2;
-const ROOM_COUNT = 10;
+const { GAME_USER_COUNT, ROOM_COUNT } = config;
 
 class Lobby {
-  private socketList: Socket[] = [];
-  // 房间列表
-  private roomList: Room[] = [];
-  // 用户列表
-  // private userList: User[] = [];
-  public userList: User[] = [];
-  // 游戏列表
-  private gameList: Game[] = [];
+  /**socket列表 */
+  socketList: Socket[] = [];
+  /**房间列表 */
 
-  public id: string;
+  roomList: Room[] = [];
+  /**用户列表 */
+  userList: User[] = [];
+  /**游戏列表 */
+  gameList: Game[] = [];
+
+  /**大厅id */
+  id: string;
   constructor() {
     this.id = genUniqueId();
     // 系统生成房间
-    this.createRoom(ROOM_COUNT);
-    this.roomList.forEach(room => {
-      this.createGame(room.id);
-    });
+    let rule = KlzRule;
+    for (let i = 0; i < ROOM_COUNT; i++) {
+      let name = `${i}号房间`;
+      this.createRoom(name, rule);
+    }
   }
 
   findSocket(id: string): Socket {
@@ -86,26 +59,22 @@ class Lobby {
     return this.gameList.find(n => n.id === id);
   }
 
-  // @checkUser(args=>args[0])
-  // canFindGameByUserId(id:string):BaseResponse{
-  //   return {code:0}
-  // }
-
   findGameByUserId(id: string): Game {
     let user = this.findUser(id);
-    let room = this.findRoom(user.roomId);
-    let game = this.findGame(room.gameId);
+    let game = this.findGame(user.gameId);
     return game;
   }
 
-  // 获取大厅信息
+  /**获取大厅信息 */
+
   getLobbyInfo(): IRoomInfo[] {
     return this.roomList.map(ro => {
       return this.getRoomInfo(ro);
     });
   }
 
-  // 获取房间细节信息
+  /**获取房间细节信息 */
+
   getRoomInfo(room: Room): IRoomInfo {
     return {
       id: room.id,
@@ -120,21 +89,16 @@ class Lobby {
     };
   }
 
-  private createRoom(count: number): void {
-    for (let i = 0; i < count; i++) {
-      let name = `${i}号房间`;
-      let room = new Room(name);
-      this.roomList.push(room);
+  createGameByRule(rule: Rule): Game {
+    if (rule.gameName === "卡拉赞象棋") {
+      let game = new Game();
+      game.chessBoard.readMap("normal");
+      return game;
     }
+    throw "no such game:" + rule.gameName;
   }
 
-  private createGame(roomId: string): void {
-    let room = this.findRoom(roomId);
-    let game = new Game();
-    room.gameId = game.id;
-    this.gameList.push(game);
-  }
-
+  /**增加一个socket */
   addSocket(socket: Socket): void {
     this.socketList.push(socket);
   }
@@ -155,12 +119,17 @@ class Lobby {
     return !this.findUser(userId);
   }
 
-  // 增加一个用户
-  // 一般用在socket刚连接的时候,把它加上去
-  addUser(userId: string): void {
+  /**
+   * 增加一个用户
+   * 一般用在socket刚连接的时候,把它加上去
+   * @param id 用户id,即socket.id
+   */
+  addUser(id: string): void {
     let user = new User();
-    user.id = userId;
-    user.status = UserStatus.notReady;
+    user.id = id;
+    user.roomId = undefined;
+    user.gameId = undefined;
+    user.status = "idle";
     this.userList.push(user);
   }
 
@@ -168,65 +137,95 @@ class Lobby {
   // 一般用在socket断开连接的时候
   removeUser(userId: string): void {
     let user = this.findUser(userId);
-    if (user) {
-      this.userList = this.userList.filter(user => user.id !== userId);
-
-      let roomId = user.roomId;
-      let room = this.findRoom(roomId);
-      if (room) {
-        room.userIdList = room.userIdList.filter(id => id !== userId);
-        room.status = RoomStatus.notFull;
-      }
+    if (!user) {
+      return;
     }
+
+    // room
+    if (this.canLeaveRoom(userId)) {
+      this.leaveRoom(userId);
+    }
+
+    this.userList = this.userList.filter(user => user.id !== userId);
   }
 
-  // 能否加入房间
-  @checkUser(function(...args) {
-    return args[0];
-  })
-  @checkRoom(function(...args) {
-    return args[1];
-  })
-  canEnterRoom(userId: string, roomId: string): BaseResponse {
-    let rst: BaseResponse = { code: 0 };
-    let user = lobby.findUser(userId);
-    // 如果已经在房间了,就不能进入了
+  private createRoom(name: string, rule: Rule): void {
+    let room = new Room();
+    room.id = genUniqueId();
+    room.name = name;
+    room.status = "idle";
+    room.userIdList = [];
+    room.gameId = undefined;
+    room.rule = rule;
+
+    this.roomList.push(room);
+  }
+
+  // 房间是否已经满足人数
+  isRoomFull(room: Room): boolean {
+    return room.rule.requiredPlayer <= room.userIdList.length;
+  }
+
+  /**用户能否进入房间 */
+  canEnterRoom(userId: string, roomId: string): FlagResponse {
+    let rst: FlagResponse = { code: 0 };
+    // 用户是否存在
+    // 用户是否已经有房间
+    // 用户是否已经在游戏中
+    // 房间是否存在
+    // 房间是否满员
+    // 房间状态是否允许
+
+    let user = this.findUser(userId);
+    if (!user) {
+      return { code: -1, message: "用户不存在" };
+    }
     if (user.roomId) {
-      return { code: -1, message: "已经在房间了" };
+      return { code: -2, message: "用户已经在某个房间中" };
+    }
+    if (user.gameId) {
+      return { code: -3, message: "用户已经在游戏中" };
+    }
+    let room = this.findRoom(roomId);
+    if (!room) {
+      return { code: -4, message: "房间不存在" };
+    }
+    if (this.isRoomFull(room)) {
+      return { code: -5, message: "房间状态不允许增加用户" };
     }
 
-    let room = lobby.findRoom(roomId);
-    if (room.userIdList.length === 2) {
-      return { code: -2, message: "房间已经满员了" };
-    }
     return rst;
   }
 
-  // 加入房间
+  /**
+   * 加入房间
+   * @param userId 用户id
+   * @param roomId 房间id
+   */
   enterRoom(userId: string, roomId: string): void {
     let socket = this.findSocket(userId);
     let user = this.findUser(userId);
     let room = this.findRoom(roomId);
 
+    // socket加入到roomId
     socket.join(roomId);
+    // 用户的房间Id设置为roomId
     user.roomId = roomId;
+    // 房间的用户id列表加上userId,最后判断下房间是否已经满员
     room.userIdList.push(userId);
-    if (room.userIdList.length === GAME_USER_COUNT) {
-      room.status = RoomStatus.full;
-    }
+    // 如果用户加入的房间为offline,且用户是用户列表中的一位,则重连游戏
+    // todo
   }
 
-  // 能否离开房间
-  @checkUser(function(...args) {
-    return args[0];
-  })
-  @checkRoom(function(this: Lobby, ...args) {
-    let user = this.findUser(args[0]);
-    return user.roomId;
-  })
-  canLeaveRoom(userId: string): BaseResponse {
-    let rst: BaseResponse = { code: 0 };
-
+  /**
+   * 是否能离开房间
+   * @param userId 用户id
+   * @returns FlagResponse
+   */
+  canLeaveRoom(userId: string): FlagResponse {
+    let rst: FlagResponse = { code: 0 };
+    // 用户存在
+    // 用户在房间中
     let user = this.findUser(userId);
     let roomId = user.roomId;
     let room = this.findRoom(roomId);
@@ -245,35 +244,32 @@ class Lobby {
     let roomId = user.roomId;
     let room = this.findRoom(roomId);
 
+    // socket退出room
     socket.leave(roomId);
+    // 用户退出房间
     user.roomId = undefined;
+    // 房间的用户id列表移除用户的id
     room.userIdList = room.userIdList.filter(id => id !== userId);
-    room.status = RoomStatus.notFull;
+    // todo
+    // 如果房间已经在游戏了,应该设置为断线
   }
 
   // 玩家能否准备
-  @checkUser(function(...args) {
-    return args[0];
-  })
-  @checkRoom(function(this: Lobby, ...args) {
-    let user = this.findUser(args[0]);
-    return user.roomId;
-  })
-  canUserReady(userId: string): BaseResponse {
-    let rst: BaseResponse = { code: 0 };
+  canUserReady(userId: string): FlagResponse {
+    let rst: FlagResponse = { code: 0 };
 
-    // 用户已经准备
-    let user = this.findUser(userId);
-    if (user.status === UserStatus.ready) {
-      return { code: -1, message: "用户已经准备" };
-    }
+    // // 用户已经准备
+    // let user = this.findUser(userId);
+    // if (user.status === UserStatus.ready) {
+    //   return { code: -1, message: "用户已经准备" };
+    // }
 
-    let roomId = user.roomId;
-    let room = this.findRoom(roomId);
-    // 房间已经开始开始游戏
-    if (room.status === RoomStatus.play) {
-      return { code: -2, message: "房间已经开始游戏" };
-    }
+    // let roomId = user.roomId;
+    // let room = this.findRoom(roomId);
+    // // 房间已经开始开始游戏
+    // if (room.status === RoomStatus.play) {
+    //   return { code: -2, message: "房间已经开始游戏" };
+    // }
 
     return rst;
   }
@@ -281,31 +277,23 @@ class Lobby {
   // 玩家准备
   userReady(userId: string): void {
     let user = this.findUser(userId);
-    user.status = UserStatus.ready;
+    user.status = "ready";
   }
 
-  // 玩家能否反准备
-  @checkUser(function(...args) {
-    return args[0];
-  })
-  @checkRoom(function(this: Lobby, ...args) {
-    let user = this.findUser(args[0]);
-    return user.roomId;
-  })
-  canUserUnReady(userId: string): BaseResponse {
-    let rst: BaseResponse = { code: 0 };
-    // 用户尚未准备
-    let user = this.findUser(userId);
-    if (user.status === UserStatus.notReady) {
-      return { code: -1, message: "用户尚未准备" };
-    }
+  canUserUnReady(userId: string): FlagResponse {
+    let rst: FlagResponse = { code: 0 };
+    // // 用户尚未准备
+    // let user = this.findUser(userId);
+    // if (user.status === UserStatus.notReady) {
+    //   return { code: -1, message: "用户尚未准备" };
+    // }
 
-    let roomId = user.roomId;
-    let room = this.findRoom(roomId);
-    // 房间已经开始开始游戏
-    if (room.status === RoomStatus.play) {
-      return { code: -2, message: "房间已经开始游戏" };
-    }
+    // let roomId = user.roomId;
+    // let room = this.findRoom(roomId);
+    // // 房间已经开始开始游戏
+    // if (room.status === RoomStatus.play) {
+    //   return { code: -2, message: "房间已经开始游戏" };
+    // }
 
     return rst;
   }
@@ -313,7 +301,7 @@ class Lobby {
   // 玩家反准备
   userUnReady(userId: string): void {
     let user = this.findUser(userId);
-    user.status = UserStatus.notReady;
+    user.status = "idle";
   }
 
   // 是否房间可以开始游戏
@@ -326,26 +314,16 @@ class Lobby {
     }
 
     // 是否满员
-    let isMatch = room.userIdList.length === GAME_USER_COUNT;
-    if (!isMatch) {
+    if (!this.isRoomFull(room)) {
       console.log("canStartGame:人员不够", room.userIdList);
       return false;
     }
 
     let isAllReady: boolean = room.userIdList.every(userId => {
       let user = this.findUser(userId);
-      return user.status === UserStatus.ready;
+      return user && user.status === "ready";
     });
     if (!isAllReady) {
-      // console.log(
-      //   "canStartGame:尚未完全准备",
-      //   room.userIdList.map(userId => {
-      //     return {
-      //       userId,
-      //       status: this.findUser(userId).status
-      //     };
-      //   })
-      // );
       return false;
     }
 
@@ -356,20 +334,20 @@ class Lobby {
   // 根据roomId找到gameId
   startGame(roomId) {
     let room = this.findRoom(roomId);
-    let game = this.findGame(room.gameId);
-    room.status = RoomStatus.play;
+    let game = this.createGameByRule(room.rule);
+    room.gameId = game.id;
+    room.status = "play";
 
     let chBoard = game.chessBoard;
-    chBoard.readMap("normal");
     room.userIdList.forEach((userId, i) => {
       chBoard.addPlayer(userId, i === 0 ? ChessColor.red : ChessColor.black);
-      chBoard.ready(userId, PlayerStatus.ready);
-      // chBoard会自动start
+      chBoard.ready(userId, "ready");
     });
   }
+
+  //////////////////////////
+  // HELP //
+  //////////////////////////
 }
-let lobby: Lobby;
-if (!lobby) {
-  lobby = new Lobby();
-}
-export default lobby;
+
+export default Lobby;

@@ -224,10 +224,7 @@ class ChessBoard {
   // 能否准备
   // 1 合法的选手
   // 2 棋盘的状态,必须为"开始前"
-  canReady(
-    playerName: string,
-    status: PlayerStatus.ready | PlayerStatus.notReady
-  ): boolean {
+  canReady(playerName: string, status: PlayerStatus): boolean {
     if (!this.playerList.find(p => p.name == playerName)) {
       return false;
     }
@@ -239,10 +236,7 @@ class ChessBoard {
   }
 
   // 选手准备/反准备
-  ready(
-    playerName: string,
-    status: PlayerStatus.ready | PlayerStatus.notReady
-  ): void {
+  ready(playerName: string, status: PlayerStatus): void {
     let p = this.playerList.find(p => p.name == playerName);
     p.status = status;
 

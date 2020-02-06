@@ -129,23 +129,14 @@ export enum ChessStatus {
   rest
 }
 
-export enum PlayerStatus {
-  // 未准备好
-  notReady,
-  // 准备好
-  ready,
-  // 等待
-  waiting,
-  // 行棋中
-  thinking
-}
+export type PlayerStatus = "ready" | "thinking" | "waiting" | "offline";
 
-export enum ChessBoardStatus {
-  beforeStart,
-  red,
-  black,
-  gameOver
-}
+export type ChessBoardStatus =
+  | "beforeStart"
+  | "red"
+  | "black"
+  | "gameOver"
+  | "offline";
 
 // 棋局结果
 export enum ChessBoardJudge {

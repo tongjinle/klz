@@ -1,29 +1,16 @@
-import { genUniqueId } from "../logic/api";
-import User from "./user";
-
-// 房间状态
-export enum RoomStatus {
-  // 未满员
-  notFull = "notFull",
-  // 满员
-  full = "full",
-  // 游戏中
-  play = "play",
-  // 游戏结束
-  gameover = "gameover"
-}
+import { RoomStatus } from "./types";
+import Rule from "./rule";
 
 export default class Room {
+  /**房间id */
   id: string;
+  /**房间名字 */
   name: string;
   status: RoomStatus;
+  /**玩家id列表 */
   userIdList: string[];
+  /**游戏id */
   gameId: string;
-
-  constructor(name: string) {
-    this.id = genUniqueId();
-    this.name = name;
-    this.status = RoomStatus.notFull;
-    this.userIdList = [];
-  }
+  /**房间的游戏规则 */
+  rule: Rule;
 }

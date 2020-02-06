@@ -1,18 +1,14 @@
-// 枚举 用户准备状态
-export enum UserStatus {
-  // 未准备
-  notReady = "notReady",
-  // 准备中
-  ready = "ready"
-}
+import { UserStatus } from "./types";
 
 // 用户实体类
 class User {
-  // socket.id
+  /**用户id,即socket.id */
   id: string;
-  // 房间id
+  /**房间id */
   roomId: string;
-  // 用户准备状态
+  /**游戏id */
+  gameId: string;
+  /**用户状态 */
   status: UserStatus;
 }
 
