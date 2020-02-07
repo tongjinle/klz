@@ -4,7 +4,7 @@ import Skill from "./skill";
 
 // 对单个友军回复6点血量,施法距离为直线4格
 export default class Heal extends Skill {
-  type = SkillType.heal;
+  type: SkillType = "heal";
 
   getCastRangeOnPurpose() {
     let owner = this.owner;

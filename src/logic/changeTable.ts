@@ -1,4 +1,4 @@
-import { IChange, ChangeType, UnionChange } from "./types";
+import { IChange } from "./types";
 
 export default class ChangeTable {
   recordList: IChange[];

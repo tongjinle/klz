@@ -52,8 +52,8 @@ export default function handle(socket: Socket, data: LeaveRoomRequest) {
   let roomId = user.roomId;
   lobby.enterRoom(userId, roomId);
   let room = lobby.findRoom(roomId);
-  resData = { code: 0, info: lobby.getRoomInfo(room) };
-  notiData = { info: lobby.getRoomInfo(room) };
+  // resData = { code: 0, info: lobby.getRoomInfo(room) };
+  // notiData = { info: lobby.getRoomInfo(room) };
 
   // message
   send(MessageType.enterRoomResponse, resData);

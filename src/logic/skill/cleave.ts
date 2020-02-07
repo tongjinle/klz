@@ -5,7 +5,7 @@ import Skill from "./skill";
 // 挥击
 // 攻击前方3个棋子
 export default class Cleave extends Skill {
-  type = SkillType.cleave;
+  type: SkillType = "cleave";
 
   getCastRangeOnPurpose() {
     let owner = this.owner;

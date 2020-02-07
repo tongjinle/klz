@@ -62,9 +62,9 @@ export default abstract class Skill {
   ): boolean {
     let ch = this.owner.chessBoard.getChessByPosition(position);
     if (ch) {
-      if (rela == ChessRelationship.enemy) {
+      if (rela === "enemy") {
         return ch.color != this.owner.color;
-      } else if (rela == ChessRelationship.firend) {
+      } else if (rela === "firend") {
         return ch.color == this.owner.color;
       } else {
         return true;

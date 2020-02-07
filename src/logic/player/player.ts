@@ -4,7 +4,8 @@ export default class Player {
   name: string;
   color: ChessColor;
   status: PlayerStatus;
-  chessStatus: ChessStatus;
+  /**是否在回合中直接选择休息 */
+  isChooseRest: boolean;
   energy: number;
 
   toString(): IPlayerInfo {
@@ -12,7 +13,7 @@ export default class Player {
     info.name = this.name;
     info.color = this.color;
     info.status = this.status;
-    info.chStatus = this.chessStatus;
+    info.isChooseRest = this.isChooseRest;
     info.energy = this.energy;
     return info;
   }
@@ -21,7 +22,7 @@ export default class Player {
     this.name = info.name;
     this.color = info.color;
     this.status = info.status;
-    this.chessStatus = info.chStatus;
+    this.isChooseRest = info.isChooseRest;
     this.energy = info.energy;
   }
 }

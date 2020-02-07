@@ -202,7 +202,7 @@ let genDict = (socket: Socket) => {
     let game = help.getGame();
     resData = {
       code: 0,
-      userId: game.chessBoard.currPlayerName,
+      userId: game.chessBoard.currentPlayerName,
       round: game.chessBoard.round
     };
     send(MessageType.roundResponse, resData);
@@ -247,7 +247,7 @@ let genDict = (socket: Socket) => {
     // todo
 
     // action
-    let positionList = game.chessBoard.currChess.getMoveRange();
+    let positionList = game.chessBoard.currentChess.getMoveRange();
 
     // message
     resData = { code: 0, positionList };
@@ -268,7 +268,7 @@ let genDict = (socket: Socket) => {
     // todo
 
     // action
-    let chessId = game.chessBoard.currChess.id;
+    let chessId = game.chessBoard.currentChess.id;
     let position = data.position;
     game.chessBoard.moveChess(data.position);
     resData = { code: 0 };
@@ -290,8 +290,8 @@ let genDict = (socket: Socket) => {
     // todo
 
     // action
-    let chess = chBoard.currChess;
-    let skillTypeList = chess.canCastSkillList.map(sk => sk.type);
+    let chess = chBoard.currentChess;
+    let skillTypeList = chess.activeSkillList.map(sk => sk.type);
 
     // message
     resData = { code: 0, skillTypeList };
@@ -354,7 +354,7 @@ let genDict = (socket: Socket) => {
     send(MessageType.castSkillResponse, resData);
     // noti
     let change = chBoard.changeTable.recordList.find(
-      re => re.round === lastRound && re.type === ChangeType.hp
+      re => re.round === lastRound && re.type === "hp"
     );
     console.log(position);
     // console.log(chBoard.changeTable.recordList);

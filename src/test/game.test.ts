@@ -1,22 +1,10 @@
 import assert = require("assert");
 import process, { ChildProcess } from "child_process";
-import path, { resolve } from "path";
+import path from "path";
 import SocketClient from "socket.io-client";
-import lobby from "../server/lobby";
+import { HpChange, IChessBoardInfo } from "../logic/types";
 import MessageType from "../server/messageType";
 import * as protocol from "../server/protocol";
-import { UserStatus } from "../server/user";
-import { read } from "fs";
-import {
-  IChessBoardInfo,
-  IChessInfo,
-  ChessColor,
-  ChessType,
-  SkillType,
-  ChangeType,
-  HpChange
-} from "../logic/types";
-import Chess from "../logic/chess/chess";
 
 function delay(ms: number) {
   return new Promise(resolve => {
@@ -147,7 +135,7 @@ describe("app", () => {
     ).id;
 
     blackMagicId = gameInfo.chessList.find(
-      ch => ch.color === ChessColor.black && ch.type === ChessType.magic
+      ch => ch.color === "black" && ch.type === "magic"
     ).id;
 
     console.log(gameInfo.chessList);
@@ -335,12 +323,12 @@ describe("app", () => {
       tom,
       MessageType.activeSkillListResponse,
       data => {
-        assert(data.skillTypeList.find(skType => skType === SkillType.fire));
+        assert(data.skillTypeList.find(skType => skType === "fire"));
       }
     );
 
     {
-      let reqData: protocol.ChooseSkillRequest = { skillType: SkillType.fire };
+      let reqData: protocol.ChooseSkillRequest = { skillType: "fire" };
       tom.send(MessageType.chooseSkillRequest, reqData);
       await createAssert<protocol.ChooseSkillResponse>(
         tom,
@@ -367,7 +355,7 @@ describe("app", () => {
       jack,
       MessageType.castSkillNotify,
       data => {
-        assert(data.change.type === ChangeType.hp);
+        assert(data.change.type === "hp");
         let change: HpChange = data.change.data as HpChange;
         assert(change.abs === 0 && change.rela === -4);
       }

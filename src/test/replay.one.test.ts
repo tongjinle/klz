@@ -21,8 +21,8 @@ describe("write replay", () => {
     chBoard = new ChessBoard();
     rep = chBoard.replay;
 
-    chBoard.addPlayer("jack", ChessColor.red);
-    chBoard.addPlayer("tom", ChessColor.black);
+    chBoard.addPlayer("jack", "red");
+    chBoard.addPlayer("tom", "black");
 
     jack = chBoard.getPlayerByName("jack");
     tom = chBoard.getPlayerByName("tom");
@@ -33,11 +33,8 @@ describe("write replay", () => {
   });
 
   it("add player", () => {
-    chBoard.ready("jack", PlayerStatus.ready);
-    chBoard.ready("tom", PlayerStatus.ready);
     assert(
-      rep.recordList.filter(n => n.actionType === ActionType.addPlayer)
-        .length === 1
+      rep.recordList.filter(n => n.actionType === "addPlayer").length === 1
     );
   });
 
@@ -46,8 +43,8 @@ describe("write replay", () => {
 
     let reco = rep.recordList.find(
       n =>
-        n.actionType === ActionType.addChess &&
-        n.data.chessColor === ChessColor.red &&
+        n.actionType === "addChess" &&
+        n.data.chessColor === "red" &&
         n.data.position.x == 0 &&
         n.data.position.y == 1
     );
@@ -57,9 +54,7 @@ describe("write replay", () => {
   it("choose chess", () => {
     let ch = chBoard.getChessByPosition({ x: 0, y: 1 });
     chBoard.chooseChess(ch);
-    let reco = rep.recordList.find(
-      n => n.actionType === ActionType.chooseChess
-    );
+    let reco = rep.recordList.find(n => n.actionType === "chooseChess");
     assert(!reco);
   });
 
@@ -67,13 +62,11 @@ describe("write replay", () => {
   it("move chess", () => {
     chBoard.moveChess({ x: 0, y: 2 });
     let chooseChessReco = rep.recordList.find(
-      n => n.actionType === ActionType.chooseChess
+      n => n.actionType === "chooseChess"
     );
     assert(chooseChessReco);
 
-    let moveChessReco = rep.recordList.find(
-      n => n.actionType === ActionType.moveChess
-    );
+    let moveChessReco = rep.recordList.find(n => n.actionType === "moveChess");
     assert(
       moveChessReco &&
         moveChessReco.data.position.x === 0 &&
@@ -90,10 +83,8 @@ describe("write replay", () => {
     let ch = chBoard.getChessByPosition({ x: 4, y: 7 });
     chBoard.chooseChess(ch);
     chBoard.moveChess({ x: 4, y: 3 });
-    chBoard.chooseSkill(SkillType.fire);
-    let reco = rep.recordList.find(
-      n => n.actionType === ActionType.chooseSkill
-    );
+    chBoard.chooseSkill("fire");
+    let reco = rep.recordList.find(n => n.actionType === "chooseSkill");
     assert(!reco);
   });
 
@@ -101,17 +92,13 @@ describe("write replay", () => {
   it("castSkill", () => {
     chBoard.castSkill({ x: 4, y: 1 });
     {
-      let reco = rep.recordList.find(
-        n => n.actionType === ActionType.chooseSkill
-      );
+      let reco = rep.recordList.find(n => n.actionType === "chooseSkill");
       assert(reco);
       let data: ChooseSkillRecord = reco.data;
-      assert(data.skillType === SkillType.fire);
+      assert(data.skillType === "fire");
     }
     {
-      let reco = rep.recordList.find(
-        n => n.actionType === ActionType.castSkill
-      );
+      let reco = rep.recordList.find(n => n.actionType === "castSkill");
       assert(reco);
       let data: CastSkillRecord = reco.data;
       assert.deepEqual(data.position, { x: 4, y: 1 });
@@ -122,7 +109,7 @@ describe("write replay", () => {
   // jack 主动休息
   it("rest", () => {
     chBoard.rest();
-    let reco = rep.recordList.find(n => n.actionType === ActionType.rest);
+    let reco = rep.recordList.find(n => n.actionType === "rest");
     assert(reco);
   });
 });

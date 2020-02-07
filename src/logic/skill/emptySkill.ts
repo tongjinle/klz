@@ -4,7 +4,7 @@ import Skill from "./skill";
 
 // 普通攻击
 export default class EmptySkill extends Skill {
-  type = SkillType.emptySkill;
+  type: SkillType = "emptySkill";
 
   getCastRangeOnPurpose() {
     return [];

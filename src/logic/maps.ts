@@ -8,167 +8,167 @@ maps["normal"] = {
   chessList: [
     // red
     {
-      chessType: ChessType.knight,
+      chessType: "knight",
       position: { x: 0, y: 0 },
-      color: ChessColor.red
+      color: "red"
     },
     {
-      chessType: ChessType.cavalry,
+      chessType: "cavalry",
       position: { x: 1, y: 0 },
-      color: ChessColor.red
+      color: "red"
     },
     {
-      chessType: ChessType.minister,
+      chessType: "minister",
       position: { x: 2, y: 0 },
-      color: ChessColor.red
+      color: "red"
     },
     {
-      chessType: ChessType.magic,
+      chessType: "magic",
       position: { x: 3, y: 0 },
-      color: ChessColor.red
+      color: "red"
     },
     {
-      chessType: ChessType.king,
+      chessType: "king",
       position: { x: 4, y: 0 },
-      color: ChessColor.red
+      color: "red"
     },
     {
-      chessType: ChessType.minister,
+      chessType: "minister",
       position: { x: 5, y: 0 },
-      color: ChessColor.red
+      color: "red"
     },
     {
-      chessType: ChessType.cavalry,
+      chessType: "cavalry",
       position: { x: 6, y: 0 },
-      color: ChessColor.red
+      color: "red"
     },
     {
-      chessType: ChessType.knight,
+      chessType: "knight",
       position: { x: 7, y: 0 },
-      color: ChessColor.red
+      color: "red"
     },
 
     {
-      chessType: ChessType.footman,
+      chessType: "footman",
       position: { x: 0, y: 1 },
-      color: ChessColor.red
+      color: "red"
     },
     {
-      chessType: ChessType.footman,
+      chessType: "footman",
       position: { x: 1, y: 1 },
-      color: ChessColor.red
+      color: "red"
     },
     {
-      chessType: ChessType.footman,
+      chessType: "footman",
       position: { x: 2, y: 1 },
-      color: ChessColor.red
+      color: "red"
     },
     {
-      chessType: ChessType.footman,
+      chessType: "footman",
       position: { x: 3, y: 1 },
-      color: ChessColor.red
+      color: "red"
     },
     {
-      chessType: ChessType.footman,
+      chessType: "footman",
       position: { x: 4, y: 1 },
-      color: ChessColor.red
+      color: "red"
     },
     {
-      chessType: ChessType.footman,
+      chessType: "footman",
       position: { x: 5, y: 1 },
-      color: ChessColor.red
+      color: "red"
     },
     {
-      chessType: ChessType.footman,
+      chessType: "footman",
       position: { x: 6, y: 1 },
-      color: ChessColor.red
+      color: "red"
     },
     {
-      chessType: ChessType.footman,
+      chessType: "footman",
       position: { x: 7, y: 1 },
-      color: ChessColor.red
+      color: "red"
     },
     // black
     {
-      chessType: ChessType.knight,
+      chessType: "knight",
       position: { x: 0, y: 7 },
-      color: ChessColor.black
+      color: "black"
     },
     {
-      chessType: ChessType.cavalry,
+      chessType: "cavalry",
       position: { x: 1, y: 7 },
-      color: ChessColor.black
+      color: "black"
     },
     {
-      chessType: ChessType.minister,
+      chessType: "minister",
       position: { x: 2, y: 7 },
-      color: ChessColor.black
+      color: "black"
     },
     {
-      chessType: ChessType.king,
+      chessType: "king",
       position: { x: 3, y: 7 },
-      color: ChessColor.black
+      color: "black"
     },
     {
-      chessType: ChessType.magic,
+      chessType: "magic",
       position: { x: 4, y: 7 },
-      color: ChessColor.black
+      color: "black"
     },
     {
-      chessType: ChessType.minister,
+      chessType: "minister",
       position: { x: 5, y: 7 },
-      color: ChessColor.black
+      color: "black"
     },
     {
-      chessType: ChessType.cavalry,
+      chessType: "cavalry",
       position: { x: 6, y: 7 },
-      color: ChessColor.black
+      color: "black"
     },
     {
-      chessType: ChessType.knight,
+      chessType: "knight",
       position: { x: 7, y: 7 },
-      color: ChessColor.black
+      color: "black"
     },
 
     {
-      chessType: ChessType.footman,
+      chessType: "footman",
       position: { x: 0, y: 6 },
-      color: ChessColor.black
+      color: "black"
     },
     {
-      chessType: ChessType.footman,
+      chessType: "footman",
       position: { x: 1, y: 6 },
-      color: ChessColor.black
+      color: "black"
     },
     {
-      chessType: ChessType.footman,
+      chessType: "footman",
       position: { x: 2, y: 6 },
-      color: ChessColor.black
+      color: "black"
     },
     {
-      chessType: ChessType.footman,
+      chessType: "footman",
       position: { x: 3, y: 6 },
-      color: ChessColor.black
+      color: "black"
     },
     {
-      chessType: ChessType.footman,
+      chessType: "footman",
       position: { x: 4, y: 6 },
-      color: ChessColor.black
+      color: "black"
     },
     {
-      chessType: ChessType.footman,
+      chessType: "footman",
       position: { x: 5, y: 6 },
-      color: ChessColor.black
+      color: "black"
     },
     {
-      chessType: ChessType.footman,
+      chessType: "footman",
       position: { x: 6, y: 6 },
-      color: ChessColor.black
+      color: "black"
     },
     {
-      chessType: ChessType.footman,
+      chessType: "footman",
       position: { x: 7, y: 6 },
-      color: ChessColor.black
+      color: "black"
     }
   ]
 };

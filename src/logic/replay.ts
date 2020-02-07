@@ -51,53 +51,50 @@ export default class Replay {
   }
 
   private parseDict: { [action: string]: (data: any) => void } = {
-    [ActionType.addPlayer]: (data: AddPlayerRecord) => {
-      this.chessBoard.addPlayer(data.red, ChessColor.red);
-      this.chessBoard.addPlayer(data.black, ChessColor.black);
-
-      this.chessBoard.ready(data.red, PlayerStatus.ready);
-      this.chessBoard.ready(data.black, PlayerStatus.ready);
+    ["addPlayer"]: (data: AddPlayerRecord) => {
+      this.chessBoard.addPlayer(data.red, "red");
+      this.chessBoard.addPlayer(data.black, "black");
     },
-    [ActionType.setMapSeed]: (data: SetMapSeedRecord) => {
+    ["setMapSeed"]: (data: SetMapSeedRecord) => {
       this.chessBoard.setMapSeed(data.seed);
     },
-    [ActionType.setMapSize]: (data: SetMapSizeRecord) => {
+    ["setMapSize"]: (data: SetMapSizeRecord) => {
       this.chessBoard.setMapSize(data.width, data.height);
     },
 
-    [ActionType.setMapChess]: (data: SetMapChessRecord) => {
+    ["setMapChess"]: (data: SetMapChessRecord) => {
       this.chessBoard.setMapChess(data.chessList);
     },
 
-    [ActionType.readMap]: (data: SetMapNameRecord) => {
+    ["readMap"]: (data: SetMapNameRecord) => {
       this.chessBoard.readMap(data.mapName);
     },
 
-    [ActionType.addChess]: (data: AddChessRecord) => {
+    ["addChess"]: (data: AddChessRecord) => {
       let ch: Chess = this.chessBoard.createChess(data.chessType);
       ch.color = data.chessColor;
       ch.position = data.position;
       this.chessBoard.addChess(ch);
     },
-    [ActionType.removeChess]: (data: RemoveChessRecord) => {
+    ["removeChess"]: (data: RemoveChessRecord) => {
       this.chessBoard.removeChess(
         this.chessBoard.getChessByPosition(data.position)
       );
     },
-    [ActionType.chooseChess]: (data: ChooseChessRecord) => {
+    ["chooseChess"]: (data: ChooseChessRecord) => {
       let ch = this.chessBoard.getChessByPosition(data.position);
       this.chessBoard.chooseChess(ch);
     },
-    [ActionType.moveChess]: (data: MoveChessRecord) => {
+    ["moveChess"]: (data: MoveChessRecord) => {
       this.chessBoard.moveChess(data.position);
     },
-    [ActionType.chooseSkill]: (data: ChooseSkillRecord) => {
+    ["chooseSkill"]: (data: ChooseSkillRecord) => {
       this.chessBoard.chooseSkill(data.skillType);
     },
-    [ActionType.castSkill]: (data: CastSkillRecord) => {
+    ["castSkill"]: (data: CastSkillRecord) => {
       this.chessBoard.castSkill(data.position);
     },
-    [ActionType.rest]: () => {
+    ["rest"]: () => {
       this.chessBoard.rest();
     }
   };

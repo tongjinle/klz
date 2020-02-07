@@ -65,7 +65,7 @@ export default abstract class Chess {
 
   // 休息
   rest(): void {
-    this.status = ChessStatus.rest;
+    this.status = "rest";
   }
 
   // 棋子死亡
@@ -73,7 +73,7 @@ export default abstract class Chess {
 
   //
   round(): void {
-    this.status = ChessStatus.beforeChoose;
+    this.status = "beforeChoose";
   }
 
   // 移动
@@ -81,19 +81,16 @@ export default abstract class Chess {
     this.position = position;
 
     // 如果有技能可以cast,状态为beforeCast
-    if (this.canCastSkillList.length) {
-      this.status = ChessStatus.beforeCast;
+    if (this.activeSkillList.length) {
+      this.status = "beforeCast";
     } else {
       // 否则直接进入休息
       this.rest();
     }
   }
 
-  public get canCastSkillList(): Skill[] {
-    if (
-      [ChessStatus.beforeMove, ChessStatus.beforeCast].indexOf(this.status) ===
-      -1
-    ) {
+  public get activeSkillList(): Skill[] {
+    if (this.status !== "beforeMove" && this.status !== "beforeCast") {
       return [];
     }
     return this.skillList.filter(sk => this.getCastRange(sk.type).length);
@@ -117,7 +114,7 @@ export default abstract class Chess {
     this.id = Math.random()
       .toString()
       .slice(2);
-    this.status = ChessStatus.beforeChoose;
+    this.status = "beforeChoose";
     this.skillList = [];
 
     this.maxhp = this.hp;

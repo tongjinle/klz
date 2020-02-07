@@ -13,7 +13,6 @@ import {
   checkUserNotInRoom
 } from "./factory/checkFactory";
 import checkLoop from "./factory/checkFactory";
-
 /**
  * @param  {Socket} socket
  * @param  {EnterRoomRequest} data
@@ -43,7 +42,6 @@ export default function handle(socket: Socket, data: EnterRoomRequest) {
   // action
   let room = lobby.findRoom(roomId);
   lobby.enterRoom(userId, roomId);
-
   resData = { code: 0, info: lobby.getRoomInfo(room) };
   notiData = { info: lobby.getRoomInfo(room) };
 

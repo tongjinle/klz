@@ -9,14 +9,14 @@ import Purge from "./purge";
 import Storm from "./storm";
 
 let skillList = {
-  [SkillType.attack]: Attack,
-  [SkillType.storm]: Storm,
-  [SkillType.crash]: Crash,
-  [SkillType.heal]: Heal,
-  [SkillType.purge]: Purge,
-  [SkillType.fire]: Fire,
-  [SkillType.nova]: Nova,
-  [SkillType.cleave]: Cleave
+  ["attack"]: Attack,
+  ["storm"]: Storm,
+  ["crash"]: Crash,
+  ["heal"]: Heal,
+  ["purge"]: Purge,
+  ["fire"]: Fire,
+  ["nova"]: Nova,
+  ["cleave"]: Cleave
 };
 
 export default skillList;

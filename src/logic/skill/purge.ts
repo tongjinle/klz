@@ -4,8 +4,7 @@ import Skill from "./skill";
 
 // 净化
 export default class Purge extends Skill {
-  type = SkillType.purge;
-
+  type: SkillType = "purge";
   getCastRangeOnPurpose() {
     let owner = this.owner;
 

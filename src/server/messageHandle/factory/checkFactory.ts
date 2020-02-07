@@ -2,7 +2,6 @@ import lobby from "../../lobby";
 import { Socket } from "socket.io";
 import { BaseResponse, EnterRoomRequest } from "../../protocol";
 import helpFactory from "./helpFactory";
-import { RoomStatus } from "../../room";
 
 interface ICheck {
   (socket: Socket, data: any): BaseResponse;
@@ -31,9 +30,9 @@ export function checkRoomNotFull(
   data: EnterRoomRequest
 ): BaseResponse {
   let room = lobby.findRoom(data.roomId);
-  if (room.status !== RoomStatus.notFull) {
-    return { code: -2, message: "房间已经满人" };
-  }
+  // if (room.status !== RoomStatus.notFull) {
+  //   return { code: -2, message: "房间已经满人" };
+  // }
 
   return { code: 0 };
 }

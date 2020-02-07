@@ -26,9 +26,9 @@ describe("chess list", () => {
     let enemy: Chess = new Footman();
 
     me.position = { x: 1, y: 1 };
-    me.color = ChessColor.red;
+    me.color = "red";
     enemy.position = { x: 1, y: 3 };
-    enemy.color = ChessColor.black;
+    enemy.color = "black";
 
     chBoard.addChess(me);
     chBoard.addChess(enemy);
@@ -63,7 +63,7 @@ describe("chess list", () => {
     let me: Chess = new Knight();
     me.position = { x: 4, y: 4 };
     let sk = me.skillList[0];
-    me.color = ChessColor.red;
+    me.color = "red";
     chBoard.addChess(me);
 
     let ch1: Chess = new EmptyChess();
@@ -71,7 +71,7 @@ describe("chess list", () => {
     let ch2: Chess = new EmptyChess();
     ch2.position = { x: 1, y: 3 };
     ch1.hp = ch2.hp = 100;
-    ch1.color = ch2.color = ChessColor.black;
+    ch1.color = ch2.color = "black";
     chBoard.addChess(ch1);
     chBoard.addChess(ch2);
     // 周围没有敌人
@@ -92,12 +92,12 @@ describe("chess list", () => {
     // 行走范围(特殊)
     let me = new Cavalry();
     me.position = { x: 1, y: 3 };
-    me.color = ChessColor.red;
+    me.color = "red";
     chBoard.addChess(me);
 
     let ch1 = new EmptyChess();
     ch1.position = { x: 2, y: 5 };
-    ch1.color = ChessColor.black;
+    ch1.color = "black";
     chBoard.addChess(ch1);
 
     let range = me.getMoveRange();
@@ -113,13 +113,13 @@ describe("chess list", () => {
 
   it("minister - heal - valid heal target", () => {
     let me = new Minister();
-    me.color = ChessColor.red;
+    me.color = "red";
     me.position = { x: 2, y: 4 };
     chBoard.addChess(me);
 
     // 不满血友军,合法治疗目标
     let f1 = new EmptyChess();
-    f1.color = ChessColor.red;
+    f1.color = "red";
     f1.position = { x: 3, y: 4 };
     f1.hp = 2;
     f1.maxhp = 100;
@@ -127,7 +127,7 @@ describe("chess list", () => {
 
     // 满血友军
     let f2 = new EmptyChess();
-    f2.color = ChessColor.red;
+    f2.color = "red";
     f2.position = { x: 4, y: 4 };
     f2.hp = 100;
     f2.maxhp = 100;
@@ -135,7 +135,7 @@ describe("chess list", () => {
 
     // 超出距离的不满血友军
     let f3 = new EmptyChess();
-    f3.color = ChessColor.red;
+    f3.color = "red";
     f3.position = { x: 3, y: 3 };
     f3.hp = 2;
     f3.maxhp = 100;
@@ -143,7 +143,7 @@ describe("chess list", () => {
 
     // 不满血的敌军
     let e1 = new EmptyChess();
-    e1.color = ChessColor.black;
+    e1.color = "black";
     e1.position = { x: 1, y: 4 };
     e1.hp = 2;
     e1.maxhp = 100;
@@ -152,7 +152,7 @@ describe("chess list", () => {
     // 敌人不是我治疗的目标
     // 满血友军不是我治疗目标
     // 超越治疗距离不是我治疗目标(治疗距离为直线4格)
-    let heal = me.skillList.find(sk => sk.type == SkillType.heal);
+    let heal = me.skillList.find(sk => sk.type === "heal");
     let exp = [{ x: 3, y: 4 }];
     assert.deepEqual(heal.getCastRange().sort(sort), exp.sort(sort));
   });
@@ -160,13 +160,13 @@ describe("chess list", () => {
   it("minister - heal - no out", () => {
     // 治疗(不考虑视野遮挡)
     let me = new Minister();
-    me.color = ChessColor.red;
+    me.color = "red";
     me.position = { x: 2, y: 4 };
     chBoard.addChess(me);
 
     // 不满血友军,合法治疗目标
     let f1 = new EmptyChess();
-    f1.color = ChessColor.red;
+    f1.color = "red";
     f1.position = { x: 3, y: 4 };
     f1.hp = 2;
     f1.maxhp = 100;
@@ -174,7 +174,7 @@ describe("chess list", () => {
 
     // 不满血友军,合法治疗目标
     let f2 = new EmptyChess();
-    f2.color = ChessColor.red;
+    f2.color = "red";
     f2.position = { x: 4, y: 4 };
     f2.hp = 90;
     f2.maxhp = 100;
@@ -182,8 +182,11 @@ describe("chess list", () => {
 
     let toStr = range => range.map(po => [po.x, po.y].join("-")).sort();
 
-    let heal = me.skillList.find(sk => sk.type == SkillType.heal);
-    let exp = [{ x: 3, y: 4 }, { x: 4, y: 4 }];
+    let heal = me.skillList.find(sk => sk.type == "heal");
+    let exp = [
+      { x: 3, y: 4 },
+      { x: 4, y: 4 }
+    ];
     assert.deepEqual(heal.getCastRange().sort(sort), exp.sort(sort));
   });
 
@@ -191,13 +194,13 @@ describe("chess list", () => {
     // 治疗 && 过量治疗
     // 一次治疗量是6点血量
     let me = new Minister();
-    me.color = ChessColor.red;
+    me.color = "red";
     me.position = { x: 2, y: 4 };
     chBoard.addChess(me);
 
     // 不满血友军,合法治疗目标
     let f1 = new EmptyChess();
-    f1.color = ChessColor.red;
+    f1.color = "red";
     f1.position = { x: 3, y: 4 };
     f1.hp = 2;
     f1.maxhp = 100;
@@ -205,13 +208,13 @@ describe("chess list", () => {
 
     // 满血友军
     let f2 = new EmptyChess();
-    f2.color = ChessColor.red;
+    f2.color = "red";
     f2.position = { x: 4, y: 4 };
     f2.hp = 99;
     f2.maxhp = 100;
     chBoard.addChess(f2);
 
-    let heal = me.skillList.find(sk => sk.type == SkillType.heal);
+    let heal = me.skillList.find(sk => sk.type == "heal");
     heal.cast({ x: 3, y: 4 });
     assert(f1.hp === 8);
 
@@ -225,29 +228,32 @@ describe("chess list", () => {
     // 施法距离3格
     // 造成2点伤害
     let me = new Minister();
-    me.color = ChessColor.red;
+    me.color = "red";
     me.position = { x: 2, y: 4 };
     chBoard.addChess(me);
 
     // 不满血的敌军
     let e1 = new EmptyChess();
-    e1.color = ChessColor.black;
+    e1.color = "black";
     e1.position = { x: 1, y: 4 };
     e1.hp = 20;
     e1.maxhp = 100;
     chBoard.addChess(e1);
 
     let e2 = new EmptyChess();
-    e2.color = ChessColor.black;
+    e2.color = "black";
     e2.position = { x: 0, y: 4 };
     e2.hp = 20;
     e2.maxhp = 100;
     chBoard.addChess(e2);
 
-    let purge = me.skillList.find(sk => sk.type == SkillType.purge);
+    let purge = me.skillList.find(sk => sk.type == "purge");
     // 施放目标
     {
-      let exp = [{ x: 1, y: 4 }, { x: 0, y: 4 }];
+      let exp = [
+        { x: 1, y: 4 },
+        { x: 0, y: 4 }
+      ];
       assert.deepEqual(purge.getCastRange().sort(sort), exp.sort(sort));
     }
 
@@ -263,12 +269,12 @@ describe("chess list", () => {
     // 移动范围
     // 闪现,不会被视野遮挡
     let me = new Magic();
-    me.color = ChessColor.red;
+    me.color = "red";
     me.position = { x: 1, y: 2 };
     chBoard.addChess(me);
 
     let ch = new EmptyChess();
-    ch.color = ChessColor.black;
+    ch.color = "black";
     ch.position = { x: 1, y: 3 };
     chBoard.addChess(ch);
 
@@ -308,22 +314,22 @@ describe("chess list", () => {
   it("magic - fire - out eye", () => {
     // 火球(考虑视野遮挡)
     let me = new Magic();
-    me.color = ChessColor.red;
+    me.color = "red";
     me.position = { x: 1, y: 2 };
     chBoard.addChess(me);
 
     let e1 = new EmptyChess();
-    e1.color = ChessColor.black;
+    e1.color = "black";
     e1.hp = 20;
     e1.position = { x: 1, y: 3 };
     chBoard.addChess(e1);
 
     let e2 = new EmptyChess();
-    e2.color = ChessColor.black;
+    e2.color = "black";
     e2.position = { x: 1, y: 5 };
     chBoard.addChess(e2);
 
-    let fire = me.skillList.find(sk => sk.type == SkillType.fire);
+    let fire = me.skillList.find(sk => sk.type == "fire");
     {
       let exp = [{ x: 1, y: 3 }];
       assert.deepEqual(fire.getCastRange().sort(sort), exp.sort(sort));
@@ -339,29 +345,29 @@ describe("chess list", () => {
   it("magic - nova", () => {
     // 冰霜新星
     let me = new Magic();
-    me.color = ChessColor.red;
+    me.color = "red";
     me.position = { x: 1, y: 2 };
     chBoard.addChess(me);
 
     let e1 = new EmptyChess();
-    e1.color = ChessColor.black;
+    e1.color = "black";
     e1.position = { x: 1, y: 3 };
     e1.hp = 20;
     chBoard.addChess(e1);
 
     let e2 = new EmptyChess();
-    e2.color = ChessColor.black;
+    e2.color = "black";
     e2.position = { x: 1, y: 4 };
     e2.hp = 20;
     chBoard.addChess(e2);
 
     let e3 = new EmptyChess();
-    e3.color = ChessColor.black;
+    e3.color = "black";
     e3.position = { x: 1, y: 5 };
     e3.hp = 20;
     chBoard.addChess(e3);
 
-    let nova = me.skillList.find(sk => sk.type == SkillType.nova);
+    let nova = me.skillList.find(sk => sk.type == "nova");
     assert.deepEqual(nova.getCastRange().sort(sort), [{ x: 1, y: 2 }]);
 
     nova.cast({ x: 1, y: 2 });
@@ -374,23 +380,23 @@ describe("chess list", () => {
     // 顺势斩
     // 需要有正对的目标供king使用
     let me = new King();
-    me.color = ChessColor.red;
+    me.color = "red";
     me.position = { x: 1, y: 2 };
     chBoard.addChess(me);
 
     let e1 = new EmptyChess();
-    e1.color = ChessColor.black;
+    e1.color = "black";
     e1.position = { x: 1, y: 3 };
     e1.hp = 20;
     chBoard.addChess(e1);
 
     let e2 = new EmptyChess();
-    e2.color = ChessColor.black;
+    e2.color = "black";
     e2.position = { x: 2, y: 3 };
     e2.hp = 20;
     chBoard.addChess(e2);
 
-    let cleave = me.skillList.find(sk => sk.type == SkillType.cleave);
+    let cleave = me.skillList.find(sk => sk.type == "cleave");
     assert.deepEqual(
       cleave.getCastRange().sort(sort),
       [{ x: 1, y: 3 }].sort(sort)

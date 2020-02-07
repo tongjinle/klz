@@ -8,12 +8,12 @@ import Minister from "./minister";
 
 // 棋子列表
 let chessList = {
-  [ChessType.footman]: Footman,
-  [ChessType.cavalry]: Cavalry,
-  [ChessType.king]: King,
-  [ChessType.knight]: Knight,
-  [ChessType.magic]: Magic,
-  [ChessType.minister]: Minister
+  ["footman"]: Footman,
+  ["cavalry"]: Cavalry,
+  ["king"]: King,
+  ["knight"]: Knight,
+  ["magic"]: Magic,
+  ["minister"]: Minister
 };
 
 export default chessList;

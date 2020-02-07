@@ -2,10 +2,9 @@ import cors from "cors";
 import express from "express";
 import http from "http";
 import socketServer from "socket.io";
-import Lobby from "./lobby";
+import lobby from "./lobby";
 import messageHandle from "./messageHandle";
 
-let lobby = new Lobby();
 console.log("messageHandle lobbyId", lobby.id);
 let app = express();
 

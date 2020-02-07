@@ -1,13 +1,21 @@
 // import assert = require("assert");
-// import ChangeTable from "../changeTable";
-// import ChessBoard from "../chessBoard/chessBoard";
-// import { ChangeType, IEnergyChange, IHpChange, IPositionChange, PlayerStatus, RestType, SkillType } from "../types";
+// import ChangeTable from "../logic/changeTable";
+// import ChessBoard from "../logic/chessBoard/chessBoard";
+// import {
+//   ChangeType,
+//   EnergyChange,
+//   IHpChange,
+//   IPositionChange,
+//   PlayerStatus,
+//   RestType,
+//   SkillType
+// } from "../logic/types";
 
 // describe("changes", () => {
 //   let chBoard: ChessBoard;
 //   let chgTable: ChangeTable;
 
-//   beforeAll(() => {
+//   before(() => {
 //     chBoard = new ChessBoard();
 //     chgTable = chBoard.chgTable;
 //     chBoard.readMap("normal");

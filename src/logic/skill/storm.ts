@@ -4,7 +4,7 @@ import Skill from "./skill";
 
 // 暴风雪
 export default class Storm extends Skill {
-  type = SkillType.storm;
+  type: SkillType = "storm";
 
   getCastRangeOnPurpose() {
     let owner = this.owner;

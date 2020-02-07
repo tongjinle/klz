@@ -5,7 +5,7 @@ import SocketClient from "socket.io-client";
 import lobby from "../server/lobby";
 import MessageType from "../server/messageType";
 import * as protocol from "../server/protocol";
-import { UserStatus } from "../server/user";
+import { UserStatus } from "../server/types";
 
 function delay(ms: number) {
   return new Promise(resolve => {
@@ -163,7 +163,7 @@ describe("app", () => {
           assert(data.code === 0);
           let index = data.info.userIdList.findIndex(id => id !== jack.id);
           let status = data.info.userStatusList[index];
-          assert(status === UserStatus.ready);
+          assert(status === "ready");
           resolve();
         }
       });

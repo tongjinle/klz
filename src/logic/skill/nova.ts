@@ -3,7 +3,7 @@ import { IPosition, SkillType } from "../types";
 import Skill from "./skill";
 
 export default class Nova extends Skill {
-  type = SkillType.nova;
+  type: SkillType = "nova";
 
   getCastRangeOnPurpose() {
     let owner = this.owner;

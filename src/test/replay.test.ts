@@ -2,7 +2,13 @@ import assert = require("assert");
 import ChessBoard from "../logic/chessBoard/chessBoard";
 import Player from "../logic/player/player";
 import Replay from "../logic/replay";
-import { ActionType, ChessColor, ChessType, IRecord } from "../logic/types";
+import {
+  ActionType,
+  ChessColor,
+  ChessType,
+  IRecord,
+  IPosition
+} from "../logic/types";
 
 describe("replay", () => {
   let rep: Replay;
@@ -15,40 +21,44 @@ describe("replay", () => {
 
   it("setMapSeed", () => {
     chBoard.setMapSeed(100);
-    let reco = rep.recordList.find(n => n.actionType === ActionType.setMapSeed);
+    let reco = rep.recordList.find(n => n.actionType === "setMapSeed");
     assert(reco);
   });
 
   it("setMapSize", () => {
     chBoard.setMapSize(80, 80);
-    // let reco = _.find(recoList, reco => reco.action == ActionType.setMapSize);
-    let reco = rep.recordList.find(n => n.actionType === ActionType.setMapSize);
+    // let reco = _.find(recoList, reco => reco.action == 'setMapSize');
+    let reco = rep.recordList.find(n => n.actionType === "setMapSize");
     assert(reco.data.width === 80 && reco.data.height === 80);
   });
 
   it("setMapChess", () => {
     chBoard.setMapSize(8, 8);
-    let chList = [
+    let chList: {
+      color: ChessColor;
+      chessType: ChessType;
+      position: IPosition;
+    }[] = [
       {
-        color: ChessColor.red,
-        chessType: ChessType.footman,
+        color: "red",
+        chessType: "footman",
         position: { x: 1, y: 1 }
       },
       {
-        color: ChessColor.black,
-        chessType: ChessType.king,
+        color: "black",
+        chessType: "king",
         position: { x: 1, y: 2 }
       }
     ];
     chBoard.setMapChess(chList);
 
     let list: IRecord[];
-    list = rep.recordList.filter(n => n.actionType === ActionType.addChess);
+    list = rep.recordList.filter(n => n.actionType === "addChess");
     assert(list.length === 2);
     assert.deepEqual(list[0].data, {
-      chessType: ChessType.footman,
+      chessType: "footman",
       position: { x: 1, y: 1 },
-      chessColor: ChessColor.red
+      chessColor: "red"
     });
   });
 });

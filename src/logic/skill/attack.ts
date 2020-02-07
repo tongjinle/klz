@@ -4,7 +4,7 @@ import Skill from "./skill";
 
 // 普通攻击
 export default class Attack extends Skill {
-  type = SkillType.attack;
+  type: SkillType = "attack";
 
   getCastRangeOnPurpose() {
     let owner = this.owner;

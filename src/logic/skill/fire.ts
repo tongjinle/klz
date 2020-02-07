@@ -4,7 +4,7 @@ import Skill from "./skill";
 
 // 火球术
 export default class Fire extends Skill {
-  type = SkillType.fire;
+  type: SkillType = "fire";
 
   getCastRangeOnPurpose() {
     let owner = this.owner;

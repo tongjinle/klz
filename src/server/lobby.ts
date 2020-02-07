@@ -340,8 +340,8 @@ class Lobby {
 
     let chBoard = game.chessBoard;
     room.userIdList.forEach((userId, i) => {
-      chBoard.addPlayer(userId, i === 0 ? ChessColor.red : ChessColor.black);
-      chBoard.ready(userId, "ready");
+      chBoard.addPlayer(userId, i === 0 ? "red" : "black");
+      // chBoard.ready(userId, "ready");
     });
   }
 
@@ -350,4 +350,9 @@ class Lobby {
   //////////////////////////
 }
 
-export default Lobby;
+let lobby: Lobby;
+if (!lobby) {
+  lobby = new Lobby();
+}
+
+export default lobby;

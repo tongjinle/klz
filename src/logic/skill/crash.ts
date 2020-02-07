@@ -4,7 +4,7 @@ import Skill from "./skill";
 
 // 碾压
 export default class Crash extends Skill {
-  type = SkillType.crash;
+  type: SkillType = "crash";
 
   getCastRangeOnPurpose() {
     let owner = this.owner;
