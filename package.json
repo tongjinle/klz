@@ -6,8 +6,15 @@
   "scripts": {
     "start": "node ./dist/server/app.js",
     "test": "cross-env NODE_ENV=test npx mocha --require intelli-espower-loader dist/test/**/*.test.js",
-    "testapp": "cross-env NODE_ENV=test npx mocha --require intelli-espower-loader dist/test/**/app.test.js",
-    "testgame": "cross-env NODE_ENV=test npx mocha --require intelli-espower-loader dist/test/**/game.test.js",
+    "test:app": "cross-env NODE_ENV=test npx mocha --require intelli-espower-loader dist/test/**/app.test.js",
+    "test:chess": "cross-env NODE_ENV=test npx mocha --require intelli-espower-loader dist/test/**/chess.test.js",
+    "test:chessBoard": "cross-env NODE_ENV=test npx mocha --require intelli-espower-loader dist/test/**/chessBoard.test.js",
+    "test:chessBoard:pro": "cross-env NODE_ENV=test npx mocha --require intelli-espower-loader dist/test/**/chessBoardPro.test.js",
+    "test:game": "cross-env NODE_ENV=test npx mocha --require intelli-espower-loader dist/test/**/game.test.js",
+    "test:rangeApi": "cross-env NODE_ENV=test npx mocha --require intelli-espower-loader dist/test/**/rangeApi.test.js",
+    "test:replay:one": "cross-env NODE_ENV=test npx mocha --require intelli-espower-loader dist/test/**/replay.one.test.js",
+    "test:replay:parse": "cross-env NODE_ENV=test npx mocha --require intelli-espower-loader dist/test/**/replay.parse.test.js",
+    "test:replay:test": "cross-env NODE_ENV=test npx mocha --require intelli-espower-loader dist/test/**/replay.test.js",
     "clear": "rm -rf dist",
     "build": "npm run clear && tsc"
   },

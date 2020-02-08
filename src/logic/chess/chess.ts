@@ -68,9 +68,6 @@ export default abstract class Chess {
     this.status = "rest";
   }
 
-  // 棋子死亡
-  dead(): void {}
-
   //
   round(): void {
     this.status = "beforeChoose";
@@ -90,9 +87,6 @@ export default abstract class Chess {
   }
 
   public get activeSkillList(): Skill[] {
-    if (this.status !== "beforeMove" && this.status !== "beforeCast") {
-      return [];
-    }
     return this.skillList.filter(sk => this.getCastRange(sk.type).length);
   }
 
@@ -120,7 +114,9 @@ export default abstract class Chess {
     this.maxhp = this.hp;
   }
 
-  die(): void {}
+  die(): void {
+    console.log("die:", this.type);
+  }
 
   toString(): IChessInfo {
     let info: IChessInfo = {

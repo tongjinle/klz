@@ -33,6 +33,7 @@ import {
   HpChange,
   UnionChange
 } from "../types";
+import { AddPlayerRecord } from "../recordTypes";
 
 class ChessBoard {
   private maxEnergy = MAX_ENERGY;
@@ -173,7 +174,7 @@ class ChessBoard {
     p.name = playerName;
     p.color = color;
     p.status = "ready";
-    p.isChooseRest = false;
+    p.isChooseRest = true;
     p.energy = PLAYER_INIT_ENERGY;
 
     this.playerList.push(p);
@@ -210,6 +211,12 @@ class ChessBoard {
 
   /**开始游戏 */
   start() {
+    let reco: AddPlayerRecord = {
+      red: this.playerList.find(p => p.color === "red").name,
+      black: this.playerList.find(p => p.color === "black").name
+    };
+    this.writeRecord("addPlayer", reco);
+
     this.snapshot = this.toString();
 
     /**红色选手先走 */
@@ -258,7 +265,7 @@ class ChessBoard {
 
     if (p) {
       p.status = "thinking";
-      p.isChooseRest = false;
+      p.isChooseRest = true;
       this.currentPlayer = p;
       this.status = p.color;
     }
@@ -321,6 +328,7 @@ class ChessBoard {
     let ch = this.currentChess;
     let lastPosi = { ...ch.position };
     ch.move(position);
+    this.currentPlayer.isChooseRest = false;
 
     /**必须在rest前做好replay记录 */
     /**否则round会成为+1 */
@@ -393,6 +401,7 @@ class ChessBoard {
   castSkill(posi: IPosition): void {
     let lastChessHpDict = getChessHpDict(this.chessList);
     this.currentSkill.cast(posi);
+    this.currentPlayer.isChooseRest = false;
     let currentChessHpDict = getChessHpDict(this.chessList);
 
     /**记录生命值的变化 */
@@ -418,7 +427,6 @@ class ChessBoard {
       skillType: this.currentSkill.type
     });
     this.writeRecord("castSkill", { position: { ...posi } });
-
     this.rest();
 
     // 辅助函数
@@ -443,12 +451,14 @@ class ChessBoard {
 
       restType = "passive";
     } else {
+      console.log(this.currentPlayer);
       this.currentPlayer.energy += ACTIVE_REST_ENERGY;
+      console.log(this.currentPlayer);
 
       restType = "active";
 
       /**  write replay */
-      /**this.writeRecord(ActionType.rest, undefined); */
+      this.writeRecord("rest", undefined);
     }
 
     /**write change */

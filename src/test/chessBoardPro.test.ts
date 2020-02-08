@@ -1,17 +1,12 @@
 import assert = require("assert");
-import ChessBoard from "../logic/chessBoard/chessBoard";
-import Player from "../logic/player/player";
-import {
-  ChessColor,
-  PlayerStatus,
-  ChessStatus,
-  ChessBoardJudge,
-  SkillType
-} from "../logic/types";
+import * as api from "../logic/api";
 import Chess from "../logic/chess/chess";
 import EmptyChess from "../logic/chess/emptyChess";
+import ChessBoard from "../logic/chessBoard/chessBoard";
+import Player from "../logic/player/player";
 import EmptySkill from "../logic/skill/emptySkill";
-import * as api from "../logic/api";
+import { ChessBoardJudge, ChessColor, SkillType } from "../logic/types";
+import { ACTIVE_REST_ENERGY, PASSIVE_REST_ENERGY } from "../logic/config";
 
 const chessSort = (cha, chb) => chb.id - cha.id;
 
@@ -29,6 +24,8 @@ describe("chessBoard basis", () => {
 
     jack = chBoard.playerList.find(p => p.name == "jack");
     tom = chBoard.playerList.find(p => p.name == "tom");
+
+    chBoard.start();
   });
 
   // round可以强行设定当前行棋的选手
@@ -41,7 +38,7 @@ describe("chessBoard basis", () => {
   it("isChooseRest", () => {
     chBoard.turnRound("jack");
     assert(jack.status === "thinking");
-    assert(!jack.isChooseRest);
+    assert(jack.isChooseRest);
   });
 
   // // 获取可以被选择的的棋子
@@ -251,7 +248,7 @@ describe("chessBoard basis", () => {
       sk.getCastRange = n.getCastRange;
       ch.addSkill(sk);
     });
-
+    // console.log(ch.getMoveRange(), ch.activeSkillList);
     chBoard.chooseChess(ch);
     assert(ch.activeSkillList.length === 1);
     assert(ch.activeSkillList[0].type === "emptySkill");
@@ -278,8 +275,8 @@ describe("chessBoard basis", () => {
 
     let ch: Chess;
     let skList = [
-      { chId: 0, type: "fire", getCastRange: () => [{ x: 5, y: 5 }] },
-      { chId: 2, type: "fire", getCastRange: () => [{ x: 5, y: 5 }] },
+      { chId: 0, type: "emptySkill", getCastRange: () => [{ x: 5, y: 5 }] },
+      { chId: 2, type: "emptySkill", getCastRange: () => [{ x: 5, y: 5 }] },
       { chId: 0, type: "nova", getCastRange: () => [] }
     ];
     skList.forEach(n => {
@@ -290,12 +287,12 @@ describe("chessBoard basis", () => {
       ch.addSkill(sk);
     });
 
-    ch = chBoard.chessList.find(ch => ch.id === "fire");
+    ch = chBoard.chessList.find(ch => ch.id === "0");
 
     // 在选择了技能的情况下,可以反选
     // 反选之后,当前技能为空
     chBoard.chooseChess(ch);
-    chBoard.chooseSkill("fire");
+    chBoard.chooseSkill("emptySkill");
     assert(chBoard.currentSkill === ch.skillList[0]);
     chBoard.unChooseSkill();
     assert(!chBoard.currentSkill);
@@ -432,15 +429,17 @@ describe("chessBoard basis", () => {
     jack.energy = 0;
     tom.energy = 5;
     // 主动休息加4点能量
+    // console.log(chBoard.currentChess);
+    // console.log(chBoard.currentPlayer.isChooseRest);
     chBoard.rest();
-    assert(jack.energy === 4);
-    // 被动休息加2点能量
+    assert(jack.energy === ACTIVE_REST_ENERGY);
+    // // 被动休息加2点能量
     let ch = chBoard.chessList.find(ch => ch.id === "1");
     chBoard.chooseChess(ch);
     chBoard.moveChess({ x: 1, y: 3 });
     chBoard.rest();
     // 5-1+2
-    assert(tom.energy === 6);
+    assert(tom.energy === 5 - 1 + PASSIVE_REST_ENERGY);
   });
 
   // 判断胜负

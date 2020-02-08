@@ -66,6 +66,7 @@ describe("app", () => {
         socket.send(MessageType.enterRoomRequest, { roomId: firstRoomId });
         socket.on("message", (type, data: protocol.EnterRoomResponse) => {
           if (MessageType.enterRoomResponse === type) {
+            console.log("joinRoom done:", socket.id);
             resolve();
           }
         });
@@ -77,6 +78,7 @@ describe("app", () => {
         socket.send(MessageType.readyRequest);
         socket.on("message", (type, data: protocol.ReadyResponse) => {
           if (MessageType.readyResponse === type) {
+            console.log("ready done:", socket.id);
             resolve();
           }
         });
@@ -105,6 +107,8 @@ describe("app", () => {
         resolve();
       })
     ]);
+
+    console.log("before done");
   });
 
   afterEach(async function() {

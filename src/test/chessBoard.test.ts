@@ -35,8 +35,7 @@ describe("chessBoard", () => {
     assert(jack.status === "ready");
     assert(tom.status === "ready");
 
-    assert(chBoard.status === "beforeStart");
-
+    chBoard.start();
     assert(chBoard.status === "red");
   });
 });

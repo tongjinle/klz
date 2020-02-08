@@ -54,6 +54,7 @@ export default class Replay {
     ["addPlayer"]: (data: AddPlayerRecord) => {
       this.chessBoard.addPlayer(data.red, "red");
       this.chessBoard.addPlayer(data.black, "black");
+      this.chessBoard.start();
     },
     ["setMapSeed"]: (data: SetMapSeedRecord) => {
       this.chessBoard.setMapSeed(data.seed);

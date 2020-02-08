@@ -1,15 +1,7 @@
 import assert = require("assert");
-import {
-  ActionType,
-  SkillType,
-  ChessType,
-  IRecord,
-  ChessBoardStatus,
-  ChessColor,
-  ChessStatus
-} from "../logic/types";
-import Replay from "../logic/replay";
 import ChessBoard from "../logic/chessBoard/chessBoard";
+import Replay from "../logic/replay";
+import { IRecord } from "../logic/types";
 
 describe("read replay", () => {
   let recoList = [

@@ -26,6 +26,8 @@ describe("write replay", () => {
 
     jack = chBoard.getPlayerByName("jack");
     tom = chBoard.getPlayerByName("tom");
+
+    chBoard.start();
   });
 
   after(() => {
