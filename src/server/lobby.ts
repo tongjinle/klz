@@ -3,7 +3,7 @@ import { genUniqueId } from "../logic/api";
 import Game from "../logic/Game";
 import { ChessColor } from "../logic/types";
 import * as config from "./config";
-import { BaseResponse as FlagResponse } from "./protocol";
+import { BaseResponse as FlagResponse, BaseResponse } from "./protocol";
 import Room from "./room";
 import { RoomStatus, UserStatus } from "./types";
 import User from "./user";
@@ -142,7 +142,8 @@ class Lobby {
     }
 
     // room
-    if (this.canLeaveRoom(userId)) {
+    let can = this.canLeaveRoom(userId);
+    if (can.code === 0) {
       this.leaveRoom(userId);
     }
 
@@ -222,15 +223,18 @@ class Lobby {
    * @param userId 用户id
    * @returns FlagResponse
    */
-  canLeaveRoom(userId: string): FlagResponse {
-    let rst: FlagResponse = { code: 0 };
+  canLeaveRoom(userId: string): BaseResponse {
+    let rst: BaseResponse = { code: 0 };
     // 用户存在
     // 用户在房间中
     let user = this.findUser(userId);
     let roomId = user.roomId;
     let room = this.findRoom(roomId);
+    if (!room) {
+      return { code: -1, message: "房间不存在" };
+    }
     if (!room.userIdList.find(id => id === userId)) {
-      return { code: -1, message: "房间中不存在该用户" };
+      return { code: -2, message: "用户不在房间中" };
     }
 
     return rst;

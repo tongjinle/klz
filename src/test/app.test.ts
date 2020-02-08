@@ -74,7 +74,7 @@ describe("app", () => {
     return new Promise(resolve => {
       jack.on("message", (type, data) => {
         if (MessageType.enterRoomResponse === type) {
-          console.log(data);
+          // console.log(data);
           assert(data.code === 0);
           resolve();
         }
@@ -115,13 +115,13 @@ describe("app", () => {
   // jack离开房间
   // 期望:jack收到离开的res
   // 期望:tom收到jack离开的noti
-  xit("leaveRoom", async function() {
+  it("leaveRoom", async function() {
     jack.send(MessageType.leaveRoomRequest, { roomId: roomIdList[0] });
     return Promise.all([
       new Promise(resolve => {
         jack.on("message", (type, data: protocol.LeaveRoomResponse) => {
+          console.log("1:", data);
           if (MessageType.leaveRoomResponse === type) {
-            console.log(data);
             assert(data.code === 0);
             resolve();
           }
@@ -129,8 +129,8 @@ describe("app", () => {
       }),
       new Promise(resolve => {
         tom.on("message", (type, data: protocol.LeaveRoomNotify) => {
+          console.log("2:", data);
           if (MessageType.leaveRoomNotify === type) {
-            console.log(data);
             assert(data.userId === jack.id);
             resolve();
           }
@@ -141,7 +141,7 @@ describe("app", () => {
 
   // tom准备
   // 期望:tom收到res
-  xit("ready", async function() {
+  it("ready", async function() {
     tom.send(MessageType.readyRequest);
     return new Promise(resolve => {
       tom.on("message", (type, data: protocol.ReadyResponse) => {
@@ -155,7 +155,7 @@ describe("app", () => {
 
   // jack进入房间
   // 期望:jack在res中收到tom的准备状态
-  xit("enterRoom-after others ready", async function() {
+  it("enterRoom-after others ready", async function() {
     jack.send(MessageType.enterRoomRequest, { roomId: roomIdList[0] });
     return new Promise(resolve => {
       jack.on("message", (type, data: protocol.EnterRoomResponse) => {
