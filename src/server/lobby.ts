@@ -18,7 +18,7 @@ export interface IRoomInfo {
   gameId: string;
 }
 
-const { GAME_USER_COUNT, ROOM_COUNT } = config;
+const { ROOM_COUNT } = config;
 
 class Lobby {
   /**socket列表 */
@@ -89,7 +89,7 @@ class Lobby {
     };
   }
 
-  createGameByRule(rule: Rule): Game {
+  private createGameByRule(rule: Rule): Game {
     if (rule.gameName === "卡拉赞象棋") {
       let game = new Game();
       game.chessBoard.readMap("normal");
@@ -150,6 +150,11 @@ class Lobby {
     this.userList = this.userList.filter(user => user.id !== userId);
   }
 
+  /**
+   * Creates room
+   * @param name 房间名字
+   * @param rule 房间中游戏的规则
+   */
   private createRoom(name: string, rule: Rule): void {
     let room = new Room();
     room.id = genUniqueId();
@@ -162,7 +167,10 @@ class Lobby {
     this.roomList.push(room);
   }
 
-  // 房间是否已经满足人数
+  /**
+   * 房间是否已经满足人数
+   * @param room 房间
+   */
   isRoomFull(room: Room): boolean {
     return room.rule.requiredPlayer <= room.userIdList.length;
   }
@@ -310,17 +318,15 @@ class Lobby {
 
   // 是否房间可以开始游戏
   // 是否房间中的玩家已经满员,且都已经准备
-  canStartGame(roomId: string): boolean {
+  canStartGame(roomId: string): BaseResponse {
     let room = this.findRoom(roomId);
     if (!room) {
-      console.log("canStartGame:找不到房间", roomId);
-      return false;
+      return { code: -1, message: "找不到房间" };
     }
 
     // 是否满员
     if (!this.isRoomFull(room)) {
-      console.log("canStartGame:人员不够", room.userIdList);
-      return false;
+      return { code: -2, message: "房间游戏人数不够" };
     }
 
     let isAllReady: boolean = room.userIdList.every(userId => {
@@ -328,10 +334,10 @@ class Lobby {
       return user && user.status === "ready";
     });
     if (!isAllReady) {
-      return false;
+      return { code: -3, message: "房间中的人没有准备好" };
     }
 
-    return true;
+    return { code: 0 };
   }
 
   // 开始游戏
@@ -339,6 +345,8 @@ class Lobby {
   startGame(roomId) {
     let room = this.findRoom(roomId);
     let game = this.createGameByRule(room.rule);
+    this.gameList.push(game);
+
     room.gameId = game.id;
     room.status = "play";
 
@@ -348,10 +356,6 @@ class Lobby {
       // chBoard.ready(userId, "ready");
     });
   }
-
-  //////////////////////////
-  // HELP //
-  //////////////////////////
 }
 
 let lobby: Lobby;

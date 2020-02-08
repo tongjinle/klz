@@ -172,7 +172,7 @@ describe("app", () => {
 
   // tom反准备
   // 期望:jack收到tom反准备的noti
-  xit("unready", async function() {
+  it("unready", async function() {
     tom.send(MessageType.unReadyRequest);
     return new Promise(resolve => {
       jack.on("message", (type, data: protocol.UnReadyNotify) => {
@@ -188,7 +188,7 @@ describe("app", () => {
   // jack准备
   // 期望:tom收到jack准备的noti
   // 期望:因为都准备了,开启游戏,双方收到游戏开始的noti
-  xit("startGame", async function() {
+  it("startGame", async function() {
     this.timeout(10 * 1000);
     tom.send(MessageType.readyRequest);
     jack.send(MessageType.readyRequest);
