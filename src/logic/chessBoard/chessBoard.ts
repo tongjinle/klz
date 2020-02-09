@@ -31,9 +31,12 @@ import {
   EnergyChange,
   PositionChange,
   HpChange,
-  UnionChange
+  UnionChange,
+  Channel
 } from "../types";
 import { AddPlayerRecord } from "../recordTypes";
+import MessageType from "../../server/messageType";
+import { RoundNotify } from "../../server/protocol";
 
 class ChessBoard {
   private maxEnergy = MAX_ENERGY;
@@ -98,6 +101,9 @@ class ChessBoard {
 
   /**快照 */
   snapshot: IChessBoardInfo;
+
+  /**通信通道 */
+  channel: Channel;
 
   /**记录rep */
   writeRecord(action: ActionType, data: any) {
@@ -231,6 +237,7 @@ class ChessBoard {
   /**1.如果是第一回合,则红色下棋; */
   /**2.如果不是第一个回合,则交换为对手下棋 */
   turnRound(playerName?: string) {
+    console.log("turnRound start");
     let p: Player;
     let lastP: Player = this.currentPlayer;
 
@@ -271,6 +278,12 @@ class ChessBoard {
     }
 
     this.round++;
+
+    let roundDataNoti: RoundNotify = {
+      round: this.round,
+      userId: this.currentPlayer.name
+    };
+    this.channel && this.channel(MessageType.roundNotify, roundDataNoti);
   }
 
   /**获取可以被选择的棋子 */
@@ -323,6 +336,22 @@ class ChessBoard {
     this.currentSkill = undefined;
   }
 
+  canMoveChess(position: IPosition): boolean {
+    if (!this.currentChess) {
+      console.log("不存在当前棋子");
+      return false;
+    }
+    if (
+      !this.currentChess
+        .getMoveRange()
+        .find(({ x, y }) => position.x === x && position.y === y)
+    ) {
+      console.log("不在移动范围内");
+      return false;
+    }
+    return true;
+  }
+
   /**选手移动棋子 */
   moveChess(position: IPosition) {
     let ch = this.currentChess;
@@ -355,11 +384,11 @@ class ChessBoard {
   }
 
   /**能否选择技能 */
-  canChooseSkill(): boolean {
+  canChooseSkill(skType: SkillType): boolean {
     return (
       this.currentPlayer &&
       this.currentChess &&
-      this.currentChess.activeSkillList.length > 0
+      !!this.currentChess.activeSkillList.find(sk => sk.type === skType)
     );
   }
 
@@ -386,7 +415,7 @@ class ChessBoard {
   }
 
   /**能否选择技能施放坐标 */
-  canChooseSkillTarget(position: IPosition): boolean {
+  canCastSKill(position: IPosition): boolean {
     // 存在当前技能
     // 目标位置在技能施法位置列表中
     return (
@@ -418,6 +447,7 @@ class ChessBoard {
         this.writeChange("hp", change);
       }
     }
+    console.log(this.changeTable);
 
     /**移除死亡的棋子 */
     this.chessList.filter(ch => ch.hp === 0).forEach(ch => ch.die());

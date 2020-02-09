@@ -1,4 +1,5 @@
 import Chess from "./chess/chess";
+import MessageType from "../server/messageType";
 
 export interface IPosition {
   x: number;
@@ -91,6 +92,9 @@ export interface IRecord {
   actionType: ActionType;
   data: any;
 }
+
+// 游戏跟大厅的通信通道
+export type Channel = (type: MessageType, data: any) => void;
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////

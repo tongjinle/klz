@@ -19,6 +19,7 @@ function createAssert<T>(
 ) {
   return new Promise(resolve => {
     socket.on("message", (type: MessageType, data: T) => {
+      console.log(data);
       if (checkType === type) {
         check(data);
         resolve();
@@ -37,6 +38,42 @@ describe("app", () => {
 
   let redFootmanId: string;
   let blackMagicId: string;
+
+  // jack和tom加入房间,并且准备(确保串行)
+  let joinRoom = (socket: SocketIOClient.Socket) => {
+    return new Promise(resolve => {
+      socket.send(MessageType.enterRoomRequest, { roomId: firstRoomId });
+      socket.on("message", (type, data: protocol.EnterRoomResponse) => {
+        if (MessageType.enterRoomResponse === type) {
+          console.log("joinRoom done:", socket.id);
+          resolve();
+        }
+      });
+    });
+  };
+
+  let ready = (socket: SocketIOClient.Socket) => {
+    return new Promise(resolve => {
+      socket.send(MessageType.readyRequest);
+      socket.on("message", (type, data: protocol.ReadyResponse) => {
+        if (MessageType.readyResponse === type) {
+          console.log("ready done:", socket.id);
+          resolve();
+        }
+      });
+    });
+  };
+
+  let isStart = (socket: SocketIOClient.Socket) => {
+    return new Promise(resolve => {
+      socket.on("message", (type, data: protocol.GameStartNotify) => {
+        if (MessageType.gameStartNotify === type) {
+          gameInfo = data.info;
+          resolve();
+        }
+      });
+    });
+  };
 
   before(async function() {
     this.timeout(30 * 1000);
@@ -60,54 +97,6 @@ describe("app", () => {
 
     console.log({ firstRoomId });
 
-    // jack和tom加入房间,并且准备(确保串行)
-    let joinRoom = (socket: SocketIOClient.Socket) => {
-      return new Promise(resolve => {
-        socket.send(MessageType.enterRoomRequest, { roomId: firstRoomId });
-        socket.on("message", (type, data: protocol.EnterRoomResponse) => {
-          if (MessageType.enterRoomResponse === type) {
-            console.log("joinRoom done:", socket.id);
-            resolve();
-          }
-        });
-      });
-    };
-
-    let ready = (socket: SocketIOClient.Socket) => {
-      return new Promise(resolve => {
-        socket.send(MessageType.readyRequest);
-        socket.on("message", (type, data: protocol.ReadyResponse) => {
-          if (MessageType.readyResponse === type) {
-            console.log("ready done:", socket.id);
-            resolve();
-          }
-        });
-      });
-    };
-
-    let isStart = (socket: SocketIOClient.Socket) => {
-      return new Promise(resolve => {
-        socket.on("message", (type, data: protocol.GameStartNotify) => {
-          if (MessageType.gameStartNotify === type) {
-            gameInfo = data.info;
-            resolve();
-          }
-        });
-      });
-    };
-
-    await Promise.all([
-      isStart(jack),
-      new Promise(async resolve => {
-        await joinRoom(jack);
-        await ready(jack);
-
-        await joinRoom(tom);
-        await ready(tom);
-        resolve();
-      })
-    ]);
-
     console.log("before done");
   });
 
@@ -126,37 +115,46 @@ describe("app", () => {
     worker.kill();
   });
 
-  it("map", async function() {
-    this.timeout(10 * 1000);
-
-    assert(gameInfo.mapName === "normal");
-    assert(gameInfo.width === 8 && gameInfo.height === 8);
-    assert(gameInfo.seed);
-    assert(gameInfo.chessList && gameInfo.chessList.length);
-
-    redFootmanId = gameInfo.chessList.find(
-      ch => ch.position.x === 0 && ch.position.y === 1
-    ).id;
-
-    blackMagicId = gameInfo.chessList.find(
-      ch => ch.color === "black" && ch.type === "magic"
-    ).id;
-
-    console.log(gameInfo.chessList);
-  });
-
   // 请求回合
   // 请求当前玩家
   it("round", async function() {
-    jack.send(MessageType.roundRequest);
-    await createAssert<protocol.RoundResponse>(
-      jack,
-      MessageType.roundResponse,
-      data => {
-        assert(data.round === 1);
-        assert(data.userId === jack.id);
-      }
-    );
+    this.timeout(10 * 1000);
+
+    Promise.all([
+      createAssert<protocol.RoundNotify>(
+        jack,
+        MessageType.roundNotify,
+        data => {
+          assert(data.round === 1);
+          assert(data.userId === jack.id);
+        }
+      ),
+      createAssert<protocol.GameStartNotify>(
+        jack,
+        MessageType.gameStartNotify,
+        data => {
+          gameInfo = data.info;
+          redFootmanId = gameInfo.chessList.find(
+            ch => ch.position.x === 0 && ch.position.y === 1
+          ).id;
+
+          blackMagicId = gameInfo.chessList.find(
+            ch => ch.color === "black" && ch.type === "magic"
+          ).id;
+
+          assert(gameInfo.mapName === "normal");
+          assert(gameInfo.width === 8 && gameInfo.height === 8);
+          assert(gameInfo.seed);
+          assert(gameInfo.chessList && gameInfo.chessList.length);
+        }
+      )
+    ]);
+
+    // 全部准备,开始游戏
+    await joinRoom(jack);
+    await ready(jack);
+    await joinRoom(tom);
+    await ready(tom);
   });
 
   it("activeChessList", async function() {
@@ -227,28 +225,31 @@ describe("app", () => {
   it("move chess", async function() {
     let reqData: protocol.MoveChessRequest = { position: { x: 0, y: 2 } };
     jack.send(MessageType.moveChessRequest, reqData);
-    await createAssert<protocol.MoveChessResponse>(
-      jack,
-      MessageType.moveChessResponse,
-      data => {
-        console.log(data);
-        assert(data.code === 0);
-      }
-    );
 
-    await createAssert<protocol.MoveChessNotify>(
-      tom,
-      MessageType.moveChessNotify,
-      data => {
-        console.log(data);
-        assert.deepEqual(data, {
-          userId: jack.id,
-          position: { x: 0, y: 2 },
-          chessId: redFootmanId
-        });
-        assert(data.position);
-      }
-    );
+    Promise.all([
+      createAssert<protocol.MoveChessResponse>(
+        jack,
+        MessageType.moveChessResponse,
+        data => {
+          console.log(data);
+          assert(data.code === 0);
+        }
+      ),
+
+      createAssert<protocol.MoveChessNotify>(
+        tom,
+        MessageType.moveChessNotify,
+        data => {
+          console.log(data);
+          assert.deepEqual(data, {
+            userId: jack.id,
+            position: { x: 0, y: 2 },
+            chessId: redFootmanId
+          });
+          assert(data.position);
+        }
+      )
+    ]);
   });
 
   // 现在轮到tom的回合
@@ -256,14 +257,20 @@ describe("app", () => {
   it("round-tom", async function() {
     jack.send(MessageType.roundRequest);
 
-    await createAssert<protocol.RoundResponse>(
-      jack,
-      MessageType.roundResponse,
-      data => {
+    Promise.all([
+      createAssert<protocol.RoundNotify>(
+        jack,
+        MessageType.roundNotify,
+        data => {
+          console.log(data);
+          assert(data.userId === tom.id);
+        }
+      ),
+      createAssert<protocol.RoundNotify>(tom, MessageType.roundNotify, data => {
         console.log(data);
         assert(data.userId === tom.id);
-      }
-    );
+      })
+    ]);
   });
 
   // tom选择magic
@@ -330,40 +337,43 @@ describe("app", () => {
         assert(data.skillTypeList.find(skType => skType === "fire"));
       }
     );
+  });
 
-    {
-      let reqData: protocol.ChooseSkillRequest = { skillType: "fire" };
-      tom.send(MessageType.chooseSkillRequest, reqData);
-      await createAssert<protocol.ChooseSkillResponse>(
-        tom,
-        MessageType.chooseSkillResponse,
-        data => {
-          assert(data.code === 0);
-        }
-      );
-    }
+  it("tom选择fire技能", async function() {
+    let reqData: protocol.ChooseSkillRequest = { skillType: "fire" };
+    tom.send(MessageType.chooseSkillRequest, reqData);
+    await createAssert<protocol.ChooseSkillResponse>(
+      tom,
+      MessageType.chooseSkillResponse,
+      data => {
+        assert(data.code === 0);
+      }
+    );
   });
 
   it('tom对(4,1)的棋子使用技能"fire"', async function() {
     let reqData: protocol.CastSkillRequest = { position: { x: 4, y: 1 } };
     tom.send(MessageType.castSkillRequest, reqData);
-    await createAssert<protocol.CastSkillResponse>(
-      tom,
-      MessageType.castSkillResponse,
-      data => {
-        assert(data.code === 0);
-      }
-    );
 
-    await createAssert<protocol.CastSkillNotify>(
-      jack,
-      MessageType.castSkillNotify,
-      data => {
-        assert(data.change.type === "hp");
-        let change: HpChange = data.change.data as HpChange;
-        assert(change.abs === 0 && change.rela === -4);
-      }
-    );
+    Promise.all([
+      createAssert<protocol.CastSkillResponse>(
+        tom,
+        MessageType.castSkillResponse,
+        data => {
+          assert(data.code === 0);
+        }
+      ),
+
+      createAssert<protocol.CastSkillNotify>(
+        jack,
+        MessageType.castSkillNotify,
+        data => {
+          assert(data.change.type === "hp");
+          let change: HpChange = data.change.data as HpChange;
+          assert(change.abs === 0 && change.rela === -4);
+        }
+      )
+    ]);
   });
 
   // 监听游戏的结束(所有人)

@@ -8,6 +8,8 @@ import Room from "./room";
 import { RoomStatus, UserStatus } from "./types";
 import User from "./user";
 import Rule, { KlzRule } from "./rule";
+import actionFactory from "./messageHandle/factory/actionFactory";
+import MessageType from "./messageType";
 
 export interface IRoomInfo {
   id: string;
@@ -345,16 +347,38 @@ class Lobby {
   startGame(roomId) {
     let room = this.findRoom(roomId);
     let game = this.createGameByRule(room.rule);
+    game.setChannel((type, data) => {
+      console.log("in channel", type, data);
+      this.notifyAllInRoom(roomId, type, data);
+    });
     this.gameList.push(game);
 
     room.gameId = game.id;
     room.status = "play";
 
+    room.userIdList.forEach(userId => {
+      let user = this.findUser(userId);
+      user.gameId = game.id;
+    });
+
     let chBoard = game.chessBoard;
     room.userIdList.forEach((userId, i) => {
       chBoard.addPlayer(userId, i === 0 ? "red" : "black");
-      // chBoard.ready(userId, "ready");
     });
+    chBoard.start();
+  }
+
+  notifyAllInRoom(roomId: string, type: MessageType, data: any) {
+    let room = this.findRoom(roomId);
+    // console.log("messageHandle.notifyAllInRoom:", room.userIdList);
+    room.userIdList
+      .map(userId => lobby.findSocket(userId))
+      .forEach(socket => {
+        if (!socket) {
+          throw "invalid socket";
+        }
+        socket.send(type, data);
+      });
   }
 }
 

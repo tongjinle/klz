@@ -58,9 +58,9 @@ export type ChooseChessNotify = { userId: string; position: IPosition };
 // 反选择棋子
 export type UnChooseChessRequest = {};
 export type UnChooseChessResponse = {} & BaseResponse;
-export type UnChooseChessNotify = { userId: string; position: IPosition };
+export type UnChooseChessNotify = {};
 
-// 反选择棋子
+// 移动位置
 export type RangeRequest = {};
 export type RangeResponse = { positionList: IPosition[] } & BaseResponse;
 
